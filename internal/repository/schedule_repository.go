@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	//"fmt"
 	"hexlet/internal/domain"
 	"time"
 
@@ -35,7 +37,7 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
         LIMIT $1`
 		rows, err := r.SlavePool.Query(taskCtx, query, batchSize)
 		if err != nil {
-			fmt.Printf("CRON: failed to query scheduled publications: %v\n", err)
+			r.logger.Error("CRON: failed to query scheduled publications: ", zap.Error(err))
 			return
 		}
 		defer rows.Close()
@@ -52,24 +54,24 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 				&pub.Platform_name,
 			)
 			if err != nil {
-				fmt.Printf("CRON: failed to scan publication: %v\n", err)
+				r.logger.Error("CRON: failed to scan publication: ", zap.Error(err))
 				continue
 			}
 			publications = append(publications, pub)
 		}
 		for _, pub := range publications {
-			fmt.Printf("Отправляем в Kafka пост %d для публикации в %s\n",
-				pub.ID_post, pub.Platform_name)
+			r.logger.Info("Отправляем в Kafka пост для публикации ",
+				zap.Int("post_id", pub.ID_post),
+				zap.String("platform_name", pub.Platform_name),
+			)
 		}
-
-		fmt.Printf("Найдено %d постов для публикации в %v\n",
-			len(publications), time.Now())
+		r.logger.Info("Найдено постов для публикации", zap.Int("quantity", len(publications)), zap.Time("time", time.Now()))
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to add cron job: %w", err)
 	}
 	c.Start()
-	fmt.Println("Автопостинг запущен, проверка каждую минуту")
+	r.logger.Info("Автопостинг запущен, проверка каждую минуту")
 	return publications, nil
 }
 

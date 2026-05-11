@@ -27,34 +27,35 @@ func main() {
 
 	r := gin.Default()
 	ctx := context.Background()
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("failed to init logger: %v", err) //не знаю как правильно сделать если логер не смог запуститься
+	}
+	defer logger.Sync()
+	logger.Info("Logger configured successfully")
 	mastercfg, err := config.LoadConfigMaster()
 	if err != nil {
-		log.Fatal("Cannot load master config:", err)
+		logger.Fatal("Cannot load master config:", zap.Error(err))
 	}
-
-	dbpoolmaster, err := storage.InitDBConn(ctx, mastercfg)
+	dbpoolmaster, err := storage.InitDBConn(ctx, mastercfg, logger)
 	if err != nil {
-		log.Fatalf("failed to init master DB connection: %v", err)
+		logger.Fatal("Failed to init master DB connection:", zap.Error(err))
 	}
-	log.Println("Succes master DB conection")
+	logger.Info("Succes master DB conection")
 	defer dbpoolmaster.Close()
 	slavecfg, err := config.LoadConfigSlave()
 	if err != nil {
-		log.Fatal("Cannot load slave config:", err)
+		logger.Fatal("Cannot load slave config:", zap.Error(err))
 	}
-	dbpoolslave, err := storage.InitDBConn(ctx, slavecfg)
+	dbpoolslave, err := storage.InitDBConn(ctx, slavecfg, logger)
 	if err != nil {
-		log.Fatalf("failed to init slave DB connection: %v", err)
+		logger.Fatal("Failed to init slave DB connection:", zap.Error(err))
 	}
-	log.Println("Succes slave DB conection")
+	logger.Info("Succes slave DB conection")
 	defer dbpoolslave.Close()
-	logger, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("failed to init logger: %v", err)
-	}
-	defer logger.Sync()
+
 	a := app.NewApp(ctx, dbpoolmaster, dbpoolslave, logger)
-	a.StartScheduler()
+	a.StartScheduler(logger)
 	auth.NewAuth()
 	go func() {
 		time.Sleep(30 * time.Second)
@@ -69,31 +70,30 @@ func main() {
 		}
 		reader := kafka.NewReader(readerConfig)
 		defer reader.Close()
-		log.Println("Kafka consumer started. Waiting for messages...")
+		logger.Info("Kafka consumer started. Waiting for messages...")
 		for {
 			msg, err := reader.ReadMessage(ctx)
 			if err != nil {
 				if err == context.Canceled {
-					log.Println("Kafka consumer stopped")
+					logger.Info("Kafka consumer stopped")
 					return
 				}
-				log.Printf("Error reading from Kafka: %v", err)
+				logger.Error("Error reading from Kafka: %v", zap.Error(err))
 				time.Sleep(2 * time.Second)
 				continue
 			}
-			log.Printf("Received Kafka message: %s", string(msg.Value))
-			a.StartBackgroundWorker(msg)
+			logger.Info("Received Kafka message", zap.String("payload", string(msg.Value)))
+			a.StartBackgroundWorker(msg, logger)
 		}
 	}()
-
-	log.Println("Kafka scheduler started")
+	logger.Info("Kafka scheduler started")
 	a.Routes(r)
 	go func() {
-		log.Println("HTTP server starting on :8080")
+		logger.Info("HTTP server starting on :8080")
 		err := r.Run(":8080")
 		if err != nil {
-			log.Fatal(err)
+			logger.Error("Error starting server: %v", zap.Error(err))
 		}
 	}()
-	a.WaitForShutdown()
+	a.WaitForShutdown(logger)
 }

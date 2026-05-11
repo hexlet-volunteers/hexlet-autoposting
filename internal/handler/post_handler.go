@@ -8,7 +8,6 @@ import (
 	"hexlet/internal/domain"
 	"hexlet/internal/dto"
 	"hexlet/internal/repository"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -203,7 +202,6 @@ func (a *App) GetPost(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	log.Print(id, request.ID_user)
 	post, err := a.Repo.GetPostByID(a.Ctx, id, request.ID_user)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": err})

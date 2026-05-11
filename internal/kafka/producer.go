@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
 	"hexlet/internal/domain"
 
 	"github.com/segmentio/kafka-go"
+	"go.uber.org/zap"
 )
 
 type Producer struct {
@@ -33,7 +33,7 @@ func NewProducer(cfg *Config) *Producer {
 	}
 }
 
-func (p *Producer) SendPublicationEvent(ctx context.Context, event domain.PublicationEvent) error {
+func (p *Producer) SendPublicationEvent(ctx context.Context, event domain.PublicationEvent, logger *zap.Logger) error {
 	eventJSON, err := json.Marshal(event)
 	if err != nil {
 		return fmt.Errorf("failed to marshal event: %w", err)
@@ -48,8 +48,10 @@ func (p *Producer) SendPublicationEvent(ctx context.Context, event domain.Public
 	if err != nil {
 		return fmt.Errorf("failed to write message to kafka: %w", err)
 	}
-
-	log.Printf("Successfully sent publication event to Kafka topic '%s': %s", p.topic, string(eventJSON))
+	logger.Info("Successfully sent publication event to Kafka topic",
+		zap.String("topic", p.topic),
+		zap.String("eventJSON", string(eventJSON)),
+	)
 	return nil
 }
 
