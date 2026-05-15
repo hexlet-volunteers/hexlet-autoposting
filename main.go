@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// @title           Autoposing API
+// @title           Autoposting API
 // @version         1.0
 // @description     This is a project of autoposting in Telegramm and VK.
 
@@ -56,7 +56,10 @@ func main() {
 
 	a := app.NewApp(ctx, dbpoolmaster, dbpoolslave, logger)
 	a.StartScheduler(logger)
-	auth.NewAuth()
+	err = auth.NewAuth()
+	if err != nil {
+		logger.Fatal("Failed to do auth system:", zap.Error(err))
+	}
 	go func() {
 		time.Sleep(30 * time.Second)
 		readerConfig := kafka.ReaderConfig{
