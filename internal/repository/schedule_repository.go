@@ -45,13 +45,13 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 		for rows.Next() {
 			var pub domain.ScheduledPublication
 			err := rows.Scan(
-				&pub.ID_destination,
-				&pub.ID_post,
-				&pub.ID_user,
+				&pub.IDDestination,
+				&pub.IDPost,
+				&pub.IDUser,
 				&pub.Title,
 				&pub.Content,
-				&pub.ID_platform,
-				&pub.Platform_name,
+				&pub.IDPlatform,
+				&pub.PlatformName,
 			)
 			if err != nil {
 				r.logger.Error("CRON: failed to scan publication: ", zap.Error(err))
@@ -61,8 +61,8 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 		}
 		for _, pub := range publications {
 			r.logger.Info("Отправляем в Kafka пост для публикации ",
-				zap.Int("post_id", pub.ID_post),
-				zap.String("platform_name", pub.Platform_name),
+				zap.Int("post_id", pub.IDPost),
+				zap.String("PlatformName", pub.PlatformName),
 			)
 		}
 		r.logger.Info("Найдено постов для публикации", zap.Int("quantity", len(publications)), zap.Time("time", time.Now()))
@@ -75,8 +75,8 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 	return publications, nil
 }
 
-func (r *Repository) GetPlatformsByUserID(ctx context.Context, platform_name string, userID string) (domain.PlatformSQL, error) {
-	query := "SELECT platform_name, api_config, is_active FROM platforms WHERE user_id = $1"
+func (r *Repository) GetPlatformsByUserID(ctx context.Context, PlatformName string, userID string) (domain.PlatformSQL, error) {
+	query := "SELECT PlatformName, api_config, is_active FROM platforms WHERE user_id = $1"
 	rows, err := r.SlavePool.Query(ctx, query, userID)
 	if err != nil {
 		r.logger.Error("GetPlatformsByUserID failed in query",
@@ -98,7 +98,7 @@ func (r *Repository) GetPlatformsByUserID(ctx context.Context, platform_name str
 			)
 			return domain.PlatformSQL{}, err
 		}
-		if !platform.IsActive || platform.PlatformName != platform_name {
+		if !platform.IsActive || platform.PlatformName != PlatformName {
 			r.logger.Error("GetPlatformsByUserID not active",
 				zap.Error(err),
 				zap.String("user_id", userID),

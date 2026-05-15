@@ -13,16 +13,16 @@ import (
 
 type PostRepository interface {
 	CreatePost(ctx context.Context, post dto.CreatePostRequest) (int, time.Time, error)
-	GetPost(ctx context.Context, ID_user string) (dto.GetPostsResponce, error)
-	GetPostByID(ctx context.Context, ID_post int, ID_user string) (dto.GetPostResponce, error)
-	DeletePostByID(ctx context.Context, ID_post int) error
-	UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponce, error)
+	GetPost(ctx context.Context, IDUser string) (dto.GetPostsResponse, error)
+	GetPostByID(ctx context.Context, IDPost int, IDUser string) (dto.GetPostResponse, error)
+	DeletePostByID(ctx context.Context, IDPost int) error
+	UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponse, error)
 
 	CreatePlatform(ctx context.Context, platform dto.CreatePlatformRequest) (int, time.Time, error)
-	GetPlatform(ctx context.Context, ID_user string) (dto.GetPlatformResponce, error)
-	GetPlatformByID(ctx context.Context, ID_platform int, ID_user string) (domain.Platform, error)
-	DeletePlatformByID(ctx context.Context, ID_platform int) error
-	UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponce, error)
+	GetPlatform(ctx context.Context, IDUser string) (dto.GetPlatformResponse, error)
+	GetPlatformByID(ctx context.Context, IDPlatform int, IDUser string) (domain.Platform, error)
+	DeletePlatformByID(ctx context.Context, IDPlatform int) error
+	UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponse, error)
 }
 type Repository struct {
 	MasterPool *pgxpool.Pool
@@ -45,7 +45,7 @@ CREATE TABLE posts (
     user_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    CreatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE post_destinations (
     id SERIAL PRIMARY KEY,
@@ -56,131 +56,131 @@ CREATE TABLE post_destinations (
     published_at TIMESTAMP WITH TIME ZONE,
     status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'published', 'failed','processing')),
     error_message TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    CreatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 */
-func (r *Repository) GetPostByID(ctx context.Context, ID_post int, ID_user string) (dto.GetPostResponce, error) {
-	rows, err := r.SlavePool.Query(ctx, "SELECT user_id, platform_id, scheduled_for, status, error_message FROM post_destinations WHERE post_id=$1 AND user_id=$2 ", ID_post, ID_user)
+func (r *Repository) GetPostByID(ctx context.Context, IDPost int, IDUser string) (dto.GetPostResponse, error) {
+	rows, err := r.SlavePool.Query(ctx, "SELECT user_id, platform_id, scheduled_for, status, error_message FROM post_destinations WHERE post_id=$1 AND user_id=$2 ", IDPost, IDUser)
 	if err != nil {
 		r.logger.Error("GetPostByID failed in selecting from post_destinations",
 			zap.Error(err),
-			zap.Int("post_id", ID_post),
-			zap.String("user_id", ID_user),
+			zap.Int("post_id", IDPost),
+			zap.String("user_id", IDUser),
 		)
-		return dto.GetPostResponce{}, err
+		return dto.GetPostResponse{}, err
 	}
 	defer rows.Close()
-	res := dto.GetPostResponce{}
+	res := dto.GetPostResponse{}
 	res.Posts = []domain.Post{}
 	for rows.Next() {
 		p1 := domain.Post{}
-		p1.ID_post = ID_post
-		err := rows.Scan(&p1.ID_user, &p1.ID_platform, &p1.Sheduled_for, &p1.Status, &p1.ErrorMessage)
+		p1.IDPost = IDPost
+		err := rows.Scan(&p1.IDUser, &p1.IDPlatform, &p1.SheduledFor, &p1.Status, &p1.ErrorMessage)
 		if err != nil {
 			r.logger.Error("GetPostByID failed in scaning",
 				zap.Error(err),
-				zap.Int("post_id", ID_post),
-				zap.String("user_id", ID_user),
+				zap.Int("post_id", IDPost),
+				zap.String("user_id", IDUser),
 			)
 			return res, err
 		}
-		err = r.SlavePool.QueryRow(ctx, "SELECT title, content, created_at FROM posts WHERE id=$1", p1.ID_post).Scan(
-			&p1.Title, &p1.Content, &p1.Created_at)
+		err = r.SlavePool.QueryRow(ctx, "SELECT title, content, created_at FROM posts WHERE id=$1", p1.IDPost).Scan(
+			&p1.Title, &p1.Content, &p1.CreatedAt)
 		if err != nil {
 			r.logger.Error("GetPostByID failed in selecting from posts",
 				zap.Error(err),
-				zap.Int("post_id", ID_post),
-				zap.String("user_id", ID_user),
+				zap.Int("post_id", IDPost),
+				zap.String("user_id", IDUser),
 			)
 			return res, err
 		}
-		err = r.SlavePool.QueryRow(ctx, "SELECT platform_name FROM platforms WHERE id=$1", p1.ID_platform).Scan(
+		err = r.SlavePool.QueryRow(ctx, "SELECT platform_name FROM platforms WHERE id=$1", p1.IDPlatform).Scan(
 			&p1.PlatformName)
 		if err != nil {
 			r.logger.Error("GetPostByID failed in selecting from platforms",
 				zap.Error(err),
-				zap.Int("post_id", ID_post),
-				zap.String("user_id", ID_user),
+				zap.Int("post_id", IDPost),
+				zap.String("user_id", IDUser),
 			)
 			return res, err
 		}
-		p1.Sheduled_for = p1.Sheduled_for.Add(3 * time.Hour)
-		p1.Created_at = p1.Created_at.Add(3 * time.Hour)
+		p1.SheduledFor = p1.SheduledFor.Add(3 * time.Hour)
+		p1.CreatedAt = p1.CreatedAt.Add(3 * time.Hour)
 		res.Posts = append(res.Posts, p1)
 	}
 	return res, nil
 }
 
-func (r *Repository) DeletePostByID(ctx context.Context, ID_post int) error {
-	_, err := r.MasterPool.Exec(ctx, "DELETE FROM posts WHERE id=$1", ID_post)
+func (r *Repository) DeletePostByID(ctx context.Context, IDPost int) error {
+	_, err := r.MasterPool.Exec(ctx, "DELETE FROM posts WHERE id=$1", IDPost)
 	if err != nil {
 		r.logger.Error("DeletePostByID failed in deleting in posts",
 			zap.Error(err),
-			zap.Int("post_id", ID_post),
+			zap.Int("post_id", IDPost),
 		)
 		return err
 	}
-	_, err = r.MasterPool.Exec(ctx, "DELETE FROM post_destinations WHERE post_id=$1", ID_post)
+	_, err = r.MasterPool.Exec(ctx, "DELETE FROM post_destinations WHERE post_id=$1", IDPost)
 	if err != nil {
 		r.logger.Error("DeletePostByID failed in deleting in post_destinations",
 			zap.Error(err),
-			zap.Int("post_id", ID_post),
+			zap.Int("post_id", IDPost),
 		)
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) GetPost(ctx context.Context, ID_user string) (dto.GetPostsResponce, error) {
-	rows, err := r.SlavePool.Query(ctx, "SELECT post_id, platform_id, scheduled_for, status, error_message FROM post_destinations WHERE user_id=$1", ID_user)
+func (r *Repository) GetPost(ctx context.Context, IDUser string) (dto.GetPostsResponse, error) {
+	rows, err := r.SlavePool.Query(ctx, "SELECT post_id, platform_id, scheduled_for, status, error_message FROM post_destinations WHERE user_id=$1", IDUser)
 	if err != nil {
 		r.logger.Error("GetPost failed in selecting from post_destinations",
 			zap.Error(err),
-			zap.String("user_id", ID_user),
+			zap.String("user_id", IDUser),
 		)
-		return dto.GetPostsResponce{}, err
+		return dto.GetPostsResponse{}, err
 	}
 	defer rows.Close()
-	res := dto.GetPostsResponce{}
+	res := dto.GetPostsResponse{}
 	res.Processing = []domain.Post{}
 	res.Scheduled = []domain.Post{}
 	res.Published = []domain.Post{}
 	res.Failed = []domain.Post{}
 	for rows.Next() {
 		p1 := domain.Post{}
-		p1.ID_user = ID_user
-		err := rows.Scan(&p1.ID_post, &p1.ID_platform, &p1.Sheduled_for, &p1.Status, &p1.ErrorMessage)
+		p1.IDUser = IDUser
+		err := rows.Scan(&p1.IDPost, &p1.IDPlatform, &p1.SheduledFor, &p1.Status, &p1.ErrorMessage)
 		if err != nil {
 			r.logger.Error("GetPost failed in scaning",
 				zap.Error(err),
-				zap.Int("post_id", p1.ID_post),
-				zap.String("user_id", ID_user),
+				zap.Int("post_id", p1.IDPost),
+				zap.String("user_id", IDUser),
 			)
-			return dto.GetPostsResponce{}, err
+			return dto.GetPostsResponse{}, err
 		}
-		err = r.SlavePool.QueryRow(ctx, "SELECT title, content, created_at FROM posts WHERE id=$1", p1.ID_post).Scan(
-			&p1.Title, &p1.Content, &p1.Created_at)
+		err = r.SlavePool.QueryRow(ctx, "SELECT title, content, created_at FROM posts WHERE id=$1", p1.IDPost).Scan(
+			&p1.Title, &p1.Content, &p1.CreatedAt)
 		if err != nil {
 			r.logger.Error("GetPost failed in selecting from posts",
 				zap.Error(err),
-				zap.Int("post_id", p1.ID_post),
-				zap.String("user_id", ID_user),
+				zap.Int("post_id", p1.IDPost),
+				zap.String("user_id", IDUser),
 			)
-			return dto.GetPostsResponce{}, err
+			return dto.GetPostsResponse{}, err
 		}
-		err = r.SlavePool.QueryRow(ctx, "SELECT platform_name FROM platforms WHERE id=$1", p1.ID_platform).Scan(
+		err = r.SlavePool.QueryRow(ctx, "SELECT platform_name FROM platforms WHERE id=$1", p1.IDPlatform).Scan(
 			&p1.PlatformName)
 		if err != nil {
 			r.logger.Error("GetPost failed in selecting from platforms",
 				zap.Error(err),
-				zap.Int("platform_id", p1.ID_platform),
-				zap.String("user_id", ID_user),
+				zap.Int("platform_id", p1.IDPlatform),
+				zap.String("user_id", IDUser),
 			)
-			return dto.GetPostsResponce{}, err
+			return dto.GetPostsResponse{}, err
 		}
-		p1.Sheduled_for = p1.Sheduled_for.Add(3 * time.Hour)
-		p1.Created_at = p1.Created_at.Add(3 * time.Hour)
+		p1.SheduledFor = p1.SheduledFor.Add(3 * time.Hour)
+		p1.CreatedAt = p1.CreatedAt.Add(3 * time.Hour)
 		switch p1.Status {
 		case "processing":
 			res.Processing = append(res.Processing, p1)
@@ -195,55 +195,55 @@ func (r *Repository) GetPost(ctx context.Context, ID_user string) (dto.GetPostsR
 	return res, nil
 }
 
-func (r *Repository) UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponce, error) {
+func (r *Repository) UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponse, error) {
 	_, err := r.MasterPool.Exec(ctx, `
 		UPDATE posts 
 		SET title = $1, content = $2 
 		WHERE id = $3 AND user_id = $4`,
-		req.Title, req.Content, req.ID_post, req.ID_user,
+		req.Title, req.Content, req.IDPost, req.IDUser,
 	)
 	if err != nil {
 		r.logger.Error("UpdatePostByID failed in updating in posts",
 			zap.Error(err),
-			zap.String("user_id", req.ID_user),
-			zap.Int("post_id", req.ID_post),
+			zap.String("user_id", req.IDUser),
+			zap.Int("post_id", req.IDPost),
 		)
-		return dto.PutPostResponce{}, err
+		return dto.PutPostResponse{}, err
 	}
 	_, err = r.MasterPool.Exec(ctx, `
 		UPDATE post_destinations
 		SET scheduled_for = $1
 		WHERE id = $2 AND user_id = $3`,
-		req.Sheduled_for, req.ID_post, req.ID_user,
+		req.SheduledFor, req.IDPost, req.IDUser,
 	)
 	if err != nil {
 		r.logger.Error("UpdatePostByID failed in updating in post_destinations",
 			zap.Error(err),
-			zap.String("user_id", req.ID_user),
-			zap.Int("post_id", req.ID_post),
+			zap.String("user_id", req.IDUser),
+			zap.Int("post_id", req.IDPost),
 		)
-		return dto.PutPostResponce{}, err
+		return dto.PutPostResponse{}, err
 	}
-	id_post := req.ID_post
-	return dto.PutPostResponce{ID_post: id_post, ID_user: req.ID_user, Updated_at: time.Now()}, nil
+	IDPost := req.IDPost
+	return dto.PutPostResponse{IDPost: IDPost, IDUser: req.IDUser, UpdatedAt: time.Now()}, nil
 }
 func (r *Repository) CreatePost(ctx context.Context, post dto.CreatePostRequest) (int, time.Time, error) {
 	var ID int
 	var createdAt time.Time
 	err := r.MasterPool.QueryRow(ctx, `INSERT INTO posts (user_id, title, content) VALUES ($1, $2, $3) RETURNING id, created_at;`,
-		post.ID_user, post.Title, post.Content).Scan(&ID, &createdAt)
+		post.IDUser, post.Title, post.Content).Scan(&ID, &createdAt)
 	if err != nil {
 		r.logger.Error("CreatePost failed in inserting to posts",
 			zap.Error(err),
-			zap.String("user_id", post.ID_user),
+			zap.String("user_id", post.IDUser),
 		)
 		return ID, createdAt, err
 	}
-	platforms_ids, err := r.SlavePool.Query(ctx, "SELECT id FROM platforms WHERE user_id=$1", post.ID_user)
+	platforms_ids, err := r.SlavePool.Query(ctx, "SELECT id FROM platforms WHERE user_id=$1", post.IDUser)
 	if err != nil {
 		r.logger.Error("CreatePost failed in selecting",
 			zap.Error(err),
-			zap.String("user_id", post.ID_user),
+			zap.String("user_id", post.IDUser),
 		)
 		return ID, createdAt, err
 	}
@@ -254,17 +254,17 @@ func (r *Repository) CreatePost(ctx context.Context, post dto.CreatePostRequest)
 		if err != nil {
 			r.logger.Error("CreatePost failed in scaning",
 				zap.Error(err),
-				zap.String("user_id", post.ID_user),
+				zap.String("user_id", post.IDUser),
 			)
 			return 0, createdAt, err
 		}
 		_, err1 := r.MasterPool.Exec(ctx,
 			`INSERT INTO post_destinations (user_id, post_id, platform_id,status, scheduled_for) VALUES ($1, $2, $3, $4,$5)`,
-			post.ID_user, ID, platform_id, "scheduled", post.Sheduled_for)
+			post.IDUser, ID, platform_id, "scheduled", post.SheduledFor)
 		if err1 != nil {
 			r.logger.Error("CreatePost failed in inserting to post_destinations",
 				zap.Error(err1),
-				zap.String("user_id", post.ID_user),
+				zap.String("user_id", post.IDUser),
 			)
 			return ID, createdAt, err1
 		}
@@ -289,12 +289,12 @@ func (r *Repository) CreatePlatform(ctx context.Context, platform dto.CreatePlat
 	var ID int
 	var createdAt time.Time
 	APIConfig := make(map[string]interface{})
-	APIConfig[platform.Bot_name] = platform.Config
+	APIConfig[platform.BotName] = platform.Config
 	err := r.MasterPool.QueryRow(ctx, `
         INSERT INTO platforms (user_id, platform_name, api_config, is_active) 
         VALUES ($1, $2, $3, $4) 
         RETURNING id, created_at;`,
-		platform.ID_user,
+		platform.IDUser,
 		platform.PlatformName,
 		APIConfig,
 		true,
@@ -302,100 +302,100 @@ func (r *Repository) CreatePlatform(ctx context.Context, platform dto.CreatePlat
 	if err != nil {
 		r.logger.Error("CreatePlatform failed",
 			zap.Error(err),
-			zap.String("user_id", platform.ID_user),
+			zap.String("user_id", platform.IDUser),
 		)
 		return ID, createdAt, err
 	}
 	return ID, createdAt, nil
 }
 
-func (r *Repository) GetPlatform(ctx context.Context, ID_user string) (dto.GetPlatformResponce, error) {
-	rows, err := r.SlavePool.Query(ctx, "SELECT id, platform_name, api_config, is_active, created_at, updated_at FROM platforms WHERE user_id=$1", ID_user)
+func (r *Repository) GetPlatform(ctx context.Context, IDUser string) (dto.GetPlatformResponse, error) {
+	rows, err := r.SlavePool.Query(ctx, "SELECT id, platform_name, api_config, is_active, created_at, updated_at FROM platforms WHERE user_id=$1", IDUser)
 	if err != nil {
 		r.logger.Error("GetPlatform failed",
 			zap.Error(err),
-			zap.String("user_id", ID_user),
+			zap.String("user_id", IDUser),
 		)
-		return dto.GetPlatformResponce{}, err
+		return dto.GetPlatformResponse{}, err
 	}
 	defer rows.Close()
-	res := dto.GetPlatformResponce{}
-	res.Platfroms = []domain.Platform{}
+	res := dto.GetPlatformResponse{}
+	res.Platforms = []domain.Platform{}
 	for rows.Next() {
 		p1 := domain.Platform{}
-		err := rows.Scan(&p1.ID_platform, &p1.Name, &p1.Api_config, &p1.Is_active, &p1.Created_at, &p1.Updated_at)
+		err := rows.Scan(&p1.IDPlatform, &p1.Name, &p1.ApiConfig, &p1.IsActive, &p1.CreatedAt, &p1.UpdatedAt)
 		if err != nil {
 			r.logger.Error("GetPlatform failed in scaning",
 				zap.Error(err),
-				zap.String("user_id", ID_user),
+				zap.String("user_id", IDUser),
 			)
 			return res, err
 		}
-		res.Platfroms = append(res.Platfroms, p1)
+		res.Platforms = append(res.Platforms, p1)
 	}
 	return res, nil
 }
 
-func (r *Repository) GetPlatformByID(ctx context.Context, ID_platform int, ID_user string) (domain.Platform, error) {
+func (r *Repository) GetPlatformByID(ctx context.Context, IDPlatform int, IDUser string) (domain.Platform, error) {
 	res := domain.Platform{}
-	err := r.SlavePool.QueryRow(ctx, "SELECT id, platform_name, api_config, is_active, created_at, updated_at FROM platforms WHERE user_id=$1 AND id=$2", ID_user, ID_platform).Scan(
-		&res.ID_platform, &res.Name, &res.Api_config, &res.Is_active, &res.Created_at, &res.Updated_at)
+	err := r.SlavePool.QueryRow(ctx, "SELECT id, platform_name, api_config, is_active, created_at, updated_at FROM platforms WHERE user_id=$1 AND id=$2", IDUser, IDPlatform).Scan(
+		&res.IDPlatform, &res.Name, &res.ApiConfig, &res.IsActive, &res.CreatedAt, &res.UpdatedAt)
 	if err != nil {
 		r.logger.Error("GetPlatformByID failed",
 			zap.Error(err),
-			zap.Int("platform_id", ID_platform),
-			zap.String("user_id", ID_user),
+			zap.Int("platform_id", IDPlatform),
+			zap.String("user_id", IDUser),
 		)
 		return domain.Platform{}, err
 	}
 	return res, nil
 }
 
-func (r *Repository) DeletePlatformByID(ctx context.Context, ID_platform int) error {
-	_, err := r.MasterPool.Exec(ctx, "DELETE FROM platforms WHERE id=$1", ID_platform)
+func (r *Repository) DeletePlatformByID(ctx context.Context, IDPlatform int) error {
+	_, err := r.MasterPool.Exec(ctx, "DELETE FROM platforms WHERE id=$1", IDPlatform)
 	if err != nil {
 		r.logger.Error("DeletePlatformByID failed in deleting from platforms",
 			zap.Error(err),
-			zap.Int("platform_id", ID_platform),
+			zap.Int("platform_id", IDPlatform),
 		)
 		return err
 	}
-	_, err = r.MasterPool.Exec(ctx, "DELETE FROM post_destinations WHERE platform_id=$1", ID_platform)
+	_, err = r.MasterPool.Exec(ctx, "DELETE FROM post_destinations WHERE platform_id=$1", IDPlatform)
 	if err != nil {
 		r.logger.Error("DeletePlatformByID failed in deleting from post_destinations",
 			zap.Error(err),
-			zap.Int("platform_id", ID_platform),
+			zap.Int("platform_id", IDPlatform),
 		)
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponce, error) {
+func (r *Repository) UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponse, error) {
 	APIConfig := make(map[string]interface{})
-	APIConfig[req.Bot_name] = req.Config
+	APIConfig[req.BotName] = req.Config
 	configBytes, err := json.Marshal(APIConfig)
 	if err != nil {
 		r.logger.Error("UpdatePlatformByID failed in marshal",
 			zap.Error(err),
-			zap.Int("platform_id", req.ID_platform),
-			zap.String("user_id", req.ID_user),
+			zap.Int("platform_id", req.IDPlatform),
+			zap.String("user_id", req.IDUser),
 		)
-		return dto.PutPlatformResponce{}, err
+		return dto.PutPlatformResponse{}, err
 	}
 	_, err = r.MasterPool.Exec(ctx, `
 		UPDATE platforms
 		SET  api_config = $1
 		WHERE id = $2 AND user_id = $3`,
-		configBytes, req.ID_platform, req.ID_user,
+		configBytes, req.IDPlatform, req.IDUser,
 	)
 	if err != nil {
 		r.logger.Error("UpdatePlatformByID failed in query",
 			zap.Error(err),
-			zap.Int("platform_id", req.ID_platform),
-			zap.String("user_id", req.ID_user),
+			zap.Int("platform_id", req.IDPlatform),
+			zap.String("user_id", req.IDUser),
 		)
-		return dto.PutPlatformResponce{}, err
+		return dto.PutPlatformResponse{}, err
 	}
-	return dto.PutPlatformResponce{ID_platform: req.ID_platform, ID_user: req.ID_user, Updated_at: time.Now()}, nil
+	return dto.PutPlatformResponse{IDPlatform: req.IDPlatform, IDUser: req.IDUser, UpdatedAt: time.Now()}, nil
 }

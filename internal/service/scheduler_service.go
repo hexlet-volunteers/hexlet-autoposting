@@ -70,7 +70,7 @@ func (s *SchedulerService) processScheduledPublications(ctx context.Context, log
 
 	for _, pub := range publications {
 		if err := s.processPublication(ctx, pub, logger); err != nil {
-			logger.Error("Error processing publication:", zap.Int("id_destination", pub.ID_destination), zap.Error(err))
+			logger.Error("Error processing publication:", zap.Int("IDDestination", pub.IDDestination), zap.Error(err))
 			continue
 		}
 		successfulCount++
@@ -80,18 +80,18 @@ func (s *SchedulerService) processScheduledPublications(ctx context.Context, log
 
 func (s *SchedulerService) processPublication(ctx context.Context, pub domain.ScheduledPublication, logger *zap.Logger) error {
 	event := domain.PublicationEvent{
-		DestinationID: pub.ID_destination,
-		PostID:        pub.ID_post,
-		PlatformID:    pub.ID_platform,
-		UserID:        pub.ID_user,
+		DestinationID: pub.IDDestination,
+		PostID:        pub.IDPost,
+		PlatformID:    pub.IDPlatform,
+		UserID:        pub.IDUser,
 	}
 	if err := s.kafkaProd.SendPublicationEvent(ctx, event,logger); err != nil {
 		return fmt.Errorf("failed to send event to kafka: %w", err)
 	}
 	logger.Info("Publication sent to Kafka",
-		zap.Int("quantity", pub.ID_destination),
-		zap.Int("quantity", pub.ID_post),
-		zap.Int("quantity", pub.ID_platform),
+		zap.Int("quantity", pub.IDDestination),
+		zap.Int("quantity", pub.IDPost),
+		zap.Int("quantity", pub.IDPlatform),
 	)
 	return nil
 }

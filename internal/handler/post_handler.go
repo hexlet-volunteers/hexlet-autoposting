@@ -97,7 +97,7 @@ func (a *App) AuthMiddleware() gin.HandlerFunc {
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.CreatePostRequest true "post info"
-// @Success      200  {object}  dto.CreatePostResponce
+// @Success      200  {object}  dto.CreatePostResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -110,7 +110,7 @@ func (a *App) CreatePost(rw *gin.Context) {
 	}
 	userID := val.(string)
 	var request dto.CreatePostRequest
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -120,16 +120,16 @@ func (a *App) CreatePost(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	request.Sheduled_for = request.Sheduled_for.Add(-3 * time.Hour)
+	request.SheduledFor = request.SheduledFor.Add(-3 * time.Hour)
 	request.Status = "scheduled"
-	var responce dto.CreatePostResponce
-	responce.ID_post, responce.Created_at, err = a.Repo.CreatePost(a.Ctx, request)
+	var Response dto.CreatePostResponse
+	Response.IDPost, Response.CreatedAt, err = a.Repo.CreatePost(a.Ctx, request)
 	if err != nil {
 		rw.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	responce.ID_user = request.ID_user
-	rw.JSON(http.StatusOK, responce)
+	Response.IDUser = request.IDUser
+	rw.JSON(http.StatusOK, Response)
 }
 
 // GetPosts godoc
@@ -139,7 +139,7 @@ func (a *App) CreatePost(rw *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.GetByUserIDRequest true "user info"
-// @Success      200  {object}  dto.GetPostsResponce
+// @Success      200  {object}  dto.GetPostsResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -152,7 +152,7 @@ func (a *App) GetPosts(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -162,12 +162,12 @@ func (a *App) GetPosts(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	responce, err := a.Repo.GetPost(a.Ctx, request.ID_user)
+	Response, err := a.Repo.GetPost(a.Ctx, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	rw.JSON(http.StatusOK, responce)
+	rw.JSON(http.StatusOK, Response)
 }
 
 // GetPost godoc
@@ -178,7 +178,7 @@ func (a *App) GetPosts(rw *gin.Context) {
 // @Produce      json
 // @Param        id path int true "Post ID"
 // @Param        request body dto.GetByUserIDRequest true "user info"
-// @Success      200  {object}  dto.GetPostResponce
+// @Success      200  {object}  dto.GetPostResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -197,12 +197,12 @@ func (a *App) GetPost(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	if err := rw.ShouldBindJSON(&request); err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	post, err := a.Repo.GetPostByID(a.Ctx, id, request.ID_user)
+	post, err := a.Repo.GetPostByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": err})
 		return
@@ -218,7 +218,7 @@ func (a *App) GetPost(rw *gin.Context) {
 // @Produce      json
 // @Param        id path int true "Post ID"
 // @Param        request body dto.PutPostRequest true "post update info"
-// @Success      200  {object}  dto.PutPostResponce
+// @Success      200  {object}  dto.PutPostResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -237,14 +237,14 @@ func (a *App) PutPost(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var post dto.GetPostResponce
-	post, err = a.Repo.GetPostByID(a.Ctx, id, request.ID_user)
+	var post dto.GetPostResponse
+	post, err = a.Repo.GetPostByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": "post not found"})
 		return
@@ -255,13 +255,13 @@ func (a *App) PutPost(rw *gin.Context) {
 	if request.Title == "" {
 		request.Title = post.Posts[0].Title
 	}
-	if request.Sheduled_for.IsZero() {
-		request.Sheduled_for = post.Posts[0].Sheduled_for
+	if request.SheduledFor.IsZero() {
+		request.SheduledFor = post.Posts[0].SheduledFor
 	}
-	request.ID_post = id
-	var responce dto.PutPostResponce
-	responce, err = a.Repo.UpdatePostByID(a.Ctx, request)
-	rw.JSON(http.StatusOK, responce)
+	request.IDPost = id
+	var Response dto.PutPostResponse
+	Response, err = a.Repo.UpdatePostByID(a.Ctx, request)
+	rw.JSON(http.StatusOK, Response)
 }
 
 // DeletePost godoc
@@ -291,7 +291,7 @@ func (a *App) DeletePost(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -301,7 +301,7 @@ func (a *App) DeletePost(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, err = a.Repo.GetPostByID(a.Ctx, id, request.ID_user)
+	_, err = a.Repo.GetPostByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": "post not found"})
 		return
@@ -321,7 +321,7 @@ func (a *App) DeletePost(rw *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.CreatePlatformRequest true "platform info"
-// @Success      200  {object}  dto.CreatePlatformResponce
+// @Success      200  {object}  dto.CreatePlatformResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -330,7 +330,7 @@ func (a *App) CreatePlatform(rw *gin.Context) {
 	var request dto.CreatePlatformRequest
 	val, _ := rw.Get("currentUserID")
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -340,14 +340,14 @@ func (a *App) CreatePlatform(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var responce dto.CreatePlatformResponce
-	responce.ID_platform, responce.Created_at, err = a.Repo.CreatePlatform(a.Ctx, request)
+	var Response dto.CreatePlatformResponse
+	Response.IDPlatform, Response.CreatedAt, err = a.Repo.CreatePlatform(a.Ctx, request)
 	if err != nil {
 		rw.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	responce.ID_user = request.ID_user
-	rw.JSON(http.StatusOK, responce)
+	Response.IDUser = request.IDUser
+	rw.JSON(http.StatusOK, Response)
 }
 
 // GetPlatforms godoc
@@ -357,7 +357,7 @@ func (a *App) CreatePlatform(rw *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        request body dto.GetByUserIDRequest true "user info"
-// @Success      200  {object}  dto.GetPlatformResponce
+// @Success      200  {object}  dto.GetPlatformResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -370,7 +370,7 @@ func (a *App) GetPlatforms(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -380,12 +380,12 @@ func (a *App) GetPlatforms(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	responce, err := a.Repo.GetPlatform(a.Ctx, request.ID_user)
+	Response, err := a.Repo.GetPlatform(a.Ctx, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	rw.JSON(http.StatusOK, responce)
+	rw.JSON(http.StatusOK, Response)
 }
 
 // GetPlatform godoc
@@ -415,7 +415,7 @@ func (a *App) GetPlatform(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -425,7 +425,7 @@ func (a *App) GetPlatform(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	post, err := a.Repo.GetPlatformByID(a.Ctx, id, request.ID_user)
+	post, err := a.Repo.GetPlatformByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": "platform not found"})
 		return
@@ -441,7 +441,7 @@ func (a *App) GetPlatform(rw *gin.Context) {
 // @Produce      json
 // @Param        id path int true "Platform ID"
 // @Param        request body dto.PutPlatformRequest true "platform update info"
-// @Success      200  {object}  dto.PutPlatformResponce
+// @Success      200  {object}  dto.PutPlatformResponse
 // @Failure      400  {object}  dto.ErrorResponse
 // @Failure      404  {object}  dto.ErrorResponse
 // @Failure      500  {object}  dto.ErrorResponse
@@ -460,32 +460,32 @@ func (a *App) PutPlatform(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	var platform domain.Platform
-	platform, err = a.Repo.GetPlatformByID(a.Ctx, id, request.ID_user)
+	platform, err = a.Repo.GetPlatformByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": "platform not found"})
 		return
 	}
-	if request.Bot_name == "" {
-		for key := range platform.Api_config {
-			request.Bot_name = key
+	if request.BotName == "" {
+		for key := range platform.ApiConfig {
+			request.BotName = key
 		}
 	}
 	if request.Config == "" {
-		for _, value := range platform.Api_config {
+		for _, value := range platform.ApiConfig {
 			request.Config = value
 		}
 	}
-	request.ID_platform = id
-	var responce dto.PutPlatformResponce
-	responce, err = a.Repo.UpdatePlatformByID(a.Ctx, request)
-	rw.JSON(http.StatusOK, responce)
+	request.IDPlatform = id
+	var Response dto.PutPlatformResponse
+	Response, err = a.Repo.UpdatePlatformByID(a.Ctx, request)
+	rw.JSON(http.StatusOK, Response)
 }
 
 // DeletePlatform godoc
@@ -515,7 +515,7 @@ func (a *App) DeletePlatform(rw *gin.Context) {
 		return
 	}
 	userID := val.(string)
-	request.ID_user = userID
+	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
 	if err != nil {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -525,7 +525,7 @@ func (a *App) DeletePlatform(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, err = a.Repo.GetPlatformByID(a.Ctx, id, request.ID_user)
+	_, err = a.Repo.GetPlatformByID(a.Ctx, id, request.IDUser)
 	if err != nil {
 		rw.JSON(http.StatusNotFound, gin.H{"error": "platform not found"})
 		return

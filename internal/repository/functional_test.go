@@ -160,9 +160,9 @@ func TestCreatePost(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -175,10 +175,10 @@ func TestCreatePost(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "First Post",
 		Content:      "Content 1",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, createdAt, err := testRepo.CreatePost(ctx, post)
@@ -210,27 +210,27 @@ func TestCreatePostWithMultiplePlatforms(t *testing.T) {
 
 	configJSON1 := `{"token":"token1"}`
 	platformReq1 := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "bot1",
+		BotName:     "bot1",
 		Config:       configJSON1,
 	}
 	testRepo.CreatePlatform(ctx, platformReq1)
 
 	configJSON2 := `{"token":"token2"}`
 	platformReq2 := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "vk",
-		Bot_name:     "bot2",
+		BotName:     "bot2",
 		Config:       configJSON2,
 	}
 	testRepo.CreatePlatform(ctx, platformReq2)
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Multi Platform Post",
 		Content:      "Content for multiple platforms",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, _, err := testRepo.CreatePost(ctx, post)
@@ -255,10 +255,10 @@ func TestCreatePostNoPlatforms(t *testing.T) {
 	cleanupTables()
 
 	post := dto.CreatePostRequest{
-		ID_user:      "999",
+		IDUser:      "999",
 		Title:        "Post Without Platforms",
 		Content:      "Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, _, err := testRepo.CreatePost(ctx, post)
@@ -282,10 +282,10 @@ func TestCreatePostDatabaseError(t *testing.T) {
 	defer createTables()
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Test Post",
 		Content:      "Content",
-		Sheduled_for: time.Now(),
+		SheduledFor: time.Now(),
 	}
 	_, _, err := testRepo.CreatePost(ctx, post)
 
@@ -383,9 +383,9 @@ func TestGetPostByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -395,10 +395,10 @@ func TestGetPostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Test Post By ID",
 		Content:      "Test Content By ID",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -415,14 +415,14 @@ func TestGetPostByID(t *testing.T) {
 		t.Errorf("Expected 1 post, got %d", len(result.Posts))
 	}
 	if len(result.Posts) > 0 {
-		if result.Posts[0].ID_post != postID {
-			t.Errorf("Expected post ID %d, got %d", postID, result.Posts[0].ID_post)
+		if result.Posts[0].IDPost != postID {
+			t.Errorf("Expected post ID %d, got %d", postID, result.Posts[0].IDPost)
 		}
 		if result.Posts[0].Title != "Test Post By ID" {
 			t.Errorf("Expected title 'Test Post By ID', got '%s'", result.Posts[0].Title)
 		}
-		if result.Posts[0].ID_platform != platformID {
-			t.Errorf("Expected platform ID %d, got %d", platformID, result.Posts[0].ID_platform)
+		if result.Posts[0].IDPlatform != platformID {
+			t.Errorf("Expected platform ID %d, got %d", platformID, result.Posts[0].IDPlatform)
 		}
 	}
 }
@@ -444,18 +444,18 @@ func TestGetPostByIDWrongUser(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 	testRepo.CreatePlatform(ctx, platformReq)
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "User 1 Post",
 		Content:      "Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 	postID, _, _ := testRepo.CreatePost(ctx, post)
 
@@ -475,9 +475,9 @@ func TestUpdatePostByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -487,10 +487,10 @@ func TestUpdatePostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Original Title",
 		Content:      "Original Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -499,11 +499,11 @@ func TestUpdatePostByID(t *testing.T) {
 	}
 
 	updateReq := dto.PutPostRequest{
-		ID_post:      postID,
-		ID_user:      "1",
+		IDPost:      postID,
+		IDUser:      "1",
 		Title:        "Updated Title",
 		Content:      "Updated Content",
-		Sheduled_for: time.Now().Add(48 * time.Hour),
+		SheduledFor: time.Now().Add(48 * time.Hour),
 	}
 
 	result, err := testRepo.UpdatePostByID(ctx, updateReq)
@@ -511,10 +511,10 @@ func TestUpdatePostByID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if result.ID_post != postID {
-		t.Errorf("Expected post ID %d, got %d", postID, result.ID_post)
+	if result.IDPost != postID {
+		t.Errorf("Expected post ID %d, got %d", postID, result.IDPost)
 	}
-	if result.Updated_at.IsZero() {
+	if result.UpdatedAt.IsZero() {
 		t.Error("Expected non-zero updated_at")
 	}
 
@@ -538,27 +538,27 @@ func TestUpdatePostByIDWrongUser(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 	testRepo.CreatePlatform(ctx, platformReq)
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Original Title",
 		Content:      "Original Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 	postID, _, _ := testRepo.CreatePost(ctx, post)
 
 	updateReq := dto.PutPostRequest{
-		ID_post:      postID,
-		ID_user:      "2",
+		IDPost:      postID,
+		IDUser:      "2",
 		Title:        "Hacked Title",
 		Content:      "Hacked Content",
-		Sheduled_for: time.Now().Add(48 * time.Hour),
+		SheduledFor: time.Now().Add(48 * time.Hour),
 	}
 
 	result, err := testRepo.UpdatePostByID(ctx, updateReq)
@@ -567,7 +567,7 @@ func TestUpdatePostByIDWrongUser(t *testing.T) {
 		return
 	}
 
-	if result.ID_post == postID {
+	if result.IDPost == postID {
 		var title string
 		err := testPool.QueryRow(ctx, "SELECT title FROM posts WHERE id=$1", postID).Scan(&title)
 		if err == nil && title == "Hacked Title" {
@@ -584,11 +584,11 @@ func TestUpdatePostByIDDatabaseError(t *testing.T) {
 	defer createTables()
 
 	updateReq := dto.PutPostRequest{
-		ID_post:      1,
-		ID_user:      "1",
+		IDPost:      1,
+		IDUser:      "1",
 		Title:        "Title",
 		Content:      "Content",
-		Sheduled_for: time.Now(),
+		SheduledFor: time.Now(),
 	}
 	_, err := testRepo.UpdatePostByID(ctx, updateReq)
 	if err == nil {
@@ -601,9 +601,9 @@ func TestDeletePostByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -613,10 +613,10 @@ func TestDeletePostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Post To Delete",
 		Content:      "Content To Delete",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -661,9 +661,9 @@ func TestCreatePlatform(t *testing.T) {
 
 	configJSON := `{"token":"test_token","chat_id":"12345"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -686,7 +686,7 @@ func TestCreatePlatform(t *testing.T) {
 	if platform.Name != "telegram" {
 		t.Errorf("Expected platform name 'telegram', got '%s'", platform.Name)
 	}
-	if !platform.Is_active {
+	if !platform.IsActive {
 		t.Error("Expected platform to be active")
 	}
 }
@@ -695,9 +695,9 @@ func TestCreatePlatformInvalidJSON(t *testing.T) {
 	cleanupTables()
 
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       `{"token":"test_token"`,
 	}
 
@@ -711,7 +711,7 @@ func TestCreatePlatformInvalidJSON(t *testing.T) {
 		platform, getErr := testRepo.GetPlatformByID(ctx, id, "1")
 		if getErr == nil {
 			t.Logf("Platform created with ID %d despite invalid JSON", id)
-			if platform.Api_config == nil {
+			if platform.ApiConfig == nil {
 				t.Error("API config is nil")
 			}
 		}
@@ -725,9 +725,9 @@ func TestCreatePlatformDatabaseError(t *testing.T) {
 	defer createTables()
 
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       `{"token":"test_token"}`,
 	}
 
@@ -745,8 +745,8 @@ func TestGetPlatformEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(platforms.Platfroms) != 0 {
-		t.Errorf("Expected 0 platforms, got %d", len(platforms.Platfroms))
+	if len(platforms.Platforms) != 0 {
+		t.Errorf("Expected 0 platforms, got %d", len(platforms.Platforms))
 	}
 }
 
@@ -755,21 +755,21 @@ func TestGetPlatformMultiple(t *testing.T) {
 
 	platforms := []dto.CreatePlatformRequest{
 		{
-			ID_user:      "1",
+			IDUser:      "1",
 			PlatformName: "telegram",
-			Bot_name:     "telegram_bot",
+			BotName:     "telegram_bot",
 			Config:       `{"token":"token1"}`,
 		},
 		{
-			ID_user:      "1",
+			IDUser:      "1",
 			PlatformName: "vk",
-			Bot_name:     "vk_bot",
+			BotName:     "vk_bot",
 			Config:       `{"token":"token2"}`,
 		},
 		{
-			ID_user:      "1",
+			IDUser:      "1",
 			PlatformName: "discord",
-			Bot_name:     "discord_bot",
+			BotName:     "discord_bot",
 			Config:       `{"token":"token3"}`,
 		},
 	}
@@ -786,8 +786,8 @@ func TestGetPlatformMultiple(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(result.Platfroms) != 3 {
-		t.Errorf("Expected 3 platforms, got %d", len(result.Platfroms))
+	if len(result.Platforms) != 3 {
+		t.Errorf("Expected 3 platforms, got %d", len(result.Platforms))
 	}
 }
 
@@ -798,9 +798,9 @@ func TestGetPlatformByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -814,8 +814,8 @@ func TestGetPlatformByID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if platform.ID_platform != platformID {
-		t.Errorf("Expected platform ID %d, got %d", platformID, platform.ID_platform)
+	if platform.IDPlatform != platformID {
+		t.Errorf("Expected platform ID %d, got %d", platformID, platform.IDPlatform)
 	}
 	if platform.Name != "telegram" {
 		t.Errorf("Expected platform name 'telegram', got '%s'", platform.Name)
@@ -836,9 +836,9 @@ func TestGetPlatformByIDWrongUser(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -870,9 +870,9 @@ func TestUpdatePlatformByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -883,10 +883,10 @@ func TestUpdatePlatformByID(t *testing.T) {
 
 	updateConfigJSON := `{"token":"updated_token","chat_id":"67890"}`
 	updateReq := dto.PutPlatformRequest{
-		ID_platform:  platformID,
-		ID_user:      "1",
+		IDPlatform:  platformID,
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "updated_bot",
+		BotName:     "updated_bot",
 		Config:       updateConfigJSON,
 	}
 
@@ -895,10 +895,10 @@ func TestUpdatePlatformByID(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if result.ID_platform != platformID {
-		t.Errorf("Expected platform ID %d, got %d", platformID, result.ID_platform)
+	if result.IDPlatform != platformID {
+		t.Errorf("Expected platform ID %d, got %d", platformID, result.IDPlatform)
 	}
-	if result.Updated_at.IsZero() {
+	if result.UpdatedAt.IsZero() {
 		t.Error("Expected non-zero updated_at")
 	}
 }
@@ -908,9 +908,9 @@ func TestUpdatePlatformByIDInvalidJSON(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -920,10 +920,10 @@ func TestUpdatePlatformByIDInvalidJSON(t *testing.T) {
 	}
 
 	updateReq := dto.PutPlatformRequest{
-		ID_platform:  platformID,
-		ID_user:      "1",
+		IDPlatform:  platformID,
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "updated_bot",
+		BotName:     "updated_bot",
 		Config:       `{"token":"updated_token"`,
 	}
 
@@ -933,9 +933,9 @@ func TestUpdatePlatformByIDInvalidJSON(t *testing.T) {
 		return
 	}
 
-	if result.ID_platform == platformID {
+	if result.IDPlatform == platformID {
 		platform, getErr := testRepo.GetPlatformByID(ctx, platformID, "1")
-		if getErr == nil && platform.Api_config != nil {
+		if getErr == nil && platform.ApiConfig != nil {
 			t.Log("Platform was updated despite invalid JSON")
 		}
 	}
@@ -946,9 +946,9 @@ func TestUpdatePlatformByIDWrongUser(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -958,10 +958,10 @@ func TestUpdatePlatformByIDWrongUser(t *testing.T) {
 	}
 
 	updateReq := dto.PutPlatformRequest{
-		ID_platform:  platformID,
-		ID_user:      "2",
+		IDPlatform:  platformID,
+		IDUser:      "2",
 		PlatformName: "telegram",
-		Bot_name:     "hacked_bot",
+		BotName:     "hacked_bot",
 		Config:       `{"token":"hacked_token"}`,
 	}
 
@@ -971,10 +971,10 @@ func TestUpdatePlatformByIDWrongUser(t *testing.T) {
 		return
 	}
 
-	if result.ID_platform == platformID {
+	if result.IDPlatform == platformID {
 		platform, getErr := testRepo.GetPlatformByID(ctx, platformID, "1")
-		if getErr == nil && platform.Api_config != nil {
-			if config, ok := platform.Api_config["hacked_bot"]; ok {
+		if getErr == nil && platform.ApiConfig != nil {
+			if config, ok := platform.ApiConfig["hacked_bot"]; ok {
 				if config == "hacked_token" {
 					t.Error("Platform was updated with wrong user ID - security issue!")
 					return
@@ -992,10 +992,10 @@ func TestUpdatePlatformByIDDatabaseError(t *testing.T) {
 	defer createTables()
 
 	updateReq := dto.PutPlatformRequest{
-		ID_platform:  1,
-		ID_user:      "1",
+		IDPlatform:  1,
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       `{"token":"test_token"}`,
 	}
 
@@ -1010,9 +1010,9 @@ func TestDeletePlatformByID(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -1037,9 +1037,9 @@ func TestDeletePlatformByIDCascade(t *testing.T) {
 
 	configJSON := `{"token":"test_token"}`
 	platformReq := dto.CreatePlatformRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		PlatformName: "telegram",
-		Bot_name:     "test_bot",
+		BotName:     "test_bot",
 		Config:       configJSON,
 	}
 
@@ -1049,10 +1049,10 @@ func TestDeletePlatformByIDCascade(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		ID_user:      "1",
+		IDUser:      "1",
 		Title:        "Post with platform",
 		Content:      "Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
