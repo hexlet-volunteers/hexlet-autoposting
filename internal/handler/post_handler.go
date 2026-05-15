@@ -328,7 +328,11 @@ func (a *App) DeletePost(rw *gin.Context) {
 // @Router       /platforms [post]
 func (a *App) CreatePlatform(rw *gin.Context) {
 	var request dto.CreatePlatformRequest
-	val, _ := rw.Get("currentUserID")
+	val, exists := rw.Get("currentUserID")
+	if !exists {
+		rw.JSON(500, gin.H{"error": "User not found"})
+		return
+	}
 	userID := val.(string)
 	request.IDUser = userID
 	err := rw.ShouldBindJSON(&request)
@@ -581,7 +585,11 @@ func (a *App) refreshTokensHandler(rw *gin.Context) {
 		rw.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	userID := claims["sub"].(string)
+	userID, ok := claims["sub"].(string)
+	if !ok {
+    	rw.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "wrong token"})
+    	return
+	}
 	newAccessToken, newRefreshToken, err := auth.GenerateTokens(userID)
 	if err != nil {
 		rw.AbortWithStatus(http.StatusInternalServerError)
