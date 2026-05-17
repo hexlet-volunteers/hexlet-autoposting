@@ -15,6 +15,8 @@ import (
 
 var publications []domain.ScheduledPublication
 
+// GetReadyForPublication запускает фоновый планировщик для ежеминутного поиска публикаций, готовых к отправке.
+// Функция настраивает задачу cron, логирует найденные посты, отправляет их в Kafka и возвращает срез публикаций или ошибку инициализации.
 func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPublication, error) {
 	c := cron.New()
 	_, err := c.AddFunc("@every 1m", func() {
@@ -75,6 +77,8 @@ func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPu
 	return publications, nil
 }
 
+// GetPlatformsByUserID извлекает конфигурацию конкретной активной платформы пользователя по его идентификатору.
+// Функция запрашивает данные из SlavePool, декодирует JSON-конфигурацию API и возвращает структуру domain.PlatformSQL или ошибку.
 func (r *Repository) GetPlatformsByUserID(ctx context.Context, platformName string, userID string) (domain.PlatformSQL, error) {
 	query := "SELECT platform_name, api_config, is_active FROM platforms WHERE user_id = $1"
 	rows, err := r.SlavePool.Query(ctx, query, userID)
@@ -125,6 +129,8 @@ func (r *Repository) GetPlatformsByUserID(ctx context.Context, platformName stri
 	return res, nil
 }
 
+// GetTitleANDContent извлекает заголовок и содержимое публикации из базы данных по её идентификатору.
+// Функция выполняет запрос к реплике (SlavePool), логирует возможные сбои и возвращает структуру domain.Message или ошибку.
 func (r *Repository) GetTitleANDContent(ctx context.Context, id int) (domain.Message, error) {
 	query := `
         SELECT title, content FROM posts WHERE id = $1
@@ -141,6 +147,8 @@ func (r *Repository) GetTitleANDContent(ctx context.Context, id int) (domain.Mes
 	return res, nil
 }
 
+// MarkAsSent обновляет статус публикации на 'published' и устанавливает текущее время отправки в базе данных.
+// Функция логирует ошибку и возвращает её в обернутом виде, если операцию обновления выполнить не удалось.
 func (r *Repository) MarkAsSent(ctx context.Context, id int) error {
 	query := `
 		UPDATE post_destinations
@@ -159,6 +167,8 @@ func (r *Repository) MarkAsSent(ctx context.Context, id int) error {
 	return nil
 }
 
+// ErrorMessage обновляет текст сообщения об ошибке для указанной публикации в базе данных.
+// Функция логирует сбой и возвращает обернутую ошибку, если запрос к базе данных завершился неудачно.
 func (r *Repository) ErrorMessage(ctx context.Context, destinationID int, err error) error {
 	query := `
 		UPDATE post_destinations
