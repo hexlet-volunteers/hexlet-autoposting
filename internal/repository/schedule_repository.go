@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	//"fmt"
+	// "fmt"
 	"hexlet/internal/domain"
 	"time"
 
@@ -15,7 +15,7 @@ import (
 
 var publications []domain.ScheduledPublication
 
-func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) ([]domain.ScheduledPublication, error) {
+func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPublication, error) {
 	c := cron.New()
 	_, err := c.AddFunc("@every 1m", func() {
 		taskCtx := context.Background()
@@ -62,7 +62,7 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 		for _, pub := range publications {
 			r.logger.Info("Отправляем в Kafka пост для публикации ",
 				zap.Int("post_id", pub.IDPost),
-				zap.String("PlatformName", pub.PlatformName),
+				zap.String("platformName", pub.PlatformName),
 			)
 		}
 		r.logger.Info("Найдено постов для публикации", zap.Int("quantity", len(publications)), zap.Time("time", time.Now()))
@@ -75,8 +75,8 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 	return publications, nil
 }
 
-func (r *Repository) GetPlatformsByUserID(ctx context.Context, PlatformName string, userID string) (domain.PlatformSQL, error) {
-	query := "SELECT PlatformName, api_config, is_active FROM platforms WHERE user_id = $1"
+func (r *Repository) GetPlatformsByUserID(ctx context.Context, platformName string, userID string) (domain.PlatformSQL, error) {
+	query := "SELECT platform_name, api_config, is_active FROM platforms WHERE user_id = $1"
 	rows, err := r.SlavePool.Query(ctx, query, userID)
 	if err != nil {
 		r.logger.Error("GetPlatformsByUserID failed in query",
@@ -98,7 +98,7 @@ func (r *Repository) GetPlatformsByUserID(ctx context.Context, PlatformName stri
 			)
 			return domain.PlatformSQL{}, err
 		}
-		if !platform.IsActive || platform.PlatformName != PlatformName {
+		if !platform.IsActive || platform.PlatformName != platformName {
 			r.logger.Error("GetPlatformsByUserID not active",
 				zap.Error(err),
 				zap.String("user_id", userID),
@@ -141,36 +141,36 @@ func (r *Repository) GetTitleANDContent(ctx context.Context, id int) (domain.Mes
 	return res, nil
 }
 
-func (r *Repository) MarkAsSent(ctx context.Context, ID int) error {
+func (r *Repository) MarkAsSent(ctx context.Context, id int) error {
 	query := `
 		UPDATE post_destinations
 		SET 
 			status= 'published', published_at = $1
 		WHERE id = $2
 	`
-	_, err := r.MasterPool.Exec(ctx, query, time.Now(), ID)
+	_, err := r.MasterPool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		r.logger.Error("MarkAsSent failed",
 			zap.Error(err),
-			zap.Int("post_destinations_id", ID),
+			zap.Int("post_destinations_id", id),
 		)
 		return fmt.Errorf("failed to mark as sent: %w", err)
 	}
 	return nil
 }
 
-func (r *Repository) ErrorMessage(ctx context.Context, destination_id int, err error) error {
+func (r *Repository) ErrorMessage(ctx context.Context, destinationID int, err error) error {
 	query := `
 		UPDATE post_destinations
 		SET 
 			error_message = $1
 		WHERE id = $2
 	`
-	_, err1 := r.MasterPool.Exec(ctx, query, err, destination_id)
+	_, err1 := r.MasterPool.Exec(ctx, query, err, destinationID)
 	if err1 != nil {
 		r.logger.Error("ErrorMessage failed",
 			zap.Error(err1),
-			zap.Int("post_destinations_id", destination_id),
+			zap.Int("post_destinations_id", destinationID),
 		)
 		return fmt.Errorf("failed set error message: %w", err1)
 	}

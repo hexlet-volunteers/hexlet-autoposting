@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"hexlet/internal/domain"
-	"hexlet/internal/handler" //docker-compose logs hexlet-project -f
-	"hexlet/internal/kafka"   //docker-compose up -d --build
+	"hexlet/internal/handler" // docker-compose logs hexlet-project -f
+	"hexlet/internal/kafka"   // docker-compose up -d --build
 	"hexlet/internal/repository"
 	"hexlet/internal/service"
 	"net/http"
@@ -95,12 +95,12 @@ func getKafkaBrokers() []string {
 	return brokers
 }
 
-func (a *App) StartBackgroundWorker(msg kf.Message, logger *zap.Logger) {
+func (a *App) StartBackgroundWorker(ctx context.Context, msg kf.Message, logger *zap.Logger) {
 	a.Wg.Add(1)
-	go a.backgroundWorker(msg, logger)
+	go a.backgroundWorker(ctx, msg, logger)
 }
 
-func (a *App) backgroundWorker(msg kf.Message, logger *zap.Logger) {
+func (a *App) backgroundWorker(ctx context.Context, msg kf.Message, logger *zap.Logger) {
 	defer a.Wg.Done()
 
 	ticker := time.NewTicker(10 * time.Second)
@@ -113,11 +113,11 @@ func (a *App) backgroundWorker(msg kf.Message, logger *zap.Logger) {
 		logger.Info("Worker stoped")
 		return
 	case <-ticker.C:
-		a.proccesProcessing(msg, logger)
+		a.proccesProcessing(ctx, msg, logger)
 	}
 }
 
-func (a *App) proccesProcessing(msg kf.Message, logger *zap.Logger) {
+func (a *App) proccesProcessing(ctx context.Context, msg kf.Message, logger *zap.Logger) {
 	value := string(msg.Value)
 	var msg1 domain.PublicationEvent
 	err := json.Unmarshal([]byte(value), &msg1)
@@ -162,7 +162,7 @@ func (a *App) proccesProcessing(msg kf.Message, logger *zap.Logger) {
 		)
 	} else {
 		for groupID, token := range platformVK.APIConfig {
-			err := SentToVK(groupID, token, text)
+			err := SentToVK(ctx, groupID, token, text)
 			if err != nil {
 				err1 := a.Repo.ErrorMessage(a.Ctx, msg1.DestinationID, err)
 				if err1 != nil {
@@ -206,14 +206,22 @@ func SentToTelegram(chatID string, botToken string, text string) error {
 	return nil
 }
 
-func SentToVK(groupID string, token string, text string) error {
+func SentToVK(ctx context.Context, groupID string, token string, text string) error {
 	apiURL := "https://api.vk.com/method/wall.post"
 	params := url.Values{}
 	params.Add("owner_id", groupID)
 	params.Add("message", text)
 	params.Add("access_token", token)
 	params.Add("v", "5.131")
-	resp, err := http.PostForm(apiURL, params)
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, strings.NewReader(params.Encode()))
+	if err != nil {
+		return err
+	}
+	httpClient := &http.Client{
+		Timeout: 15 * time.Second,
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}

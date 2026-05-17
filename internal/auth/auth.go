@@ -28,10 +28,10 @@ func NewAuth() error {
 	key := getEnv("GOOGLE_KEY")
 	secret := getEnv("GOOGLE_SECRET")
 	if key == " " {
-		return errors.New("Can not read GOOGLE_KEY")
+		return errors.New("can not read GOOGLE_KEY")
 	}
 	if secret == " " {
-		return errors.New("Can not read GOOGLE_SECRET")
+		return errors.New("can not read GOOGLE_SECRET")
 	}
 	goth.UseProviders(
 		google.New(key, secret, "http://localhost:8080/auth/google/callback"),

@@ -1,0 +1,21 @@
+run:
+  timeout: 5m
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - revive
+    - gocritic
+    - gocyclo
+    - bodyclose
+    - sqlclosecheck
+    - noctx
+    - goconst
+    - wastedassign
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15 

@@ -53,7 +53,7 @@ func (s *SchedulerService) Start(ctx context.Context, logger *zap.Logger) {
 func (s *SchedulerService) processScheduledPublications(ctx context.Context, logger *zap.Logger) {
 	logger.Info("Checking for scheduled publications...")
 
-	publications, err := s.repo.GetReadyForPublication(ctx, s.batchSize)
+	publications, err := s.repo.GetReadyForPublication(s.batchSize)
 	if err != nil {
 		logger.Error("Error getting scheduled publications:", zap.Error(err))
 		return
@@ -85,7 +85,7 @@ func (s *SchedulerService) processPublication(ctx context.Context, pub domain.Sc
 		PlatformID:    pub.IDPlatform,
 		UserID:        pub.IDUser,
 	}
-	if err := s.kafkaProd.SendPublicationEvent(ctx, event,logger); err != nil {
+	if err := s.kafkaProd.SendPublicationEvent(ctx, event, logger); err != nil {
 		return fmt.Errorf("failed to send event to kafka: %w", err)
 	}
 	logger.Info("Publication sent to Kafka",

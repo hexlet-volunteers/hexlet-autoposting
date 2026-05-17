@@ -29,9 +29,9 @@ func main() {
 	ctx := context.Background()
 	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("failed to init logger: %v", err) //не знаю как правильно сделать если логер не смог запуститься
+		log.Fatalf("failed to init logger: %v", err) // не знаю как правильно сделать если логер не смог запуститься
 	}
-	defer logger.Sync()
+	defer func() { _ = logger.Sync() }()
 	logger.Info("Logger configured successfully")
 	mastercfg, err := config.LoadConfigMaster()
 	if err != nil {
@@ -86,7 +86,7 @@ func main() {
 				continue
 			}
 			logger.Info("Received Kafka message", zap.String("payload", string(msg.Value)))
-			a.StartBackgroundWorker(msg, logger)
+			a.StartBackgroundWorker(ctx, msg, logger)
 		}
 	}()
 	logger.Info("Kafka scheduler started")

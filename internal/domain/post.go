@@ -18,7 +18,7 @@ type Post struct {
 type Platform struct {
 	IDPlatform int               `json:"id_platform"`
 	Name        string            `json:"name"`
-	ApiConfig  map[string]string `json:"api_config"`
+	APIConfig  map[string]string `json:"api_config"`
 	IsActive   bool              `json:"is_active"`
 	CreatedAt  time.Time         `json:"created_at"`
 	UpdatedAt  time.Time         `json:"updated_at"`
@@ -43,7 +43,7 @@ type ScheduledPublication struct {
 	Content        string `json:"content"`
 	IDPlatform    int `json:"id_platform"`
 	PlatformName  string `json:"platform_name"`
-	ApiConfig     string `json:"api_config"`
+	APIConfig     string `json:"api_config"`
 }
 
 type PublicationEvent struct {
