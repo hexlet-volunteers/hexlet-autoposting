@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS post_destinations;
+DROP TABLE IF EXISTS platforms;
+DROP TABLE IF EXISTS posts;

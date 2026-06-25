@@ -1,95 +1,151 @@
+x-go-app: &go-app
+  build:
+    context: .
+    dockerfile: docker_config/go/Dockerfile
+  image: hexlet-autoposting-app:local
+  networks:
+    - app-network
+
+x-images:
+  postgres: &postgres-image postgres:16
+  kafka: &kafka-image confluentinc/cp-kafka:7.7.1
+
+x-db-env: &db-env
+  MASTER_HOST: ${MASTER_HOST}
+  MASTER_PORT: ${MASTER_PORT}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DB: ${POSTGRES_DB}
+  DB_SSLMODE: disable
+
 services:
   hexlet-project:
-    build: .
+    <<: *go-app
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "${EXTERNAL_APP_PORT}:${APP_PORT}"
     environment:
-      - GOOGLE_KEY=${GOOGLE_KEY}
-      - GOOGLE_SECRET=${GOOGLE_SECRET}
-      - MASTER_HOST=${MASTER_HOST}
-      - MASTER_PORT=${MASTER_PORT}
-      - SLAVE_HOST=${SLAVE_HOST}
-      - SLAVE_PORT=${SLAVE_PORT}
-      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - DB_SSLMODE=disable
-      - KAFKA_BROKERS=kafka:9092
+      <<: *db-env
+      SLAVE_HOST: ${SLAVE_HOST}
+      SLAVE_PORT: ${SLAVE_PORT}
+      GOOGLE_KEY: ${GOOGLE_KEY}
+      GOOGLE_SECRET: ${GOOGLE_SECRET}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      KAFKA_BROKERS: ${KAFKA_HOST}:${KAFKA_PORT}
+      APP_PORT: ${APP_PORT}
     depends_on:
-      - master
-      - slave
-      - kafka  
-    networks:
-      - app-network
-  master:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
-    ports:
-      - "5432:5432"
-    volumes:
-      - master_data:/var/lib/postgresql
-      - ./db/migrations:/docker-entrypoint-initdb.d
-      - ./db/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh
-    networks:
-      - app-network
+      master:
+        condition: service_healthy
+      slave:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:${APP_PORT}/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
+
+  master:
+    image: *postgres-image
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports:
+      - "${EXTERNAL_POSTGRES_PORT}:${MASTER_PORT}"
+    volumes:
+      - master_data:/var/lib/postgresql/data
+      - ./docker_config/postgres/setup-replication.sh:/docker-entrypoint-initdb.d/setup-replication.sh
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   slave:
-    image: postgres:17
+    image: *postgres-image
+    restart: unless-stopped
     depends_on:
       master:
         condition: service_healthy
     environment:
-      - PGPASSWORD=${DB_PASSWORD}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"
+      - "${EXTERNAL_POSTGRES_SLAVE_PORT}:${SLAVE_PORT}"
     volumes:
       - slave_data:/var/lib/postgresql/data
     entrypoint: >
       bash -c "
       rm -rf /var/lib/postgresql/data/* &&
-      until pg_basebackup -h master -D /var/lib/postgresql/data -U ${DB_USER} -vP -R -X stream; do
+      until pg_basebackup -h master -D /var/lib/postgresql/data -U ${POSTGRES_USER} -vP -R -X stream; do
       echo 'Waiting for master...' && sleep 3;
       done;
       exec docker-entrypoint.sh postgres"
     networks:
-      - app-network 
-
-  zookeeper:
-    image: zookeeper:3.7.0
-    ports:
-      - "2181:2181"
-    networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Одноразовый сервис: тем же образом приложения накатывает миграции (./main migrate up)
+  # после готовности master и до запуска приложения. Завершается после применения.
+  migrate:
+    <<: *go-app
+    command: ["./main", "migrate", "up"]
+    environment:
+      <<: *db-env
+    depends_on:
+      master:
+        condition: service_healthy
+    restart: "no"
 
   kafka:
-    image: confluentinc/cp-kafka:6.2.0
+    image: *kafka-image
+    restart: unless-stopped
     ports:
-      - "9092:9092"
+      - "${EXTERNAL_KAFKA_PORT}:${KAFKA_PORT}"
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@${KAFKA_HOST}:${KAFKA_CONTROLLER_PORT}
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:${KAFKA_PORT},CONTROLLER://0.0.0.0:${KAFKA_CONTROLLER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_HOST}:${KAFKA_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    depends_on:
-      - zookeeper
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:${KAFKA_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
 volumes:
   master_data:
   slave_data:
+  kafka_data:
 
 networks:
   app-network:

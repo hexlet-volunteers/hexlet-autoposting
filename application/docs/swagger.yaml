@@ -30,7 +30,7 @@ definitions:
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
       platform_name:
         type: string
       sheduled_for:
@@ -47,13 +47,12 @@ definitions:
       config:
         type: string
       id_user:
-        type: integer
+        type: string
       platfromname:
         type: string
     required:
     - bot_name
     - config
-    - id_user
     - platfromname
     type: object
   dto.CreatePlatformResponce:
@@ -63,14 +62,14 @@ definitions:
       id_platform:
         type: integer
       id_user:
-        type: integer
+        type: string
     type: object
   dto.CreatePostRequest:
     properties:
       content:
         type: string
       id_user:
-        type: integer
+        type: string
       sheduled_for:
         type: string
       title:
@@ -79,7 +78,6 @@ definitions:
         type: string
     required:
     - content
-    - id_user
     - sheduled_for
     - title
     type: object
@@ -90,7 +88,7 @@ definitions:
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
     type: object
   dto.ErrorResponse:
     properties:
@@ -101,9 +99,7 @@ definitions:
   dto.GetByUserIDRequest:
     properties:
       id_user:
-        type: integer
-    required:
-    - id_user
+        type: string
     type: object
   dto.GetPlatformResponce:
     properties:
@@ -147,14 +143,13 @@ definitions:
       id_platform:
         type: integer
       id_user:
-        type: integer
+        type: string
       platfromname:
         type: string
     required:
     - config
     - content
     - id_platform
-    - id_user
     - platfromname
     type: object
   dto.PutPlatformResponce:
@@ -162,7 +157,7 @@ definitions:
       id_platform:
         type: integer
       id_user:
-        type: integer
+        type: string
       updated_at:
         type: string
     type: object
@@ -171,9 +166,9 @@ definitions:
       content:
         type: string
       id_post:
-        type: string
-      id_user:
         type: integer
+      id_user:
+        type: string
       sheduled_for:
         type: string
       title:
@@ -184,7 +179,7 @@ definitions:
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
       updated_at:
         type: string
     type: object

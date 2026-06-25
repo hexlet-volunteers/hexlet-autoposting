@@ -29,6 +29,9 @@ type App struct {
 }
 
 func (a *App) Routes(r *gin.Engine) {
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 	authGroup := r.Group("/auth")
 	{
 		authGroup.GET("/:provider", a.beginAuthFunction)

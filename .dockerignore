@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+docker_config
+Makefile
+*.md
+.env
+.env.*
+application/coverage
+**/*.out

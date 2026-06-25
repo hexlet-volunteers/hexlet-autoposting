@@ -41,7 +41,7 @@ type ScheduledPublication struct {
 	ID_user        string `json:"id_user"`
 	Title          string `json:"title"`
 	Content        string `json:"content"`
-	ID_platform    int `json:"id_platform"`
+	ID_platform    int    `json:"id_platform"`
 	Platform_name  string `json:"platform_name"`
 	Api_config     string `json:"api_config"`
 }

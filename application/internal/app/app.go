@@ -42,7 +42,7 @@ func NewApp(ctx context.Context, masterdbpool *pgxpool.Pool, slavedbpool *pgxpoo
 		Repo: repo,
 	}
 	var scheduler *service.SchedulerService
-	kafkaBrokers := getKafkaBrokers()
+	kafkaBrokers := GetKafkaBrokers()
 
 	if len(kafkaBrokers) > 0 {
 		kafkaConfig := kafka.NewConfig(
@@ -82,10 +82,10 @@ func (a *App) StartScheduler() {
 	}
 }
 
-func getKafkaBrokers() []string {
+func GetKafkaBrokers() []string {
 	brokersEnv := os.Getenv("KAFKA_BROKERS")
 	if brokersEnv == "" {
-		return []string{"localhost:29092"}
+		return []string{"localhost:9092"}
 	}
 
 	brokers := strings.Split(brokersEnv, ",")

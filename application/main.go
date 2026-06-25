@@ -5,8 +5,10 @@ import (
 	"hexlet/internal/app"
 	"hexlet/internal/auth"
 	"hexlet/internal/config"
+	"hexlet/internal/migrator"
 	storage "hexlet/internal/storage"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,6 +26,10 @@ import (
 // @securityDefinitions.basic  BasicAuth
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
+		migrator.Run(os.Args[2:])
+		return
+	}
 
 	r := gin.Default()
 	ctx := context.Background()
@@ -59,7 +65,7 @@ func main() {
 	go func() {
 		time.Sleep(30 * time.Second)
 		readerConfig := kafka.ReaderConfig{
-			Brokers:     []string{"kafka:9092"},
+			Brokers:     app.GetKafkaBrokers(),
 			Topic:       "publications.pending",
 			GroupID:     "hexlet-publications-worker",
 			MinBytes:    10e3,
@@ -88,9 +94,13 @@ func main() {
 
 	log.Println("Kafka scheduler started")
 	a.Routes(r)
+	appPort := os.Getenv("APP_PORT")
+	if appPort == "" {
+		appPort = "8080"
+	}
 	go func() {
-		log.Println("HTTP server starting on :8080")
-		err := r.Run(":8080")
+		log.Printf("HTTP server starting on :%s", appPort)
+		err := r.Run(":" + appPort)
 		if err != nil {
 			log.Fatal(err)
 		}

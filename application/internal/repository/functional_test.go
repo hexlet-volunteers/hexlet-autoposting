@@ -377,7 +377,6 @@ func TestGetPostByStatus(t *testing.T) {
 	}
 }
 
-
 func TestGetPostByID(t *testing.T) {
 	cleanupTables()
 
@@ -467,8 +466,6 @@ func TestGetPostByIDWrongUser(t *testing.T) {
 		t.Errorf("Expected 0 posts for wrong user, got %d", len(result.Posts))
 	}
 }
-
-
 
 func TestUpdatePostByID(t *testing.T) {
 	cleanupTables()
@@ -790,8 +787,6 @@ func TestGetPlatformMultiple(t *testing.T) {
 		t.Errorf("Expected 3 platforms, got %d", len(result.Platfroms))
 	}
 }
-
-
 
 func TestGetPlatformByID(t *testing.T) {
 	cleanupTables()
