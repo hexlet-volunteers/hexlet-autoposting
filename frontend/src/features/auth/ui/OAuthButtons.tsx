@@ -17,7 +17,7 @@ export function OAuthButtons() {
       {PROVIDERS.map((p) => (
         <Button
           key={p.id}
-          size="sm"
+          size="xs"
           radius="md"
           fw={600}
           styles={{ root: { background: p.color, color: p.fg } }}

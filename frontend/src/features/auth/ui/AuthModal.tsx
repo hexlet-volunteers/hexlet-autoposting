@@ -13,7 +13,7 @@ const COPY: Record<AuthMode, { title: string; subtitle: string }> = {
   },
   register: {
     title: 'Создайте аккаунт',
-    subtitle: 'Бесплатный тариф навсегда: 3 соцсети и 10 постов в месяц. Карта не нужна.',
+    subtitle: 'Бесплатный тариф навсегда. Карта не нужна.',
   },
   reset: {
     title: 'Восстановим пароль',
@@ -30,7 +30,7 @@ export function AuthModal() {
   const isAuth = mode !== 'reset'
 
   return (
-    <Modal opened={opened} onClose={close} centered radius="lg" size="sm" title={null}>
+    <Modal opened={opened} onClose={close} centered radius="lg" size="md" yOffset="16px" title={null}>
       <Stack gap="sm">
         <SegmentedControl
           fullWidth
