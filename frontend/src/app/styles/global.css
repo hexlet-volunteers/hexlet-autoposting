@@ -1,0 +1,10 @@
+/* Дизайн-токены страницы: кремовый фон и тёмный текст (перекрывают дефолт Mantine). */
+:root {
+  --app-bg: #f6f4ef;
+  --app-text: #17150f;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
