@@ -1,6 +1,7 @@
 import { Anchor, Box, Button, Container, Group } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { Logo } from '@/shared/ui'
+import { useAuthModal } from '@/features/auth'
 
 const NAV = [
   { label: 'Возможности', href: '#features' },
@@ -12,6 +13,7 @@ const NAV = [
 
 /** Липкая шапка маркетинг-сайта: логотип, якорная навигация, кнопки входа. */
 export function MarketingHeader() {
+  const { open } = useAuthModal()
   return (
     <Box
       component="header"
@@ -46,10 +48,10 @@ export function MarketingHeader() {
             </Group>
           </Group>
           <Group gap="sm" wrap="nowrap">
-            <Button component={Link} to="/login" variant="subtle" color="dark" size="sm" visibleFrom="xs">
+            <Button variant="subtle" color="dark" size="sm" visibleFrom="xs" onClick={() => open('login')}>
               Войти
             </Button>
-            <Button component={Link} to="/login" size="sm">
+            <Button size="sm" onClick={() => open('register')}>
               Попробовать бесплатно
             </Button>
           </Group>
