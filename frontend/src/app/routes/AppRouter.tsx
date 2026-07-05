@@ -5,6 +5,7 @@ import { PostsPage } from '@/pages/posts'
 import { PlatformsPage } from '@/pages/platforms'
 import { LoginPage } from '@/pages/login'
 import { LegalPage } from '@/pages/legal'
+import { PricingPage } from '@/pages/pricing'
 import { NotFoundPage } from '@/pages/not-found'
 import { RouteErrorPage, ServerErrorPage, ServiceUnavailablePage } from '@/pages/error'
 import { AutopostingPage } from '@/pages/feature-autoposting'
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
+      { path: '/pricing', element: <PricingPage /> },
       { path: '/features/autoposting', element: <AutopostingPage /> },
       { path: '/features/crossposting', element: <CrosspostingPage /> },
       { path: '/features/ai', element: <AiFeaturePage /> },
