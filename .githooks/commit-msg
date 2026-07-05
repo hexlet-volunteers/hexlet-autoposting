@@ -1,0 +1,17 @@
+#!/bin/sh
+# ЖЁСТКИЙ ЗАПРЕТ: удаляем любые упоминания Claude / Anthropic / AI-атрибуции
+# из сообщения коммита. Хук вызывается git'ом на КАЖДОМ коммите.
+# Включается: git config core.hooksPath .githooks
+f="$1"
+tmp="$(mktemp)"
+
+grep -viE 'co-authored-by:.*(claude|anthropic)|noreply@anthropic|generated with .*claude|claude code|claude opus|🤖' "$f" > "$tmp"
+
+# Не затираем сообщение, если после фильтрации что-то осталось.
+if [ -s "$tmp" ]; then
+  mv "$tmp" "$f"
+else
+  rm -f "$tmp"
+fi
+
+exit 0
