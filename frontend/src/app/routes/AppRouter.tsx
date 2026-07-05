@@ -5,7 +5,7 @@ import { PostsPage } from '@/pages/posts'
 import { PlatformsPage } from '@/pages/platforms'
 import { LoginPage } from '@/pages/login'
 import { NotFoundPage } from '@/pages/not-found'
-import { RouteErrorPage } from '@/pages/error'
+import { RouteErrorPage, ServerErrorPage, ServiceUnavailablePage } from '@/pages/error'
 
 const router = createBrowserRouter([
   {
@@ -15,6 +15,8 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
+      { path: '/500', element: <ServerErrorPage /> },
+      { path: '/503', element: <ServiceUnavailablePage /> },
       {
         element: <AppLayout />,
         children: [
