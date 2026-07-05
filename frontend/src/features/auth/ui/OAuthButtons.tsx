@@ -13,7 +13,7 @@ const PROVIDERS = [
 
 export function OAuthButtons() {
   return (
-    <SimpleGrid cols={3} spacing="xs">
+    <SimpleGrid cols={3} spacing={6}>
       {PROVIDERS.map((p) => (
         <Button
           key={p.id}

@@ -30,8 +30,8 @@ export function AuthModal() {
   const isAuth = mode !== 'reset'
 
   return (
-    <Modal opened={opened} onClose={close} centered radius="lg" size="md" yOffset="16px" title={null}>
-      <Stack gap="sm">
+    <Modal opened={opened} onClose={close} centered radius="lg" size="md" yOffset="12px" padding="md" title={null}>
+      <Stack gap="xs">
         <SegmentedControl
           fullWidth
           color="dark"
@@ -44,10 +44,10 @@ export function AuthModal() {
         />
 
         <div>
-          <Title order={3} fz={20} fw={800}>
+          <Title order={3} fz={18} fw={800}>
             {COPY[mode].title}
           </Title>
-          <Text c="dimmed" fz={12.5} mt={2}>
+          <Text c="dimmed" fz={12} mt={0}>
             {COPY[mode].subtitle}
           </Text>
         </div>
