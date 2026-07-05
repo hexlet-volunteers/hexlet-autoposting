@@ -2,14 +2,25 @@ import { Anchor, Box, Container, Divider, Group, SimpleGrid, Stack, Text } from 
 import { Link } from 'react-router-dom'
 import { Logo } from '@/shared/ui'
 
-const COLUMNS = [
+interface FooterLink {
+  label: string
+  href?: string
+  to?: string
+}
+interface FooterColumn {
+  title: string
+  links?: FooterLink[]
+  lines?: string[]
+}
+
+const COLUMNS: FooterColumn[] = [
   {
     title: 'Продукт',
     links: [
-      { label: 'Автопостинг', href: '#features' },
-      { label: 'Кросспостинг', href: '#features' },
-      { label: 'ИИ-помощник', href: '#features' },
-      { label: 'Тарифы', href: '#pricing' },
+      { label: 'Автопостинг', to: '/features/autoposting' },
+      { label: 'Кросспостинг', to: '/features/crossposting' },
+      { label: 'ИИ-помощник', to: '/features/ai' },
+      { label: 'Тарифы', to: '/pricing' },
     ],
   },
   {
@@ -43,11 +54,17 @@ export function MarketingFooter() {
               <Text fw={700} fz={14}>
                 {col.title}
               </Text>
-              {col.links?.map((l) => (
-                <Anchor key={l.label} href={l.href} c="dimmed" fz={14} underline="never">
-                  {l.label}
-                </Anchor>
-              ))}
+              {col.links?.map((l) =>
+                l.to ? (
+                  <Anchor key={l.label} component={Link} to={l.to} c="dimmed" fz={14} underline="never">
+                    {l.label}
+                  </Anchor>
+                ) : (
+                  <Anchor key={l.label} href={l.href} c="dimmed" fz={14} underline="never">
+                    {l.label}
+                  </Anchor>
+                ),
+              )}
               {col.lines?.map((line) => (
                 <Text key={line} c="dimmed" fz={14}>
                   {line}

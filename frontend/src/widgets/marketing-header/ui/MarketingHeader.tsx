@@ -3,11 +3,17 @@ import { Link } from 'react-router-dom'
 import { Logo } from '@/shared/ui'
 import { useAuthModal } from '@/features/auth'
 
-const NAV = [
+interface NavItem {
+  label: string
+  href?: string
+  to?: string
+}
+
+const NAV: NavItem[] = [
   { label: 'Возможности', href: '#features' },
   { label: 'Как это работает', href: '#how' },
   { label: 'Соцсети', href: '#networks' },
-  { label: 'Тарифы', href: '#pricing' },
+  { label: 'Тарифы', to: '/pricing' },
   { label: 'FAQ', href: '#faq' },
 ]
 
@@ -33,18 +39,32 @@ export function MarketingHeader() {
               <Logo />
             </Anchor>
             <Group gap="lg" visibleFrom="sm">
-              {NAV.map((item) => (
-                <Anchor
-                  key={item.href}
-                  href={item.href}
-                  underline="never"
-                  fw={600}
-                  fz={14}
-                  c="rgba(23,21,15,0.65)"
-                >
-                  {item.label}
-                </Anchor>
-              ))}
+              {NAV.map((item) =>
+                item.to ? (
+                  <Anchor
+                    key={item.label}
+                    component={Link}
+                    to={item.to}
+                    underline="never"
+                    fw={600}
+                    fz={14}
+                    c="rgba(23,21,15,0.65)"
+                  >
+                    {item.label}
+                  </Anchor>
+                ) : (
+                  <Anchor
+                    key={item.label}
+                    href={item.href}
+                    underline="never"
+                    fw={600}
+                    fz={14}
+                    c="rgba(23,21,15,0.65)"
+                  >
+                    {item.label}
+                  </Anchor>
+                ),
+              )}
             </Group>
           </Group>
           <Group gap="sm" wrap="nowrap">
