@@ -63,6 +63,7 @@ export function PricingTeaserSection() {
             p="lg"
             style={{
               position: 'relative',
+              overflow: 'visible', // чтобы бейдж «Выбирают чаще всего» не обрезался (Card по умолчанию overflow:hidden)
               border: plan.featured ? FEATURED_BORDER : undefined,
               boxShadow: plan.featured ? '0 12px 32px rgba(43, 80, 236, 0.12)' : undefined,
               display: 'flex',

@@ -1,20 +1,16 @@
-import { Card, Center, Stack, Text, Title } from '@mantine/core'
-import { IconBrandTelegram } from '@tabler/icons-react'
-import { LoginButton } from '@/features/auth'
+import { useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { openAuth } from '@/features/auth'
 
+/**
+ * /login — не отдельная страница, а deep-link: открывает auth-модалку (режим входа)
+ * поверх главной. Вся авторизация живёт в модалке (features/auth).
+ */
 export function LoginPage() {
-  return (
-    <Center mih="100vh" p="md">
-      <Card withBorder radius="md" padding="xl" w={380}>
-        <Stack align="center" gap="md">
-          <IconBrandTelegram size={40} />
-          <Title order={3}>Hexlet Autoposting</Title>
-          <Text c="dimmed" ta="center" size="sm">
-            Планируйте и публикуйте посты в Telegram и VK из одного места.
-          </Text>
-          <LoginButton />
-        </Stack>
-      </Card>
-    </Center>
-  )
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(openAuth('login'))
+  }, [dispatch])
+  return <Navigate to="/" replace />
 }

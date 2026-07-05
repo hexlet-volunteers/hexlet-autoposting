@@ -1,5 +1,4 @@
 export { AuthModal } from './ui/AuthModal'
-export { LoginButton } from './ui/LoginButton'
 export {
   authModalSlice,
   openAuth,

@@ -251,12 +251,6 @@ export function HeroSection() {
                 </Stack>
               ))}
             </SimpleGrid>
-
-            <Box px={18} py={9} style={{ borderTop: `1px solid ${SOFT_BORDER}` }}>
-              <Text fz={12} c="rgba(23,21,15,.48)">
-                Живое демо: «+» добавляет пост, клик по посту — удаляет
-              </Text>
-            </Box>
           </Card>
         </Stack>
       </Container>

@@ -62,14 +62,11 @@ export function MarketingFooter() {
             © Отложка, 2026
           </Text>
           <Group gap="lg" wrap="wrap">
-            <Anchor component={Link} to="/legal" c="dimmed" fz={13} underline="never">
+            <Anchor component={Link} to="/legal#oferta" c="dimmed" fz={13} underline="never">
               Оферта
             </Anchor>
-            <Anchor component={Link} to="/legal" c="dimmed" fz={13} underline="never">
+            <Anchor component={Link} to="/legal#privacy" c="dimmed" fz={13} underline="never">
               Политика конфиденциальности
-            </Anchor>
-            <Anchor component={Link} to="/posts" c="dimmed" fz={13} underline="never">
-              Личный кабинет
             </Anchor>
           </Group>
         </Group>

@@ -25,21 +25,21 @@ const FEATURES: Feature[] = [
     title: 'Автопостинг по расписанию',
     description:
       'Очередь публикаций, автоповторы и подсказки лучшего времени. Планируйте хоть на год.',
-    href: '#features',
+    href: '/features/autoposting',
   },
   {
     icon: IconShare3,
     title: 'Кросспостинг с адаптацией',
     description:
       'Один пост уходит во все сети сразу — с учётом лимитов и форматов каждой площадки.',
-    href: '#features',
+    href: '/features/crossposting',
   },
   {
     icon: IconSparkles,
     title: 'ИИ-тексты и идеи',
     description:
       'Напишет пост по теме, перепишет под площадку, предложит контент-план на месяц.',
-    href: '#features',
+    href: '/features/ai',
   },
   {
     icon: IconPhoto,

@@ -31,7 +31,7 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={submit}>
-      <Stack gap="sm">
+      <Stack gap="xs">
         <TextInput label="Как вас зовут" placeholder="Мария" withAsterisk {...form.getInputProps('name')} />
         <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
         <PasswordInput
@@ -55,7 +55,7 @@ export function RegisterForm() {
             </>
           }
         />
-        <Button type="submit" fullWidth mt={4}>
+        <Button type="submit" fullWidth mt={2}>
           Создать аккаунт
         </Button>
       </Stack>
