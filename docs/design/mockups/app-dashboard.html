@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F4EF;color:#17150F;font-family:'Golos Text',system-ui,sans-serif}
+</style>
+</helmet>
+
+<div style="display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh">
+
+  <!-- ======= САЙДБАР ======= -->
+  <div style="background:#fff;border-right:1px solid rgba(23,21,15,.09);display:flex;flex-direction:column;padding:18px 14px" data-screen-label="Сайдбар">
+    <a href="Главная.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;padding:4px 8px">
+      <span style="width:28px;height:28px;border-radius:8px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">О</span>
+      <span style="font-weight:800;font-size:17px;letter-spacing:-.2px">Отложка</span>
+    </a>
+
+    <div style="position:relative;margin-top:16px">
+      <button onClick="{{ toggleProjMenu }}" style="font-family:inherit;width:100%;display:flex;align-items:center;gap:10px;background:#F6F4EF;border:1px solid rgba(23,21,15,.08);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left" style-hover="border-color:rgba(23,21,15,.25)">
+        <span style="width:30px;height:30px;border-radius:9px;background:{{ projColor }};color:{{ projLfg }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none">{{ projLetter }}</span>
+        <span style="min-width:0"><span style="display:block;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ projName }}</span><span style="display:block;font-size:11px;color:rgba(23,21,15,.5)">проект {{ projNum }} из {{ projTotal }}</span></span>
+        <span style="margin-left:auto;color:rgba(23,21,15,.4);font-size:11px">{{ projChev }}</span>
+      </button>
+      <sc-if value="{{ projMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:12px;box-shadow:0 16px 40px rgba(23,21,15,.16);padding:6px;z-index:60">
+          <sc-for list="{{ projRows }}" as="p" hint-placeholder-count="3">
+            <button onClick="{{ p.pick }}" style="font-family:inherit;width:100%;display:flex;align-items:center;gap:9px;background:{{ p.bg }};border:none;border-radius:9px;padding:8px 9px;cursor:pointer;text-align:left" style-hover="background:rgba(23,21,15,.05)">
+              <span style="width:26px;height:26px;border-radius:8px;background:{{ p.color }};color:{{ p.lfg }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none">{{ p.letter }}</span>
+              <span style="min-width:0;flex:1;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+              <span style="font-size:12px;color:#2B50EC;font-weight:700">{{ p.check }}</span>
+            </button>
+          </sc-for>
+          <button onClick="{{ openNewProj }}" style="font-family:inherit;width:100%;display:flex;align-items:center;gap:8px;background:transparent;border:none;border-radius:9px;padding:8px 9px;font-size:12.5px;font-weight:700;color:#2B50EC;cursor:pointer;text-align:left" style-hover="background:rgba(43,80,236,.06)">+ Новый проект</button>
+          <sc-if value="{{ hasArchived }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid rgba(23,21,15,.08);margin:5px 4px 3px;padding:6px 5px 2px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(23,21,15,.4)">Архив</div>
+            <sc-for list="{{ archProjRows }}" as="p" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:9px;padding:7px 9px">
+                <span style="width:26px;height:26px;border-radius:8px;background:rgba(23,21,15,.12);color:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none">{{ p.letter }}</span>
+                <span style="min-width:0;flex:1;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+                <button onClick="{{ p.restore }}" style="font-family:inherit;background:none;border:none;padding:0;font-size:11.5px;font-weight:700;color:#2B50EC;cursor:pointer">Вернуть</button>
+              </div>
+            </sc-for>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px;margin-top:16px">
+      <button onClick="{{ goCal }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navCalBg }};color:{{ navCalFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14.5" rx="2"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"></path></svg>Календарь
+      </button>
+      <button onClick="{{ goQueue }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navQueueBg }};color:{{ navQueueFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"></path><circle cx="4.5" cy="6" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="4.5" cy="12" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="4.5" cy="18" r="1.4" fill="currentColor" stroke="none"></circle></svg>Очередь
+      </button>
+      <button onClick="{{ goMedia }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navMediaBg }};color:{{ navMediaFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 012-2h4l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2z"></path></svg>Медиатека
+      </button>
+      <button onClick="{{ goReports }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navReportsBg }};color:{{ navReportsFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"></path><path d="M6.5 19.5v-6M11 19.5v-10M15.5 19.5v-4M20 19.5V6.5"></path></svg>Отчёты
+      </button>
+      <button onClick="{{ goTeam }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navTeamBg }};color:{{ navTeamFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"></circle><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"></path><circle cx="16.5" cy="10" r="2.4"></circle><path d="M15.5 14.3c2.5.2 4.5 2.2 4.5 4.7"></path></svg>Команда
+      </button>
+      <button onClick="{{ goSettings }}" style="font-family:inherit;border:none;text-align:left;display:flex;align-items:center;gap:11px;background:{{ navSettingsBg }};color:{{ navSettingsFg }};border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M6 6l1.8 1.8M16.2 16.2L18 18M18 6l-1.8 1.8M7.8 16.2L6 18"></path></svg>Настройки
+      </button>
+    </div>
+
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+      <div style="background:#F6F4EF;border:1px solid rgba(23,21,15,.08);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:700">Тариф «{{ tariffName }}»</span><span style="margin-left:auto;font-size:11px;color:rgba(23,21,15,.5)">до 12 дек</span></div>
+        <div style="margin-top:10px;font-size:11.5px;color:rgba(23,21,15,.55)">ИИ-тексты · {{ aiUsed }} из {{ aiLimitLabel }}</div>
+        <div style="margin-top:5px;height:6px;border-radius:999px;background:rgba(23,21,15,.09)"><div style="width:{{ aiBarW }};height:6px;border-radius:999px;background:#2B50EC"></div></div>
+        <button onClick="{{ openUpgrade }}" style="font-family:inherit;background:none;border:none;padding:0;margin-top:11px;font-size:12.5px;font-weight:700;color:#2B50EC;cursor:pointer">{{ upgradeLabel }} →</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 8px">
+        <span style="width:30px;height:30px;border-radius:999px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ profileInit }}</span>
+        <span><span style="display:block;font-size:13px;font-weight:700">{{ profileName }}</span><a href="Вход.dc.html" style="font-size:11.5px;color:rgba(23,21,15,.5);text-decoration:none" style-hover="color:#2B50EC">Выйти</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= ОСНОВНОЕ ======= -->
+  <div style="padding:22px 28px 32px;min-width:0" data-screen-label="Кабинет: контент">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.4px">{{ viewTitle }}</h1>
+      <sc-if value="{{ vCal }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;gap:4px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:4px">
+          <sc-for list="{{ scaleChips }}" as="s" hint-placeholder-count="4">
+            <button onClick="{{ s.pick }}" style="font-family:inherit;border:none;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }}">{{ s.n }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ scaleWeek }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:4px">
+            <button onClick="{{ prevWeek }}" style="font-family:inherit;border:none;background:transparent;border-radius:8px;padding:6px 10px;font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.06)">‹</button>
+            <span style="font-size:13.5px;font-weight:700;min-width:126px;text-align:center">{{ weekLabel }}</span>
+            <button onClick="{{ nextWeek }}" style="font-family:inherit;border:none;background:transparent;border-radius:8px;padding:6px 10px;font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.06)">›</button>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:#2B50EC;background:rgba(43,80,236,.08);border-radius:999px;padding:5px 11px">{{ totalW }} {{ totalWLabel }}</div>
+        </sc-if>
+        <sc-if value="{{ scaleYearNav }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:4px">
+            <button onClick="{{ prevYear }}" style="font-family:inherit;border:none;background:transparent;border-radius:8px;padding:6px 10px;font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.06)">‹</button>
+            <span style="font-size:13.5px;font-weight:700;min-width:60px;text-align:center">{{ calYear }}</span>
+            <button onClick="{{ nextYear }}" style="font-family:inherit;border:none;background:transparent;border-radius:8px;padding:6px 10px;font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.06)">›</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ scaleMidLabel }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13.5px;font-weight:700;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:9px 14px">{{ periodLabel }}</div>
+        </sc-if>
+      </sc-if>
+      <div style="flex:1"></div>
+      <sc-if value="{{ showNewPost }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ openModal }}" style="font-family:inherit;background:#2B50EC;color:#fff;border:none;border-radius:11px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">+ Новый пост</button>
+      </sc-if>
+    </div>
+
+    <!-- ===== НЕДЕЛЯ ===== -->
+    <sc-if value="{{ vCalWeek }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px">
+        <sc-for list="{{ netChips }}" as="n" hint-placeholder-count="7">
+          <button title="{{ n.tip }}" onClick="{{ n.toggle }}" style="font-family:inherit;display:flex;align-items:center;gap:7px;background:{{ n.bg }};border:1.5px {{ n.bdStyle }} {{ n.bd }};border-radius:999px;padding:6px 12px 6px 7px;font-size:12.5px;font-weight:600;color:{{ n.fg }};cursor:pointer">
+            <span style="font-size:9px;font-weight:700;color:#fff;background:{{ n.badge }};border-radius:999px;padding:3px 6px">{{ n.s }}</span>{{ n.label }}
+          </button>
+        </sc-for>
+      </div>
+      <div style="margin-top:16px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:rgba(23,21,15,.09)">
+          <sc-for list="{{ days }}" as="day" hint-placeholder-count="7">
+            <div style="background:{{ day.bg }};display:flex;flex-direction:column;min-height:230px;min-width:0;overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 4px 8px;font-size:12px;font-weight:600;color:{{ day.nc }}">{{ day.name }} <span style="opacity:.55;font-weight:500">{{ day.date }}</span><sc-if value="{{ day.today }}" hint-placeholder-val="{{ false }}"><span style="font-size:9.5px;font-weight:700;background:#2B50EC;color:#fff;border-radius:999px;padding:2px 6px">сегодня</span></sc-if></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:0 6px 8px">
+                <sc-for list="{{ day.posts }}" as="p" hint-placeholder-count="1">
+                  <button title="Открыть настройки поста" onClick="{{ p.open }}" style="font-family:inherit;width:100%;text-align:left;border:1px solid {{ p.line }};background:{{ p.soft }};border-radius:8px;padding:6px 7px;cursor:pointer;display:flex;flex-direction:column;gap:3px" style-hover="border-color:rgba(23,21,15,.4)">
+                    <span style="display:flex;align-items:center;gap:5px"><span style="flex:none;font-size:9px;font-weight:700;letter-spacing:.3px;color:#fff;background:{{ p.c }};border-radius:4px;padding:2px 5px">{{ p.s }}</span><span style="flex:none;font-size:10px;font-weight:600;color:rgba(23,21,15,.5)">{{ p.t }}</span><span style="display:{{ p.repDisp }};flex:none;font-size:10px;font-weight:700;color:#2B50EC">↻</span></span>
+                    <span style="display:block;font-size:11px;font-weight:600;line-height:1.25;color:rgba(23,21,15,.85);min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.l }}</span>
+                    <span style="display:{{ p.phDisp }};font-size:9px;font-weight:700;color:rgba(23,21,15,.55);background:rgba(23,21,15,.07);border-radius:4px;padding:1px 5px">{{ p.phLabel }}</span>
+                  </button>
+                </sc-for>
+                <button onClick="{{ day.add }}" style="font-family:inherit;border:1.5px dashed rgba(23,21,15,.18);background:transparent;border-radius:8px;padding:5px;font-size:13px;font-weight:600;color:rgba(23,21,15,.4);cursor:pointer" style-hover="background:rgba(43,80,236,.06);color:#2B50EC;border-color:rgba(43,80,236,.4)">+</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:9px 18px;border-top:1px solid rgba(23,21,15,.09);font-size:12px;color:rgba(23,21,15,.48)">Клик по посту — настройки и удаление, «+» — новый пост в этот день, ↻ — повторяющийся пост</div>
+      </div>
+    </sc-if>
+
+    <!-- ===== МЕСЯЦ ===== -->
+    <sc-if value="{{ vCalMonth }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:16px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid rgba(23,21,15,.09)">
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:rgba(23,21,15,.5)">Пн</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:rgba(23,21,15,.5)">Вт</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:rgba(23,21,15,.5)">Ср</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:rgba(23,21,15,.5)">Чт</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:rgba(23,21,15,.5)">Пт</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:#C4552D">Сб</div>
+          <div style="padding:9px 0;text-align:center;font-size:11.5px;font-weight:600;color:#C4552D">Вс</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:rgba(23,21,15,.07)">
+          <sc-for list="{{ monthCells }}" as="c" hint-placeholder-count="35">
+            <button onClick="{{ c.pick }}" style="font-family:inherit;background:#fff;border:none;outline:{{ c.ring }};outline-offset:-2px;min-height:86px;padding:8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;cursor:{{ c.cur }};text-align:left" style-hover="background:rgba(43,80,236,.04)">
+              <span style="font-size:12px;font-weight:600;color:{{ c.dc }}">{{ c.date }}</span>
+              <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                <sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="0"><span style="width:8px;height:8px;border-radius:999px;background:{{ d.c }}"></span></sc-for>
+                <span style="font-size:10px;font-weight:700;color:rgba(23,21,15,.45)">{{ c.more }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="padding:9px 18px;border-top:1px solid rgba(23,21,15,.09);font-size:12px;color:rgba(23,21,15,.48)">Точки — запланированные посты. Клик по дню открывает его неделю</div>
+      </div>
+    </sc-if>
+
+    <!-- ===== КВАРТАЛ ===== -->
+    <sc-if value="{{ vCalQuarter }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
+        <sc-for list="{{ quarterCards }}" as="q" hint-placeholder-count="3">
+          <button onClick="{{ q.pick }}" style="font-family:inherit;background:#fff;border:{{ q.bd }};border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:4px;cursor:{{ q.cur }};text-align:left" style-hover="border-color:rgba(43,80,236,.5)">
+            <span style="font-size:15px;font-weight:700">{{ q.name }}</span>
+            <span style="font-size:34px;font-weight:800;letter-spacing:-.5px;color:{{ q.cc }}">{{ q.count }}</span>
+            <span style="font-size:12.5px;color:rgba(23,21,15,.55)">{{ q.sub }}</span>
+            <span style="margin-top:10px;font-size:12.5px;font-weight:700;color:#2B50EC">{{ q.action }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- ===== ГОД ===== -->
+    <sc-if value="{{ vCalYear }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:16px">
+        <sc-for list="{{ yearTiles }}" as="y" hint-placeholder-count="12">
+          <button onClick="{{ y.pick }}" style="font-family:inherit;background:#fff;border:{{ y.bd }};border-radius:14px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:2px;cursor:{{ y.cur }};text-align:left" style-hover="border-color:rgba(43,80,236,.5)">
+            <span style="display:flex;align-items:flex-end;height:38px"><span style="display:block;width:26px;height:{{ y.barH }};border-radius:5px 5px 2px 2px;background:{{ y.barC }}"></span></span>
+            <span style="margin-top:8px;font-size:13px;font-weight:700;color:{{ y.fg }}">{{ y.m }}</span>
+            <span style="font-size:12px;color:rgba(23,21,15,.5)">{{ y.count }} {{ y.countLabel }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="margin-top:12px;font-size:12.5px;color:rgba(23,21,15,.5)">{{ yearHint }}</div>
+    </sc-if>
+
+    <!-- ===== ОЧЕРЕДЬ ===== -->
+    <sc-if value="{{ vQueue }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:4px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:4px;margin-top:16px;width:fit-content">
+        <button onClick="{{ qTabQ }}" style="font-family:inherit;border:none;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ tqBg }};color:{{ tqFg }}">В очереди · {{ queueN }}</button>
+        <button onClick="{{ qTabA }}" style="font-family:inherit;border:none;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ taBg }};color:{{ taFg }}">Отправленные · {{ archN }}</button>
+      </div>
+      <sc-if value="{{ qIsQueue }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:14px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid rgba(23,21,15,.09)">
+            <div style="font-size:14.5px;font-weight:700">Ближайшие публикации</div>
+            <div style="display:flex;gap:3px;background:rgba(23,21,15,.05);border-radius:9px;padding:3px">
+              <sc-for list="{{ queueChips }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.pick }}" style="font-family:inherit;border:none;border-radius:7px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;background:{{ f.bg }};color:{{ f.fg }}">{{ f.n }}</button></sc-for>
+            </div>
+            <div style="margin-left:auto;font-size:12px;color:rgba(23,21,15,.48)">клик по строке — настройки поста</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px">
+            <sc-for list="{{ queueRows }}" as="q" hint-placeholder-count="6">
+              <button title="Открыть настройки поста" onClick="{{ q.open }}" style="font-family:inherit;display:flex;align-items:center;gap:11px;background:#F6F4EF;border:1px solid rgba(23,21,15,.07);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;width:100%" style-hover="border-color:rgba(43,80,236,.5)">
+                <span style="flex:none;font-size:9.5px;font-weight:700;color:#fff;background:{{ q.c }};border-radius:5px;padding:3px 6px;min-width:22px;text-align:center">{{ q.s }}</span>
+                <span style="min-width:0;flex:1;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.l }}</span>
+                <span style="flex:none;font-size:12.5px;color:rgba(23,21,15,.55)">{{ q.when }}</span>
+                <span style="flex:none;font-size:11px;font-weight:600;color:rgba(23,21,15,.45);background:rgba(23,21,15,.06);border-radius:999px;padding:3px 9px">{{ q.week }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ qIsArchive }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid rgba(23,21,15,.09)">
+            <div style="font-size:14.5px;font-weight:700">Архив отправленных</div>
+            <div style="display:flex;gap:3px;background:rgba(23,21,15,.05);border-radius:9px;padding:3px">
+              <sc-for list="{{ archChips }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.pick }}" style="font-family:inherit;border:none;border-radius:7px;padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;background:{{ f.bg }};color:{{ f.fg }}">{{ f.n }}</button></sc-for>
+            </div>
+            <div style="margin-left:auto;font-size:12px;color:rgba(23,21,15,.48)">клик по строке — статистика поста</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px">
+            <sc-for list="{{ archiveRows }}" as="a" hint-placeholder-count="8">
+              <button title="Статистика поста" onClick="{{ a.open }}" style="font-family:inherit;display:flex;align-items:center;gap:11px;background:#F6F4EF;border:1px solid rgba(23,21,15,.07);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;width:100%" style-hover="border-color:rgba(43,80,236,.5)">
+                <span style="flex:none;font-size:9.5px;font-weight:700;color:#fff;background:{{ a.c }};border-radius:5px;padding:3px 6px;min-width:22px;text-align:center">{{ a.s }}</span>
+                <span style="min-width:0;flex:1;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.l }}</span>
+                <span style="flex:none;font-size:12.5px;color:rgba(23,21,15,.55)">{{ a.when }}</span>
+                <span style="flex:none;font-size:12px;font-weight:600;color:rgba(23,21,15,.6)">{{ a.views }}</span>
+                <span style="flex:none;font-size:11px;font-weight:700;color:#1E7F4F;background:rgba(34,160,107,.12);border-radius:999px;padding:3px 9px">опубликован</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <!-- ===== МЕДИАТЕКА ===== -->
+    <sc-if value="{{ vMedia }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:16px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:18px">
+        <div style="display:flex;align-items:center;gap:10px"><div style="font-size:14.5px;font-weight:700">Фото и видео проекта</div><button onClick="{{ openMediaUp }}" style="font-family:inherit;margin-left:auto;background:#2B50EC;color:#fff;border:none;border-radius:10px;padding:9px 15px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Загрузить</button></div>
+        <div style="margin-top:16px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(23,21,15,.5)">Фото</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px">
+          <sc-for list="{{ mediaPhotos }}" as="m" hint-placeholder-count="5">
+            <button title="Открыть предпросмотр" onClick="{{ m.open }}" style="font-family:inherit;aspect-ratio:4/3;border:1.5px dashed rgba(23,21,15,.2);background:#F6F4EF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(23,21,15,.45);cursor:pointer" style-hover="border-color:#2B50EC;color:#2B50EC">{{ m.n }}</button>
+          </sc-for>
+          <button onClick="{{ openMediaUp }}" style="font-family:inherit;aspect-ratio:4/3;border:1.5px dashed rgba(43,80,236,.4);background:transparent;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:#2B50EC;cursor:pointer" style-hover="background:rgba(43,80,236,.05)">+ Добавить</button>
+        </div>
+        <div style="margin-top:18px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(23,21,15,.5)">Видео</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px">
+          <sc-for list="{{ mediaVideos }}" as="m" hint-placeholder-count="2">
+            <button title="Открыть предпросмотр" onClick="{{ m.open }}" style="font-family:inherit;aspect-ratio:4/3;border:1.5px dashed rgba(23,21,15,.2);background:#F6F4EF;border-radius:12px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;font-size:12px;color:rgba(23,21,15,.45);cursor:pointer" style-hover="border-color:#2B50EC;color:#2B50EC"><span style="width:28px;height:28px;border-radius:999px;background:rgba(23,21,15,.72);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px">▶</span>{{ m.n }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== ОТЧЁТЫ ===== -->
+    <sc-if value="{{ vReports }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <div style="display:flex;gap:4px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:4px">
+          <sc-for list="{{ repChips }}" as="r" hint-placeholder-count="4">
+            <button onClick="{{ r.pick }}" style="font-family:inherit;border:none;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ r.bg }};color:{{ r.fg }}">{{ r.n }}</button>
+          </sc-for>
+        </div>
+        <select value="{{ repYear }}" onChange="{{ setRepYear }}" style="font-family:inherit;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:11px;padding:9px 12px;font-size:13px;font-weight:600;outline:none;cursor:pointer">
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+        </select>
+      </div>
+      <div style="margin-top:14px;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid rgba(23,21,15,.09)">
+          <div style="font-size:14.5px;font-weight:700">{{ repLabel }}</div>
+          <div style="margin-left:auto;font-size:12px;color:rgba(23,21,15,.48)">демо-данные</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr 1.6fr 1fr;background:#F6F4EF;border-bottom:1px solid rgba(23,21,15,.08);padding:0 18px">
+          <div style="padding:10px 0;font-size:12px;font-weight:600;color:rgba(23,21,15,.55)">Площадка</div>
+          <div style="padding:10px 0;font-size:12px;font-weight:600;color:rgba(23,21,15,.55)">Публикации</div>
+          <div style="padding:10px 0;font-size:12px;font-weight:600;color:rgba(23,21,15,.55)">Просмотры</div>
+          <div style="padding:10px 0;font-size:12px;font-weight:600;color:rgba(23,21,15,.55);text-align:right">Переходы</div>
+        </div>
+        <sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1.6fr 1fr;align-items:center;border-bottom:1px solid rgba(23,21,15,.06);padding:0 18px">
+            <div style="display:flex;align-items:center;gap:9px;padding:11px 0"><span style="flex:none;font-size:9.5px;font-weight:700;color:#fff;background:{{ r.c }};border-radius:5px;padding:3px 6px;min-width:22px;text-align:center">{{ r.s }}</span><span style="font-size:13.5px;font-weight:600">{{ r.n }}</span></div>
+            <div style="font-size:13.5px;color:rgba(23,21,15,.7)">{{ r.posts }}</div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13.5px;font-weight:600;min-width:64px">{{ r.views }}</span><span style="flex:1;height:7px;border-radius:999px;background:rgba(23,21,15,.07)"><span style="display:block;width:{{ r.bar }};height:7px;border-radius:999px;background:{{ r.c }}"></span></span></div>
+            <div style="font-size:13.5px;color:rgba(23,21,15,.7);text-align:right">{{ r.clicks }}</div>
+          </div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr 1.6fr 1fr;padding:12px 18px;background:#F6F4EF">
+          <div style="font-size:13.5px;font-weight:700">Итого</div>
+          <div style="font-size:13.5px;font-weight:700">{{ repTotalPosts }}</div>
+          <div style="font-size:13.5px;font-weight:700">{{ repTotalViews }}</div>
+          <div style="font-size:13.5px;font-weight:700;text-align:right">{{ repTotalClicks }}</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:12.5px;color:rgba(23,21,15,.5)">Отчёт уходит в Telegram каждое воскресенье в 20:00 — настроить можно в разделе «Настройки».</div>
+    </sc-if>
+
+    <!-- ===== КОМАНДА ===== -->
+    <sc-if value="{{ vTeam }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start">
+        <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;overflow:hidden">
+          <div style="padding:13px 18px;border-bottom:1px solid rgba(23,21,15,.09);font-size:14.5px;font-weight:700">Участники проекта</div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px 18px">
+            <sc-for list="{{ teamRows }}" as="m" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:11px;background:#F6F4EF;border:1px {{ m.bdStyle }} rgba(23,21,15,.1);border-radius:10px;padding:10px 14px">
+                <span style="flex:none;width:34px;height:34px;border-radius:999px;background:{{ m.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ m.init }}</span>
+                <span style="min-width:0"><span style="display:block;font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span><span style="display:block;font-size:12px;color:rgba(23,21,15,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.mail }}</span></span>
+                <span style="margin-left:auto;flex:none;font-size:11px;font-weight:700;color:{{ m.roleFg }};background:{{ m.roleBg }};border-radius:999px;padding:4px 10px">{{ m.role }}</span>
+                <sc-if value="{{ m.pending }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:11px;font-weight:600;color:#B8860B;background:rgba(232,207,106,.25);border-radius:999px;padding:4px 10px">приглашён</span></sc-if>
+                <sc-if value="{{ m.revocable }}" hint-placeholder-val="{{ false }}"><button title="Отозвать доступ к проекту" onClick="{{ m.revoke }}" style="font-family:inherit;flex:none;background:none;border:1px solid rgba(196,53,45,.35);color:#C4352D;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer" style-hover="background:rgba(196,53,45,.07)">Отозвать</button></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:18px">
+          <div style="font-size:14.5px;font-weight:700">Пригласить в команду</div>
+          <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Почта</div>
+          <input type="email" placeholder="kollega@example.ru" value="{{ inviteMail }}" onChange="{{ setInviteMail }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Роль</div>
+          <div style="display:flex;gap:6px;margin-top:7px">
+            <button onClick="{{ roleAuthor }}" style="font-family:inherit;flex:1;border:1.5px solid {{ raBd }};background:{{ raBg }};color:{{ raFg }};border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer">Автор</button>
+            <button onClick="{{ roleEditor }}" style="font-family:inherit;flex:1;border:1.5px solid {{ reBd }};background:{{ reBg }};color:{{ reFg }};border-radius:9px;padding:9px;font-size:13px;font-weight:600;cursor:pointer">Редактор</button>
+          </div>
+          <button onClick="{{ sendInvite }}" style="font-family:inherit;width:100%;margin-top:14px;background:{{ inviteBg }};color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:{{ inviteCursor }}" style-hover="background:#1F3FD1">Пригласить</button>
+          <div style="margin-top:10px;font-size:12px;line-height:1.5;color:rgba(23,21,15,.5)">Автор пишет черновики, редактор утверждает и публикует. Отозвать доступ можно в любой момент.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===== НАСТРОЙКИ ===== -->
+    <sc-if value="{{ vSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start">
+        <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:20px">
+          <div style="font-size:15px;font-weight:700">Профиль</div>
+          <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Имя</div>
+          <input type="text" value="{{ profileName }}" onChange="{{ setProfileName }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Почта</div>
+          <input type="email" value="maria@otlozhka.ru" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          <button style="font-family:inherit;margin-top:14px;background:transparent;border:1.5px solid rgba(23,21,15,.2);border-radius:10px;padding:10px 15px;font-size:13.5px;font-weight:600;color:#17150F;cursor:pointer" style-hover="border-color:rgba(23,21,15,.45)">Сменить пароль</button>
+          <div style="margin-top:18px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Уведомления</div>
+          <label style="display:flex;align-items:center;gap:9px;margin-top:9px;font-size:13.5px;color:rgba(23,21,15,.75);cursor:pointer"><input type="checkbox" checked style="accent-color:#2B50EC;width:15px;height:15px">Отчёт о публикациях в Telegram</label>
+          <label style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;color:rgba(23,21,15,.75);cursor:pointer"><input type="checkbox" style="accent-color:#2B50EC;width:15px;height:15px">Письма о сбоях публикации</label>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:20px">
+          <div style="font-size:15px;font-weight:700">Проект</div>
+          <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Название</div>
+          <input type="text" value="{{ projName }}" onChange="{{ setProjName }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Цвет проекта</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:7px">
+            <span style="width:32px;height:32px;border-radius:999px;background:{{ projColor }};border:1px solid rgba(23,21,15,.12)"></span>
+            <button onClick="{{ openColorProj }}" style="font-family:inherit;background:transparent;border:1.5px solid rgba(23,21,15,.2);border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#17150F;cursor:pointer" style-hover="border-color:rgba(23,21,15,.45)">Изменить цвет…</button>
+          </div>
+          <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Часовой пояс публикаций</div>
+          <select style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none">
+            <option>Москва (UTC+3)</option>
+            <option>Екатеринбург (UTC+5)</option>
+            <option>Новосибирск (UTC+7)</option>
+            <option>Владивосток (UTC+10)</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13.5px;color:rgba(23,21,15,.75);cursor:pointer"><input type="checkbox" checked style="accent-color:#2B50EC;width:15px;height:15px">Водяной знак на фото</label>
+          <label style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;color:rgba(23,21,15,.75);cursor:pointer"><input type="checkbox" checked style="accent-color:#2B50EC;width:15px;height:15px">UTM-метки в ссылках</label>
+        </div>
+        <div style="grid-column:1 / -1;background:rgba(196,53,45,.05);border:1.5px solid rgba(196,53,45,.22);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+          <div style="min-width:0;flex:1">
+            <div style="font-size:14px;font-weight:700;color:#C4352D">Архив проекта</div>
+            <div style="margin-top:4px;font-size:12.5px;line-height:1.5;color:rgba(23,21,15,.6)">Проект скроется из списка, публикации остановятся. Посты и настройки сохранятся — вернуть проект можно в любой момент из списка проектов.</div>
+          </div>
+          <button onClick="{{ archiveProj }}" style="font-family:inherit;flex:none;background:#C4352D;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#A82A23">Архивировать проект</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+<!-- ======= КОМПОЗЕР ======= -->
+<sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px" data-screen-label="Композер">
+    <div style="width:560px;max-width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.2px">{{ modalTitle }}</div>
+        <div style="display:flex;gap:4px;background:rgba(23,21,15,.06);border-radius:10px;padding:3px">
+          <button onClick="{{ pickPost }}" style="font-family:inherit;border:none;border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ tpBg }};color:{{ tpFg }}">Пост</button>
+          <button onClick="{{ pickVideo }}" style="font-family:inherit;border:none;border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ tvBg }};color:{{ tvFg }}">Видео</button>
+        </div>
+        <button onClick="{{ closeModal }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+
+      <sc-if value="{{ isPost }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:5px;margin-top:16px">
+          <span style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6);margin-right:5px">Текст</span>
+          <button title="Жирный" onMouseDown="{{ fmtB }}" style="font-family:inherit;width:30px;height:28px;border:1px solid rgba(23,21,15,.15);background:#fff;border-radius:7px;font-size:13px;font-weight:800;cursor:pointer" style-hover="background:rgba(23,21,15,.05)">Ж</button>
+          <button title="Курсив" onMouseDown="{{ fmtI }}" style="font-family:inherit;width:30px;height:28px;border:1px solid rgba(23,21,15,.15);background:#fff;border-radius:7px;font-size:13px;font-style:italic;font-weight:600;cursor:pointer" style-hover="background:rgba(23,21,15,.05)">К</button>
+          <button title="Зачёркнутый" onMouseDown="{{ fmtS }}" style="font-family:inherit;width:30px;height:28px;border:1px solid rgba(23,21,15,.15);background:#fff;border-radius:7px;font-size:13px;font-weight:600;text-decoration:line-through;cursor:pointer" style-hover="background:rgba(23,21,15,.05)">S</button>
+          <button title="Ссылка" onMouseDown="{{ fmtL }}" style="font-family:inherit;height:28px;border:1px solid rgba(23,21,15,.15);background:#fff;border-radius:7px;padding:0 10px;font-size:12px;font-weight:600;color:#2B50EC;cursor:pointer" style-hover="background:rgba(23,21,15,.05)">Ссылка</button>
+        </div>
+        <div contenteditable="true" ref="{{ edRef }}" style="box-sizing:border-box;width:100%;margin-top:8px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-size:14.5px;line-height:1.55;min-height:76px;outline:none;background:#fff" style-focus="border-color:#2B50EC"></div>
+
+        <div style="margin-top:10px;background:rgba(110,91,255,.06);border:1px solid rgba(110,91,255,.25);border-radius:11px;padding:12px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6E5BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.8 4.6L18 10l-4.2 1.4L12 16l-1.8-4.6L6 10l4.2-1.4z"></path></svg>
+            <span style="font-size:12.5px;font-weight:700;color:#6E5BFF">ИИ-помощник</span>
+            <select value="{{ aiModel }}" onChange="{{ setAiModel }}" style="font-family:inherit;margin-left:auto;background:#fff;border:1px solid rgba(110,91,255,.3);border-radius:8px;padding:5px 8px;font-size:11.5px;font-weight:600;color:#17150F;outline:none;cursor:pointer">
+              <option>YandexGPT 5 Pro</option>
+              <option>GigaChat Max</option>
+              <option>Claude Haiku</option>
+              <option>DeepSeek V3</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" placeholder="О чём написать? Например: анонс новогодних сетов" value="{{ aiPrompt }}" onChange="{{ setAiPrompt }}" style="box-sizing:border-box;flex:1;padding:9px 12px;border:1px solid rgba(110,91,255,.3);border-radius:8px;font-family:inherit;font-size:12.5px;background:#fff;outline:none" style-focus="border-color:#6E5BFF">
+            <button onClick="{{ aiSuggest }}" style="font-family:inherit;background:#6E5BFF;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap" style-hover="background:#5A46F0">Предложить</button>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px;font-size:11px;color:rgba(23,21,15,.5)"><span>Текст появится в поле выше — правьте как угодно</span><span style="margin-left:auto;color:#6E5BFF;font-weight:600">{{ aiLeftLabel }}</span></div>
+        </div>
+
+        <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Фото</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <sc-for list="{{ attachRows }}" as="a" hint-placeholder-count="0">
+            <button title="Убрать фото" onClick="{{ a.remove }}" style="font-family:inherit;width:64px;height:52px;border:1.5px dashed rgba(23,21,15,.25);background:#F6F4EF;border-radius:9px;font-size:10.5px;color:rgba(23,21,15,.55);cursor:pointer" style-hover="border-color:#C4352D;color:#C4352D">{{ a.n }}</button>
+          </sc-for>
+          <sc-if value="{{ canAttach }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ openUpPhoto }}" style="font-family:inherit;width:64px;height:52px;border:1.5px dashed rgba(43,80,236,.4);background:transparent;border-radius:9px;font-size:11px;font-weight:600;color:#2B50EC;cursor:pointer" style-hover="background:rgba(43,80,236,.05)">+ Фото</button>
+          </sc-if>
+          <span style="align-self:center;font-size:11.5px;color:rgba(23,21,15,.45)">до 4 фото</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isVideo }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ openUpVideo }}" style="font-family:inherit;box-sizing:border-box;width:100%;margin-top:16px;border:1.5px dashed {{ vFileBd }};border-radius:12px;background:#F6F4EF;padding:18px;text-align:center;font-size:13px;font-weight:600;color:{{ vFileFg }};cursor:pointer" style-hover="border-color:#2B50EC">{{ vFileLabel }}</button>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:14px;margin-top:14px">
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Название</div>
+            <input type="text" placeholder="Новогодние сеты: что внутри" value="{{ vTitle }}" onChange="{{ setVTitle }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+              <span style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Описание</span>
+              <button onClick="{{ aiDesc }}" style="font-family:inherit;margin-left:auto;display:flex;align-items:center;gap:5px;border:1px solid rgba(110,91,255,.4);background:rgba(110,91,255,.07);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;color:#6E5BFF;cursor:pointer" style-hover="background:rgba(110,91,255,.14)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.8 4.6L18 10l-4.2 1.4L12 16l-1.8-4.6L6 10l4.2-1.4z"></path></svg>ИИ-описание</button>
+            </div>
+            <textarea rows="3" placeholder="Описание для YouTube, RUTUBE и VK Видео" value="{{ vDesc }}" onChange="{{ setVDesc }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:11px 13px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:13.5px;line-height:1.5;background:#fff;outline:none;resize:vertical" style-focus="border-color:#2B50EC"></textarea>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Обложка</div>
+            <button onClick="{{ openUpCover }}" style="font-family:inherit;box-sizing:border-box;width:100%;margin-top:6px;aspect-ratio:16/10;border:1.5px dashed {{ coverBd }};border-radius:10px;background:#F6F4EF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:{{ coverFg }};text-align:center;cursor:pointer;padding:6px" style-hover="border-color:#2B50EC">{{ coverLabel }}</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Куда публикуем</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <sc-for list="{{ modalNets }}" as="n" hint-placeholder-count="7">
+          <button title="{{ n.tip }}" onClick="{{ n.toggle }}" style="font-family:inherit;border:1.5px solid {{ n.bd }};background:{{ n.bg }};color:{{ n.fg }};border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:{{ n.cur }}">{{ n.n }}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ isPost }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:8px;font-size:11.5px;color:rgba(23,21,15,.45)">RUTUBE и YouTube — видеоплатформы: доступны только для типа «Видео»</div>
+      </sc-if>
+      <sc-if value="{{ isVideo }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;font-size:11.5px;color:rgba(23,21,15,.45)">Видео загрузим в VK Видео, RUTUBE и YouTube; в остальные сети уйдёт пост со ссылкой на ролик</div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;margin-top:14px;align-items:start">
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">День</div>
+          <div style="display:flex;gap:5px;margin-top:8px">
+            <sc-for list="{{ modalDays }}" as="d" hint-placeholder-count="7">
+              <button onClick="{{ d.pick }}" style="font-family:inherit;border:1.5px solid {{ d.bd }};background:{{ d.bg }};color:{{ d.fg }};border-radius:9px;padding:8px 0;flex:1;min-width:0;font-size:12.5px;font-weight:600;cursor:pointer">{{ d.n }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="position:relative">
+          <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Время</div>
+          <button onClick="{{ toggleTime }}" style="font-family:inherit;display:flex;align-items:center;gap:9px;margin-top:8px;background:#fff;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;padding:9px 13px;font-size:14.5px;font-weight:700;cursor:pointer;letter-spacing:.5px" style-hover="border-color:#2B50EC">
+            {{ timeLabel }}
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,.5)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+          </button>
+          <sc-if value="{{ timeOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;bottom:calc(100% + 8px);right:0;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:14px;box-shadow:0 16px 48px rgba(23,21,15,.2);padding:12px;z-index:30;width:240px">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(23,21,15,.45);text-align:center"><span>часы</span><span>минуты</span><span>секунды</span></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:7px">
+                <div style="max-height:158px;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-right:2px">
+                  <sc-for list="{{ hoursList }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.pick }}" style="font-family:inherit;border:none;border-radius:7px;padding:5px 0;font-size:13px;font-weight:600;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }};flex:none" style-hover="background:rgba(43,80,236,.12)">{{ o.v }}</button></sc-for>
+                </div>
+                <div style="max-height:158px;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-right:2px">
+                  <sc-for list="{{ minsList }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.pick }}" style="font-family:inherit;border:none;border-radius:7px;padding:5px 0;font-size:13px;font-weight:600;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }};flex:none" style-hover="background:rgba(43,80,236,.12)">{{ o.v }}</button></sc-for>
+                </div>
+                <div style="max-height:158px;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-right:2px">
+                  <sc-for list="{{ secsList }}" as="o" hint-placeholder-count="6"><button onClick="{{ o.pick }}" style="font-family:inherit;border:none;border-radius:7px;padding:5px 0;font-size:13px;font-weight:600;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }};flex:none" style-hover="background:rgba(43,80,236,.12)">{{ o.v }}</button></sc-for>
+                </div>
+              </div>
+              <button onClick="{{ toggleTime }}" style="font-family:inherit;width:100%;margin-top:10px;background:#17150F;color:#fff;border:none;border-radius:9px;padding:9px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="background:#2B50EC">Готово</button>
+            </div>
+          </sc-if>
+        </div>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Повторять</div>
+          <select value="{{ selRep }}" onChange="{{ setSelRep }}" style="font-family:inherit;margin-top:8px;background:#fff;border:1.5px solid rgba(23,21,15,.15);border-radius:9px;padding:8px 9px;font-size:12.5px;font-weight:600;outline:none;cursor:pointer">
+            <option value="none">Не повторять</option>
+            <option value="day">Каждый день</option>
+            <option value="week">Каждую неделю</option>
+            <option value="month">Каждый месяц</option>
+          </select>
+          <div style="margin-top:5px;font-size:10.5px;color:rgba(23,21,15,.45)">{{ repHint }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:22px">
+        <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ deletePost }}" style="font-family:inherit;background:none;border:none;padding:0;font-size:13.5px;font-weight:600;color:#C4352D;cursor:pointer">Удалить пост</button>
+        </sc-if>
+        <span style="margin-left:auto;font-size:12.5px;color:rgba(23,21,15,.5)">{{ modalHint }}</span>
+        <button onClick="{{ closeModal }}" style="font-family:inherit;background:transparent;border:1.5px solid rgba(23,21,15,.2);border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;color:#17150F;cursor:pointer" style-hover="border-color:rgba(23,21,15,.45)">Отмена</button>
+        <button onClick="{{ submitPost }}" style="font-family:inherit;background:{{ submitBg }};color:#fff;border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:600;cursor:{{ submitCursor }}" style-hover="background:#1F3FD1">{{ submitLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= ЗАГРУЗКА ФАЙЛА ======= -->
+<sc-if value="{{ upFileOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;z-index:120;padding:20px" data-screen-label="Загрузка файла">
+    <div style="width:460px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.2px">{{ upFileTitle }}</div>
+        <button onClick="{{ closeUpFile }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <button onClick="{{ confirmUpFile }}" style="font-family:inherit;box-sizing:border-box;width:100%;margin-top:16px;border:1.5px dashed rgba(43,80,236,.45);border-radius:12px;background:rgba(43,80,236,.04);padding:28px 16px;text-align:center;cursor:pointer" style-hover="background:rgba(43,80,236,.08)">
+        <div style="font-size:13.5px;font-weight:700;color:#2B50EC">Перетащите файл сюда</div>
+        <div style="margin-top:4px;font-size:12px;color:rgba(23,21,15,.5)">или нажмите, чтобы выбрать с компьютера · {{ upFileFormats }}</div>
+      </button>
+      <sc-if value="{{ upFileFromLib }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Или выберите из медиатеки</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px">
+          <sc-for list="{{ upLibTiles }}" as="m" hint-placeholder-count="4">
+            <button onClick="{{ m.pick }}" style="font-family:inherit;aspect-ratio:4/3;border:1.5px dashed rgba(23,21,15,.2);background:#F6F4EF;border-radius:9px;font-size:10.5px;color:rgba(23,21,15,.5);cursor:pointer" style-hover="border-color:#2B50EC;color:#2B50EC">{{ m.n }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="margin-top:12px;font-size:11.5px;color:rgba(23,21,15,.45)">Демо: клик по зоне добавит файл-заглушку</div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= ЗАГРУЗКА В МЕДИАТЕКУ ======= -->
+<sc-if value="{{ mediaUpOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;z-index:120;padding:20px" data-screen-label="Загрузка в медиатеку">
+    <div style="width:480px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.2px">Загрузка в медиатеку</div>
+        <button onClick="{{ closeMediaUp }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <button onClick="{{ addMediaFile }}" style="font-family:inherit;box-sizing:border-box;width:100%;margin-top:16px;border:1.5px dashed rgba(43,80,236,.45);border-radius:12px;background:rgba(43,80,236,.04);padding:30px 16px;text-align:center;cursor:pointer" style-hover="background:rgba(43,80,236,.08)">
+        <div style="font-size:13.5px;font-weight:700;color:#2B50EC">Перетащите файлы сюда</div>
+        <div style="margin-top:4px;font-size:12px;color:rgba(23,21,15,.5)">или нажмите, чтобы выбрать · JPG, PNG, MP4 до 2 ГБ</div>
+      </button>
+      <sc-if value="{{ mediaAddedAny }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;font-size:12.5px;font-weight:600;color:#1E7F4F">✓ Загружено в этой сессии: {{ mediaAddedN }}</div>
+      </sc-if>
+      <button onClick="{{ closeMediaUp }}" style="font-family:inherit;width:100%;margin-top:16px;background:#2B50EC;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Готово</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= ПРЕДПРОСМОТР МЕДИА ======= -->
+<sc-if value="{{ mediaOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.55);display:flex;align-items:center;justify-content:center;z-index:120;padding:20px" data-screen-label="Предпросмотр медиа">
+    <div style="width:520px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:20px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="min-width:0;font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mediaName }}</div>
+        <button onClick="{{ closeMediaPrev }}" style="font-family:inherit;margin-left:auto;flex:none;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <div style="margin-top:4px;font-size:12px;color:rgba(23,21,15,.5)">{{ mediaMeta }}</div>
+      <div style="margin-top:12px;aspect-ratio:16/10;border:1.5px dashed rgba(23,21,15,.2);border-radius:12px;background:#F6F4EF;display:flex;flex-direction:column;gap:9px;align-items:center;justify-content:center;color:rgba(23,21,15,.45);font-size:12.5px">
+        <sc-if value="{{ mediaIsVideo }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;border-radius:999px;background:rgba(23,21,15,.72);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">▶</span></sc-if>
+        предпросмотр · {{ mediaName }}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onClick="{{ deleteMedia }}" style="font-family:inherit;background:none;border:1px solid rgba(196,53,45,.35);color:#C4352D;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:rgba(196,53,45,.07)">Удалить</button>
+        <button onClick="{{ closeMediaPrev }}" style="font-family:inherit;margin-left:auto;background:#17150F;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#2B50EC">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= СТАТИСТИКА ПОСТА ======= -->
+<sc-if value="{{ archOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;z-index:120;padding:20px" data-screen-label="Статистика поста">
+    <div style="width:520px;max-width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="flex:none;font-size:10px;font-weight:700;color:#fff;background:{{ archNetC }};border-radius:5px;padding:4px 7px">{{ archNetS }}</span>
+        <div style="min-width:0;font-size:16px;font-weight:800;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ archL }}</div>
+        <button onClick="{{ closeArch }}" style="font-family:inherit;margin-left:auto;flex:none;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <div style="margin-top:6px;font-size:12.5px;color:rgba(23,21,15,.55)">{{ archNetN }} · опубликован {{ archWhen }}</div>
+      <div style="margin-top:14px;background:#F6F4EF;border-radius:12px;padding:14px;font-size:13.5px;line-height:1.55;color:rgba(23,21,15,.8)">{{ archText }}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px">
+        <div style="background:#F6F4EF;border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800">{{ archViews }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">просмотры</div></div>
+        <div style="background:#F6F4EF;border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800">{{ archLikes }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">лайки</div></div>
+        <div style="background:#F6F4EF;border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800">{{ archReposts }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">репосты</div></div>
+        <div style="background:#F6F4EF;border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800">{{ archComm }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">комментарии</div></div>
+        <div style="background:#F6F4EF;border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800">{{ archClicks }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">переходы</div></div>
+        <div style="background:rgba(34,160,107,.1);border-radius:11px;padding:12px"><div style="font-size:19px;font-weight:800;color:#1E7F4F">{{ archEr }}</div><div style="margin-top:2px;font-size:11px;color:rgba(23,21,15,.5)">ER</div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <span style="font-size:12px;color:rgba(23,21,15,.45);align-self:center">UTM-метка: utm_source={{ archUtm }}</span>
+        <span style="margin-left:auto;font-size:13px;font-weight:700;color:#2B50EC;cursor:pointer">Открыть на площадке →</span>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= ПОДКЛЮЧЕНИЕ ПЛОЩАДКИ ======= -->
+<sc-if value="{{ connOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;z-index:120;padding:20px" data-screen-label="Подключение площадки">
+    <div style="width:440px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="flex:none;width:38px;height:38px;border-radius:11px;background:{{ connC }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">{{ connS }}</span>
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.2px">{{ connTitle }}</div>
+        <button onClick="{{ closeConn }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <p style="margin:14px 0 0;font-size:13.5px;line-height:1.6;color:rgba(23,21,15,.65)">{{ connText }}</p>
+      <sc-if value="{{ connIsConnect }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:rgba(23,21,15,.6)">
+          <div style="display:flex;gap:9px"><span style="color:#1E7F4F;font-weight:700">1.</span>Авторизуетесь на стороне площадки — пароль нам не передаётся</div>
+          <div style="display:flex;gap:9px"><span style="color:#1E7F4F;font-weight:700">2.</span>Выбираете сообщество или канал для публикаций</div>
+          <div style="display:flex;gap:9px"><span style="color:#1E7F4F;font-weight:700">3.</span>Готово — площадка появится в календаре</div>
+        </div>
+        <button onClick="{{ connConfirm }}" style="font-family:inherit;width:100%;margin-top:18px;background:{{ connC }};color:#fff;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer" style-hover="filter:brightness(.92)">Авторизоваться в «{{ connN }}»</button>
+      </sc-if>
+      <sc-if value="{{ connIsDisconnect }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ connConfirm }}" style="font-family:inherit;width:100%;margin-top:18px;background:#C4352D;color:#fff;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:#A82A23">Отключить «{{ connN }}»</button>
+      </sc-if>
+      <div style="margin-top:10px;text-align:center;font-size:11.5px;color:rgba(23,21,15,.45)">Демо: подключение сработает мгновенно</div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= ВЫБОР ЦВЕТА ======= -->
+<sc-if value="{{ colorOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.5);display:flex;align-items:center;justify-content:center;z-index:130;padding:20px" data-screen-label="Выбор цвета">
+    <div style="width:380px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.2px">Цвет проекта</div>
+        <button onClick="{{ closeColor }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:18px">
+        <sc-for list="{{ colorSwatches }}" as="c" hint-placeholder-count="12">
+          <button onClick="{{ c.pick }}" style="font-family:inherit;aspect-ratio:1;border-radius:999px;background:{{ c.c }};border:none;outline:{{ c.ring }};outline-offset:3px;cursor:pointer" style-hover="transform:scale(1.1)"></button>
+        </sc-for>
+      </div>
+      <div style="margin-top:16px;font-size:11.5px;color:rgba(23,21,15,.45)">Цвет помогает различать проекты в списке и календаре</div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= АПГРЕЙД ТАРИФА ======= -->
+<sc-if value="{{ upModal }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.45);display:flex;align-items:center;justify-content:center;z-index:110;padding:20px" data-screen-label="Апгрейд тарифа">
+    <div style="width:560px;max-width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <sc-if value="{{ upPlanStep }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:18px;font-weight:800;letter-spacing:-.2px">Апгрейд тарифа</div>
+          <span style="font-size:11.5px;font-weight:600;color:rgba(23,21,15,.55);background:rgba(23,21,15,.06);border-radius:999px;padding:4px 10px">сейчас: {{ tariffName }}</span>
+          <button onClick="{{ closeUpgrade }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+        </div>
+        <div style="display:inline-flex;gap:4px;background:rgba(23,21,15,.06);border-radius:10px;padding:3px;margin-top:16px">
+          <button onClick="{{ upSetMonthly }}" style="font-family:inherit;border:none;border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ umBg }};color:{{ umFg }}">Помесячно</button>
+          <button onClick="{{ upSetYearly }}" style="font-family:inherit;border:none;border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ uyBg }};color:{{ uyFg }}">На год <span style="color:#1E7F4F;font-weight:700">−20%</span></button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px">
+          <sc-for list="{{ upPlans }}" as="p" hint-placeholder-count="2">
+            <div style="border:1.5px solid rgba(23,21,15,.13);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:14.5px;font-weight:700">{{ p.name }}</div>
+              <div style="font-size:24px;font-weight:800;letter-spacing:-.4px">{{ p.price }}<span style="font-size:12px;font-weight:600;color:rgba(23,21,15,.5)"> {{ p.per }}</span></div>
+              <div style="font-size:11.5px;color:rgba(23,21,15,.5)">{{ p.note }}</div>
+              <div style="display:flex;flex-direction:column;gap:7px;margin-top:10px;margin-bottom:14px">
+                <sc-for list="{{ p.feats }}" as="f" hint-placeholder-count="3">
+                  <div style="display:flex;gap:8px;align-items:baseline"><span style="color:#1E7F4F;font-weight:700;font-size:11px;flex:none">✓</span><span style="font-size:12.5px;line-height:1.4;color:rgba(23,21,15,.75)">{{ f.t }}</span></div>
+                </sc-for>
+              </div>
+              <button onClick="{{ p.pick }}" style="font-family:inherit;margin-top:auto;background:#2B50EC;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">{{ p.name }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ upCardStep }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button onClick="{{ upBack }}" style="font-family:inherit;background:none;border:none;padding:0;font-size:13px;font-weight:600;color:rgba(23,21,15,.55);cursor:pointer">← Назад</button>
+          <div style="font-size:18px;font-weight:800;letter-spacing:-.2px">Оплата</div>
+          <button onClick="{{ closeUpgrade }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#F6F4EF;border-radius:11px;padding:12px 15px;margin-top:16px">
+          <span style="font-size:13.5px;font-weight:700">Тариф {{ upPlan }}</span>
+          <span style="font-size:12.5px;color:rgba(23,21,15,.55)">{{ upPeriodNote }}</span>
+          <span style="margin-left:auto;font-size:15px;font-weight:800">{{ upTotal }}</span>
+        </div>
+        <div style="margin-top:16px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Номер карты</div>
+        <input type="text" placeholder="2200 1234 5678 9012" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;letter-spacing:1px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Срок действия</div>
+            <input type="text" placeholder="12 / 27" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">CVC</div>
+            <input type="password" placeholder="•••" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;color:rgba(23,21,15,.7);cursor:pointer"><input type="checkbox" checked style="accent-color:#2B50EC;width:15px;height:15px">Сохранить карту для автопродления</label>
+        <button onClick="{{ upPay }}" style="font-family:inherit;width:100%;margin-top:16px;background:#2B50EC;color:#fff;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Привязать карту и оплатить {{ upTotal }}</button>
+        <div style="margin-top:10px;text-align:center;font-size:11.5px;color:rgba(23,21,15,.45)">Это демо — ничего не спишется. Данные карты мы не храним.</div>
+      </sc-if>
+      <sc-if value="{{ upDoneStep }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:18px 8px 6px">
+          <div style="width:52px;height:52px;border-radius:999px;background:rgba(34,160,107,.14);color:#1E7F4F;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto">✓</div>
+          <div style="margin-top:14px;font-size:20px;font-weight:800;letter-spacing:-.3px">Тариф {{ tariffName }} активен</div>
+          <p style="margin:8px auto 0;max-width:380px;font-size:13.5px;line-height:1.55;color:rgba(23,21,15,.6)">{{ upDoneText }}</p>
+          <button onClick="{{ closeUpgrade }}" style="font-family:inherit;margin-top:18px;background:#2B50EC;color:#fff;border:none;border-radius:11px;padding:12px 26px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Отлично</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ======= НОВЫЙ ПРОЕКТ ======= -->
+<sc-if value="{{ npOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(23,21,15,.45);display:flex;align-items:center;justify-content:center;z-index:110;padding:20px" data-screen-label="Новый проект">
+    <div style="width:440px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(23,21,15,.25);padding:24px">
+      <div style="display:flex;align-items:center">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.2px">Новый проект</div>
+        <button onClick="{{ closeNewProj }}" style="font-family:inherit;margin-left:auto;width:30px;height:30px;border-radius:999px;border:none;background:rgba(23,21,15,.06);font-size:14px;color:rgba(23,21,15,.6);cursor:pointer" style-hover="background:rgba(23,21,15,.12)">✕</button>
+      </div>
+      <div style="margin-top:16px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Название</div>
+      <input type="text" placeholder="Цветочная «Пион»" value="{{ npName }}" onChange="{{ setNpName }}" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+      <div style="margin-top:14px;font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Цвет проекта</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+        <span style="width:32px;height:32px;border-radius:999px;background:{{ npColor }};border:1px solid rgba(23,21,15,.12)"></span>
+        <button onClick="{{ openColorNp }}" style="font-family:inherit;background:transparent;border:1.5px solid rgba(23,21,15,.2);border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:600;color:#17150F;cursor:pointer" style-hover="border-color:rgba(23,21,15,.45)">Выбрать цвет…</button>
+      </div>
+      <button onClick="{{ createProj }}" style="font-family:inherit;width:100%;margin-top:18px;background:{{ npBg }};color:#fff;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:{{ npCursor }}" style-hover="background:#1F3FD1">Создать проект</button>
+      <div style="margin-top:10px;font-size:12px;color:rgba(23,21,15,.5)">Площадки подключите после создания — на вкладке «Календарь».</div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    this.NETS = [
+      { id:'vk',   n:'ВКонтакте',     s:'ВК',  c:'#0077FF' },
+      { id:'tg',   n:'Telegram',      s:'TG',  c:'#27A6E5' },
+      { id:'ok',   n:'Одноклассники', s:'ОК',  c:'#F7931E' },
+      { id:'max',  n:'MAX',           s:'MAX', c:'#6E5BFF' },
+      { id:'dzen', n:'Дзен',          s:'Дз',  c:'#1E1E20' },
+      { id:'rt',   n:'RUTUBE',        s:'RT',  c:'#E23B54', video:true },
+      { id:'yt',   n:'YouTube',       s:'YT',  c:'#FF0000', video:true }
+    ];
+    this.LABELS = ['Анонс акции','Подборка советов','Опрос','Дайджест недели','Бэкстейдж'];
+    this.QTIMES = ['09:00','12:00','15:00','19:00'];
+    this.WEEKS = [
+      { label: '10–16 ноября', short: '10–16 ноя', start: 10 },
+      { label: '17–23 ноября', short: '17–23 ноя', start: 17 },
+      { label: '24–30 ноября', short: '24–30 ноя', start: 24 },
+      { label: '1–7 декабря',  short: '1–7 дек',  start: 1 }
+    ];
+    this.TITLES = { cal:'Календарь', queue:'Очередь', media:'Медиатека', reports:'Отчёты', team:'Команда', settings:'Настройки' };
+    this.SCALES = [['week','Неделя'],['month','Месяц'],['quarter','Квартал'],['year','Год']];
+    this.REPORT = [
+      { net:0, posts:12, views:8400, clicks:214 },
+      { net:1, posts:10, views:5900, clicks:168 },
+      { net:4, posts:5,  views:7200, clicks:305 },
+      { net:6, posts:3,  views:3800, clicks:96 },
+      { net:2, posts:6,  views:2100, clicks:44 },
+      { net:3, posts:4,  views:1300, clicks:21 },
+      { net:5, posts:2,  views:950,  clicks:12 }
+    ];
+    this.REP_PERIODS = [['w','Неделя'],['m','Месяц'],['q','Квартал'],['y','Год']];
+    this.REP_MULT = { w:1, m:4, q:13, y:52 };
+    this.YEAR_K = { '2026':1, '2025':0.8, '2024':0.62 };
+    this.YEAR_DATA = {
+      '2024': [8,10,14,12,16,15,18,17,20,22,19,21],
+      '2025': [14,18,22,20,26,24,27,25,30,34,28,31],
+      '2026': [18,24,31,28,35,30,33,29,38,46,0,0]
+    };
+    this.AI = [
+      'Открываем запись на декабрь! Успейте забронировать любимое время — в прошлом месяце окошки закончились за три дня.',
+      'Секрет идеального капучино — молоко 3,2% и ровно 55 градусов. Приходите, покажем. И нальём.',
+      'Итоги недели: 4 новых вкуса, 120 довольных гостей и один очень счастливый бариста.',
+      'Совет дня: планируйте посты с вечера — утром голова нужна для важных дел.'
+    ];
+    this.ARCH = [
+      { net:0, l:'Анонс акции',            when:'пн, 10 ноя · 09:00', viewsN:2140, likes:184, reposts:37, comm:26, clicks:58,
+        text:'Открыли запись на новогодние капучино-сеты! Бронируйте столик — вечером мест уже не будет.' },
+      { net:1, l:'Утренний дайджест',      when:'пн, 10 ноя · 09:05', viewsN:1830, likes:96,  reposts:12, comm:8,  clicks:41,
+        text:'Доброе утро! Сегодня в программе: новый сорт зерна, скидка на круассаны до 11:00 и плейлист для дождя.' },
+      { net:4, l:'Лонгрид: тренды осени',  when:'вт, 11 ноя · 12:00', viewsN:3460, likes:212, reposts:64, comm:31, clicks:187,
+        text:'Что пили этой осенью: разбираем пять главных кофейных трендов и показываем, какие прижились у нас.' },
+      { net:2, l:'Опрос: любимый напиток', when:'ср, 12 ноя · 19:00', viewsN:940,  likes:71,  reposts:6,  comm:44, clicks:12,
+        text:'Голосуем! Капучино, раф или фильтр — что заказываете чаще всего? Итоги подведём в пятницу.' },
+      { net:0, l:'Отзыв недели',           when:'чт, 13 ноя · 12:00', viewsN:1210, likes:143, reposts:19, comm:17, clicks:33,
+        text:'«Лучший флэт уайт в районе — проверено тремя понедельниками подряд». Спасибо, Алексей, ждём в четвёртый!' },
+      { net:6, l:'Шортс: латте-арт',       when:'пт, 14 ноя · 18:00', viewsN:5620, likes:487, reposts:92, comm:53, clicks:74,
+        text:'30 секунд — и на пенке тюльпан. Бариста Настя показывает базовую технику латте-арта.' },
+      { net:5, l:'Влог со смены',          when:'сб, 15 ноя · 11:00', viewsN:780,  likes:54,  reposts:7,  comm:9,  clicks:15,
+        text:'Один день из жизни кофейни: от первой закладки зерна до последнего гостя. Смотрите до конца — там сюрприз.' },
+      { net:1, l:'Дайджест недели',        when:'вс, 16 ноя · 19:00', viewsN:1540, likes:88,  reposts:15, comm:6,  clicks:29,
+        text:'Неделя в цифрах: 4 новинки, 320 чашек капучино и один очень довольный кот у окна. Спасибо, что были с нами!' }
+    ];
+    this.ARCH.forEach(a => { a.per = 'w'; });
+    this.ARCH = this.ARCH.concat([
+      { per:'m', net:0, l:'Хеллоуин в кофейне',        when:'чт, 31 окт · 12:00', viewsN:2890, likes:243, reposts:41, comm:37, clicks:66,  text:'Тыквенный раф вернулся! Только 31 октября — латте-арт с паутинкой каждому гостю.' },
+      { per:'m', net:1, l:'Осеннее меню',              when:'пт, 18 окт · 09:00', viewsN:2140, likes:117, reposts:22, comm:12, clicks:49,  text:'Обновили меню: тыквенный раф, грушевый чай и три новых десерта. Заходите греться.' },
+      { per:'m', net:4, l:'Гид по обжарке',            when:'ср, 9 окт · 15:00',  viewsN:4210, likes:198, reposts:57, comm:24, clicks:203, text:'Светлая, средняя, тёмная: чем отличается обжарка и какую выбрать под ваш способ заваривания.' },
+      { per:'q', net:6, l:'Шортс: как мы открывались', when:'сб, 14 сен · 18:00', viewsN:6320, likes:512, reposts:88, comm:61, clicks:92,  text:'Ровно год назад мы красили стены и собирали бар. Смотрите, с чего всё началось.' },
+      { per:'y', net:0, l:'Летняя веранда открыта',    when:'пт, 7 июн · 10:00',  viewsN:3480, likes:301, reposts:44, comm:29, clicks:71,  text:'Веранда снова с нами: 20 мест, плед в комплекте, холодный бленд весь день.' },
+      { per:'y', net:1, l:'Итоги года',                when:'вт, 31 дек 2025 · 12:00', viewsN:5110, likes:387, reposts:73, comm:45, clicks:104, text:'12 месяцев, 41 000 чашек и вы — спасибо, что были рядом весь год!' }
+    ]);
+    this.LIMITS = { 'Бесплатный': 5, 'Старт': 50, 'Про': 200, 'Агентство': Infinity };
+    this.UP_PLANS = [
+      { name:'Бесплатный', m:0, feats:['3 соцсети','10 постов в месяц','5 ИИ-текстов в месяц'] },
+      { name:'Старт', m:490, feats:['7 соцсетей','Посты без лимита','50 ИИ-текстов в месяц'] },
+      { name:'Про', m:990, feats:['5 проектов и команда из 3 человек','200 ИИ-текстов в месяц','Согласование постов и автоповторы'] },
+      { name:'Агентство', m:2490, feats:['20 проектов и 10 пользователей','ИИ-тексты без лимита','Отчёты для клиентов и личный менеджер'] }
+    ];
+    this.COLORS = ['#FFD84D','#F7931E','#FF6B4A','#E23B54','#C4552D','#22A06B','#1E7F4F','#27A6E5','#0077FF','#2B50EC','#6E5BFF','#17150F'];
+    this.edRef = React.createRef();
+    this.pad = n => String(n).padStart(2, '0');
+    this.state = {
+      view: 'cal', scale: 'week', wi: 1, qNext: 3, proj: 0, projMenuOpen: false, calYear: 2026,
+      projects: [
+        { name:'Кофейня «Молоко»', letter:'М', color:'#FFD84D', archived:false,
+          connected:{ vk:true, tg:true, ok:true, max:false, dzen:true, rt:false, yt:true },
+          weeks:{ 0: [
+            [{net:0,t:'09:00',l:'Анонс акции'},{net:1,t:'09:05',l:'Утренний дайджест'}],
+            [{net:4,t:'12:00',l:'Лонгрид: тренды осени'}],
+            [{net:2,t:'19:00',l:'Опрос: любимый напиток'}],
+            [{net:0,t:'12:00',l:'Отзыв недели'}],
+            [{net:6,t:'18:00',l:'Шортс: латте-арт'}],
+            [{net:5,t:'11:00',l:'Влог со смены'}],
+            [{net:1,t:'19:00',l:'Дайджест недели'}]
+          ], 1: [
+            [{net:0,t:'09:00',l:'Анонс акции'},{net:1,t:'09:00',l:'Утренний дайджест'}],
+            [{net:4,t:'12:00',l:'Лонгрид про тренды'}],
+            [{net:0,t:'12:00',l:'Отзыв клиента'},{net:2,t:'19:00',l:'Опрос'}],
+            [{net:1,t:'15:00',l:'Новинка меню',ph:2}],
+            [{net:1,t:'15:00',l:'Подборка советов'},{net:6,t:'18:00',l:'Шортс'}],
+            [{net:5,t:'11:00',l:'Влог: бэкстейдж'}],
+            []
+          ], 2: [
+            [{net:0,t:'09:00',l:'Старт адвент-календаря',ph:1}],
+            [],
+            [{net:1,t:'12:00',l:'Подборка подарков'}],
+            [],
+            [{net:4,t:'15:00',l:'Лонгрид: итоги месяца'}],
+            [],
+            []
+          ] } },
+        { name:'Пекарня «Корка»', letter:'К', color:'#F7931E', archived:false,
+          connected:{ vk:true, tg:true, ok:true, max:false, dzen:false, rt:false, yt:false },
+          weeks:{ 1: [
+            [{net:0,t:'09:00',l:'Свежая выпечка к утру'}],
+            [],
+            [{net:1,t:'12:00',l:'Рецепт недели'}],
+            [],
+            [{net:0,t:'15:00',l:'Акция выходного дня'},{net:2,t:'15:00',l:'Акция выходного дня'}],
+            [],
+            []
+          ] } },
+        { name:'Студия «Тепло»', letter:'Т', color:'#22A06B', archived:false,
+          connected:{ vk:true, tg:true, ok:false, max:true, dzen:true, rt:false, yt:false },
+          weeks:{ 1: [
+            [],
+            [{net:1,t:'09:00',l:'Расписание на неделю'}],
+            [],
+            [{net:3,t:'19:00',l:'Вечерняя практика'}],
+            [],
+            [{net:4,t:'12:00',l:'Лонгрид: дыхание'}],
+            []
+          ] } }
+      ],
+      qTab: 'q', archPer: 'w', queuePer: 'w', timeOpen: false,
+      modalOpen: false, editing: null, postType: 'post',
+      vTitle: '', vDesc: '', vFile: '', cover: '', attach: [],
+      selNets: { vk:true, tg:true }, selDay: 3,
+      selH: '12', selM: '00', selS: '00', selRep: 'none',
+      aiUsed: 12, aiIdx: 0, aiPrompt: '', aiModel: 'YandexGPT 5 Pro',
+      tariff: 'Старт',
+      upModal: false, upStep: 'plan', upPlan: 'Про', upYearly: true,
+      npOpen: false, npName: '', npColor: '#FFD84D',
+      colorFor: null,
+      upFile: null,
+      mediaItems: ['фото 1.jpg','фото 2.jpg','видео 1.mp4','фото 3.jpg','обложка.png','фото 4.jpg','видео 2.mp4'],
+      mediaUpOpen: false, mediaAdded: 0, mediaOpen: null,
+      connNet: null,
+      archOpen: null,
+      repPeriod: 'w', repYear: '2026',
+      team: [
+        { init:'МК', color:'#2B50EC', name:'Мария Ковалёва', mail:'maria@otlozhka.ru', role:'Владелец', pending:false },
+        { init:'ИС', color:'#F7931E', name:'Игорь Смирнов',  mail:'igor@studio.ru',   role:'Редактор', pending:false },
+        { init:'АЛ', color:'#22A06B', name:'Аня Лебедева',   mail:'anya@blog.ru',     role:'Автор',    pending:false }
+      ],
+      inviteMail: '', inviteRole: 'Автор',
+      profileName: 'Мария'
+    };
+  }
+
+  plural(n, forms) {
+    const a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  }
+  fmtNum(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  timeOpt(k, i) {
+    const v = this.pad(i);
+    const on = this.state[k] === v;
+    return { v, bg: on ? '#17150F' : 'transparent', fg: on ? '#fff' : 'rgba(23,21,15,.7)', pick: () => this.setState({ [k]: v }) };
+  }
+  perChips(key) {
+    return [['w', 'Неделя'], ['m', 'Месяц'], ['q', 'Квартал'], ['y', 'Год']].map(([k, n]) => ({
+      n,
+      bg: this.state[key] === k ? '#17150F' : 'transparent',
+      fg: this.state[key] === k ? '#fff' : 'rgba(23,21,15,.6)',
+      pick: () => this.setState({ [key]: k })
+    }));
+  }
+  lfg(c) { return (c === '#FFD84D') ? '#17150F' : '#fff'; }
+  curProj(s) { return s.projects[s.proj]; }
+  curWeek(s) { return this.curProj(s).weeks[s.wi] || [[],[],[],[],[],[],[]]; }
+
+  mutateWeekAt(wi, fn) {
+    this.setState(s => {
+      const ps = s.projects.slice();
+      const p = Object.assign({}, ps[s.proj]);
+      const w = (p.weeks[wi] || [[],[],[],[],[],[],[]]).map(x => x.slice());
+      fn(w, s);
+      p.weeks = Object.assign({}, p.weeks, { [wi]: w });
+      ps[s.proj] = p;
+      return { projects: ps };
+    });
+  }
+  mutateProj(fn) {
+    this.setState(s => {
+      const ps = s.projects.slice();
+      const p = Object.assign({}, ps[s.proj]);
+      fn(p, s);
+      ps[s.proj] = p;
+      return { projects: ps };
+    });
+  }
+  navStyle(k) {
+    const on = this.state.view === k;
+    return { bg: on ? 'rgba(43,80,236,.08)' : 'transparent', fg: on ? '#2B50EC' : 'rgba(23,21,15,.65)' };
+  }
+  go(k) { this.setState({ view: k, projMenuOpen: false }); }
+  weekCount(P, wi) {
+    const w = P.weeks[wi];
+    return w ? w.reduce((n, d) => n + d.length, 0) : 0;
+  }
+  openEdit(wi, di, pi) {
+    const S = this.state;
+    const post = this.curProj(S).weeks[wi][di][pi];
+    const parts = post.t.split(':');
+    const sel = {};
+    sel[this.NETS[post.net].id] = true;
+    this.setState({
+      modalOpen: true, editing: { wi, di, pi }, postType: 'post',
+      selDay: di, selNets: sel,
+      selH: parts[0] || '12', selM: parts[1] || '00', selS: parts[2] || '00',
+      selRep: post.rep ? post.rep : 'none',
+      attach: Array.from({ length: post.ph || 0 }, (_, i) => i)
+    });
+    setTimeout(() => { if (this.edRef.current) this.edRef.current.innerText = post.l; }, 60);
+  }
+
+  renderVals() {
+    const S = this.state;
+    const P = this.curProj(S);
+    const W = this.WEEKS[S.wi];
+    const wk = this.curWeek(S);
+    const limit = this.LIMITS[S.tariff];
+    const isVideo = S.postType === 'video';
+
+    const days = wk.map((posts, di) => ({
+      name: this.DAYS[di],
+      date: W.start + di > 30 ? W.start + di - 30 : W.start + di,
+      today: S.wi === 1 && di === 3,
+      bg: S.wi === 1 && di === 3 ? 'rgba(43,80,236,.04)' : '#fff',
+      nc: di >= 5 ? '#C4552D' : 'rgba(23,21,15,.55)',
+      add: () => this.setState({ modalOpen: true, editing: null, attach: [], postType: 'post', selRep: 'none', vFile: '', cover: '', vDesc: '', selDay: di, timeOpen: false }),
+      posts: posts.map((p, pi) => {
+        const net = this.NETS[p.net];
+        return {
+          t: p.t, l: p.l, s: net.s, c: net.c,
+          soft: net.c + '14', line: net.c + '59',
+          phDisp: p.ph ? 'inline-block' : 'none',
+          phLabel: p.ph ? p.ph + ' фото' : '',
+          repDisp: p.rep && p.rep !== 'none' ? 'inline' : 'none',
+          open: () => this.openEdit(S.wi, di, pi)
+        };
+      })
+    }));
+    const totalW = wk.reduce((n, d) => n + d.length, 0);
+
+    const netChips = this.NETS.map(net => {
+      const on = !!P.connected[net.id];
+      return {
+        s: net.s, badge: on ? net.c : 'rgba(23,21,15,.35)',
+        label: on ? net.n : net.n + ' — подключить',
+        tip: on ? 'Нажмите, чтобы отключить' : 'Нажмите, чтобы подключить',
+        bg: on ? '#fff' : 'transparent',
+        bd: on ? 'rgba(23,21,15,.12)' : 'rgba(23,21,15,.25)',
+        bdStyle: on ? 'solid' : 'dashed',
+        fg: on ? '#17150F' : 'rgba(23,21,15,.5)',
+        toggle: () => this.setState({ connNet: net.id })
+      };
+    });
+
+    const monthCells = [];
+    for (let d = 1; d <= 30; d++) {
+      let wi = null, di = null;
+      if (d >= 10 && d <= 16) { wi = 0; di = d - 10; }
+      else if (d >= 17 && d <= 23) { wi = 1; di = d - 17; }
+      else if (d >= 24 && d <= 30) { wi = 2; di = d - 24; }
+      const list = (wi !== null && P.weeks[wi]) ? (P.weeks[wi][di] || []) : [];
+      const targetWi = wi;
+      monthCells.push({
+        date: d,
+        dc: d === 20 ? '#2B50EC' : 'rgba(23,21,15,.7)',
+        ring: d === 20 ? '2px solid #2B50EC' : 'none',
+        dots: list.slice(0, 3).map(p => ({ c: this.NETS[p.net].c })),
+        more: list.length > 3 ? '+' + (list.length - 3) : '',
+        cur: targetWi !== null ? 'pointer' : 'default',
+        pick: targetWi !== null ? (() => this.setState({ scale: 'week', wi: targetWi })) : (() => {})
+      });
+    }
+    for (let e = 0; e < 5; e++) monthCells.push({ date: '', dc: 'transparent', ring: 'none', dots: [], more: '', cur: 'default', pick: () => {} });
+
+    const novCount = this.weekCount(P, 0) + this.weekCount(P, 1) + this.weekCount(P, 2);
+    const decCount = this.weekCount(P, 3);
+    const quarterCards = [
+      { name:'Октябрь',  count:46, cc:'rgba(23,21,15,.45)', sub:'опубликовано', action:'', bd:'1px solid rgba(23,21,15,.1)', cur:'default', pick:()=>{} },
+      { name:'Ноябрь',   count:novCount, cc:'#2B50EC', sub:'запланировано', action:'Открыть месяц →', bd:'1.5px solid #2B50EC', cur:'pointer', pick:()=>this.setState({ scale:'month' }) },
+      { name:'Декабрь',  count:decCount, cc:'rgba(23,21,15,.45)', sub:decCount > 0 ? 'запланировано' : 'пока пусто', action:'', bd:'1px solid rgba(23,21,15,.1)', cur:'default', pick:()=>{} }
+    ];
+
+    const MONTHS = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+    const yd = this.YEAR_DATA[String(S.calYear)];
+    const yearTiles = MONTHS.map((m, i) => {
+      let count = yd[i];
+      const isCur = S.calYear === 2026;
+      if (isCur && i === 10) count = novCount;
+      if (isCur && i === 11) count = decCount;
+      const active = isCur && i === 10;
+      return {
+        m, count,
+        countLabel: this.plural(count, ['пост', 'поста', 'постов']),
+        barH: Math.max(4, Math.round(count / 46 * 38)) + 'px',
+        barC: active ? '#2B50EC' : 'rgba(23,21,15,.14)',
+        fg: active ? '#2B50EC' : '#17150F',
+        bd: active ? '1.5px solid #2B50EC' : '1px solid rgba(23,21,15,.1)',
+        cur: active ? 'pointer' : 'default',
+        pick: active ? (() => this.setState({ scale: 'month' })) : (() => {})
+      };
+    });
+
+    const QSETS = { w: [1], m: [1, 2], q: [1, 2, 3], y: [1, 2, 3] };
+    const queueRows = [];
+    QSETS[S.queuePer].forEach(wi => {
+      const w = P.weeks[wi];
+      if (!w) return;
+      w.forEach((posts, di) => posts.forEach((p, pi) => {
+        const net = this.NETS[p.net];
+        queueRows.push({
+          l: p.l, s: net.s, c: net.c,
+          when: this.DAYS[di] + ', ' + p.t,
+          week: this.WEEKS[wi].short,
+          open: () => this.openEdit(wi, di, pi)
+        });
+      }));
+    });
+
+    const PER_RANK = { w: 0, m: 1, q: 2, y: 3 };
+    const archiveRows = this.ARCH.map((a, i) => ({ a, i }))
+      .filter(x => PER_RANK[x.a.per] <= PER_RANK[S.archPer])
+      .map(({ a, i }) => {
+        const net = this.NETS[a.net];
+        return { l: a.l, s: net.s, c: net.c, when: a.when, views: this.fmtNum(a.viewsN), open: () => this.setState({ archOpen: i }) };
+      });
+    const arch = S.archOpen !== null ? this.ARCH[S.archOpen] : null;
+    const archNet = arch ? this.NETS[arch.net] : null;
+
+    const mult = this.REP_MULT[S.repPeriod] * this.YEAR_K[S.repYear];
+    let tp = 0, tv = 0, tc = 0;
+    const reportRows = this.REPORT.map(r => {
+      const net = this.NETS[r.net];
+      const posts = Math.round(r.posts * mult), views = Math.round(r.views * mult), clicks = Math.round(r.clicks * mult);
+      tp += posts; tv += views; tc += clicks;
+      return { n: net.n, s: net.s, c: net.c, posts, views: this.fmtNum(views), clicks: this.fmtNum(clicks), bar: Math.round(r.views / 8400 * 100) + '%' };
+    });
+    const REP_NAMES = { w: 'Неделя 17–23 ноября', m: 'Ноябрь', q: '4-й квартал', y: 'Год' };
+
+    const ROLESTYLE = {
+      'Владелец': { bg: '#17150F', fg: '#fff' },
+      'Редактор': { bg: 'rgba(43,80,236,.1)', fg: '#2B50EC' },
+      'Автор':    { bg: 'rgba(34,160,107,.12)', fg: '#1E7F4F' }
+    };
+    const teamRows = S.team.map((m, i) => ({
+      init: m.init, color: m.color, name: m.name, mail: m.mail, role: m.role,
+      pending: m.pending,
+      bdStyle: m.pending ? 'dashed' : 'solid',
+      roleBg: ROLESTYLE[m.role].bg, roleFg: ROLESTYLE[m.role].fg,
+      revocable: m.role !== 'Владелец',
+      revoke: () => this.setState(s => ({ team: s.team.filter((_, j) => j !== i) }))
+    }));
+    const canInvite = S.inviteMail.trim().length > 3;
+
+    const modalNets = this.NETS.map(net => {
+      const blocked = !isVideo && net.video;
+      const on = !blocked && !!S.selNets[net.id];
+      return {
+        n: net.n,
+        tip: blocked ? 'Видеоплатформа: доступна только для типа «Видео»' : '',
+        bg: blocked ? 'rgba(23,21,15,.04)' : (on ? net.c : '#fff'),
+        fg: blocked ? 'rgba(23,21,15,.3)' : (on ? '#fff' : 'rgba(23,21,15,.7)'),
+        bd: blocked ? 'transparent' : (on ? net.c : 'rgba(23,21,15,.15)'),
+        cur: blocked ? 'not-allowed' : 'pointer',
+        toggle: blocked ? (() => {}) : (() => this.setState(s => ({ selNets: Object.assign({}, s.selNets, { [net.id]: !s.selNets[net.id] }) })))
+      };
+    });
+    const selCount = this.NETS.filter(n => S.selNets[n.id] && !(!isVideo && n.video)).length;
+    const modalDays = this.DAYS.map((n, i) => ({
+      n,
+      bg: S.selDay === i ? '#17150F' : '#fff', fg: S.selDay === i ? '#fff' : 'rgba(23,21,15,.7)',
+      bd: S.selDay === i ? '#17150F' : 'rgba(23,21,15,.15)',
+      pick: () => this.setState({ selDay: i })
+    }));
+    const cmd = (c, arg) => (e) => { e.preventDefault(); document.execCommand(c, false, arg); };
+    const aiLeft = limit === Infinity ? Infinity : Math.max(0, limit - S.aiUsed);
+    const REPS = { none: 'разово', day: 'все 7 дней недели', week: 'в эту и следующие недели', month: 'ежемесячно, начиная с этой недели' };
+
+    const upPlanObjs = this.UP_PLANS.filter(p => p.name !== S.tariff).map(p => ({
+      name: p.name,
+      price: p.m === 0 ? '0 ₽' : this.fmtNum(S.upYearly ? Math.round(p.m * 0.8) : p.m) + ' ₽',
+      per: p.m === 0 ? 'навсегда' : '/мес',
+      note: p.m === 0 ? 'без карты и срока' : (S.upYearly ? 'при оплате за год' : (Math.round(p.m * 0.8)) + ' ₽/мес при оплате за год'),
+      feats: p.feats.map(t => ({ t })),
+      pick: p.m === 0
+        ? (() => this.setState({ upPlan: 'Бесплатный', upStep: 'done', tariff: 'Бесплатный' }))
+        : (() => this.setState({ upPlan: p.name, upStep: 'card' }))
+    }));
+    const upPlanData = this.UP_PLANS.find(p => p.name === S.upPlan) || { m: 990 };
+    const upTotal = S.upYearly ? this.fmtNum(Math.round(upPlanData.m * 0.8) * 12) + ' ₽ за год' : this.fmtNum(upPlanData.m) + ' ₽';
+
+    const activeProjs = S.projects.map((p, i) => ({ p, i })).filter(x => !x.p.archived);
+    const archivedProjs = S.projects.map((p, i) => ({ p, i })).filter(x => x.p.archived);
+    const connNetObj = S.connNet ? this.NETS.find(n => n.id === S.connNet) : null;
+    const connIsConnect = connNetObj ? !P.connected[connNetObj.id] : true;
+
+    return {
+      viewTitle: this.TITLES[S.view],
+      vCal: S.view === 'cal', vQueue: S.view === 'queue', vMedia: S.view === 'media',
+      vReports: S.view === 'reports', vTeam: S.view === 'team', vSettings: S.view === 'settings',
+      vCalWeek: S.view === 'cal' && S.scale === 'week',
+      vCalMonth: S.view === 'cal' && S.scale === 'month',
+      vCalQuarter: S.view === 'cal' && S.scale === 'quarter',
+      vCalYear: S.view === 'cal' && S.scale === 'year',
+      scaleWeek: S.scale === 'week',
+      scaleYearNav: S.scale === 'year',
+      scaleMidLabel: S.scale === 'month' || S.scale === 'quarter',
+      periodLabel: S.scale === 'month' ? 'Ноябрь 2026' : '4-й квартал 2026',
+      calYear: S.calYear,
+      prevYear: () => this.setState(s => ({ calYear: Math.max(2024, s.calYear - 1) })),
+      nextYear: () => this.setState(s => ({ calYear: Math.min(2026, s.calYear + 1) })),
+      yearHint: S.calYear === 2026 ? 'Высота столбика — число публикаций. Клик по ноябрю откроет месяц' : 'Архивный год: данные по опубликованным постам. Стрелками — к 2026',
+      scaleChips: this.SCALES.map(([k, n]) => ({
+        n,
+        bg: S.scale === k ? '#17150F' : 'transparent',
+        fg: S.scale === k ? '#fff' : 'rgba(23,21,15,.6)',
+        pick: () => this.setState({ scale: k })
+      })),
+      showNewPost: S.view === 'cal' || S.view === 'queue',
+      goCal: () => this.go('cal'), goQueue: () => this.go('queue'), goMedia: () => this.go('media'),
+      goReports: () => this.go('reports'), goTeam: () => this.go('team'), goSettings: () => this.go('settings'),
+      navCalBg: this.navStyle('cal').bg, navCalFg: this.navStyle('cal').fg,
+      navQueueBg: this.navStyle('queue').bg, navQueueFg: this.navStyle('queue').fg,
+      navMediaBg: this.navStyle('media').bg, navMediaFg: this.navStyle('media').fg,
+      navReportsBg: this.navStyle('reports').bg, navReportsFg: this.navStyle('reports').fg,
+      navTeamBg: this.navStyle('team').bg, navTeamFg: this.navStyle('team').fg,
+      navSettingsBg: this.navStyle('settings').bg, navSettingsFg: this.navStyle('settings').fg,
+
+      projName: P.name, projLetter: P.letter, projColor: P.color, projLfg: this.lfg(P.color),
+      projNum: activeProjs.findIndex(x => x.i === S.proj) + 1, projTotal: activeProjs.length,
+      projChev: S.projMenuOpen ? '⌃' : '⌄',
+      projMenuOpen: S.projMenuOpen,
+      toggleProjMenu: () => this.setState(s => ({ projMenuOpen: !s.projMenuOpen })),
+      projRows: activeProjs.map(({ p, i }) => ({
+        name: p.name, letter: p.letter, color: p.color, lfg: this.lfg(p.color),
+        bg: i === S.proj ? 'rgba(43,80,236,.06)' : 'transparent',
+        check: i === S.proj ? '✓' : '',
+        pick: () => this.setState({ proj: i, projMenuOpen: false, wi: 1, scale: 'week' })
+      })),
+      hasArchived: archivedProjs.length > 0,
+      archProjRows: archivedProjs.map(({ p, i }) => ({
+        name: p.name, letter: p.letter,
+        restore: () => this.setState(s => {
+          const ps = s.projects.slice();
+          ps[i] = Object.assign({}, ps[i], { archived: false });
+          return { projects: ps };
+        })
+      })),
+      setProjName: (e) => this.mutateProj(p => { p.name = e.target.value; }),
+      archiveProj: () => this.setState(s => {
+        const act = s.projects.filter((p, i) => !p.archived && i !== s.proj);
+        if (act.length === 0) return {};
+        const ps = s.projects.slice();
+        ps[s.proj] = Object.assign({}, ps[s.proj], { archived: true });
+        const next = ps.findIndex(p => !p.archived);
+        return { projects: ps, proj: next, view: 'cal', wi: 1, scale: 'week' };
+      }),
+      openNewProj: () => this.setState({ npOpen: true, projMenuOpen: false }),
+      closeNewProj: () => this.setState({ npOpen: false }),
+      npOpen: S.npOpen, npName: S.npName, npColor: S.npColor,
+      setNpName: (e) => this.setState({ npName: e.target.value }),
+      npBg: S.npName.trim() ? '#2B50EC' : 'rgba(23,21,15,.25)',
+      npCursor: S.npName.trim() ? 'pointer' : 'not-allowed',
+      createProj: () => {
+        const name = S.npName.trim();
+        if (!name) return;
+        this.setState(s => ({
+          projects: s.projects.concat([{
+            name, letter: name.slice(0, 1).toUpperCase(), color: s.npColor, archived: false,
+            connected: { vk:true, tg:true, ok:false, max:false, dzen:false, rt:false, yt:false },
+            weeks: {}
+          }]),
+          proj: s.projects.length, npOpen: false, npName: '', wi: 1, scale: 'week'
+        }));
+      },
+      openColorNp: () => this.setState({ colorFor: 'np' }),
+      openColorProj: () => this.setState({ colorFor: 'proj' }),
+      closeColor: () => this.setState({ colorFor: null }),
+      colorOpen: !!S.colorFor,
+      colorSwatches: this.COLORS.map(c => ({
+        c,
+        ring: (S.colorFor === 'np' ? S.npColor : P.color) === c ? '2.5px solid #17150F' : 'none',
+        pick: () => {
+          if (S.colorFor === 'np') this.setState({ npColor: c, colorFor: null });
+          else { this.mutateProj(p => { p.color = c; }); this.setState({ colorFor: null }); }
+        }
+      })),
+
+      weekLabel: W.label,
+      prevWeek: () => this.setState(s => ({ wi: Math.max(0, s.wi - 1) })),
+      nextWeek: () => this.setState(s => ({ wi: Math.min(3, s.wi + 1) })),
+      days, totalW,
+      totalWLabel: this.plural(totalW, ['пост', 'поста', 'постов']),
+      netChips, monthCells, quarterCards, yearTiles,
+
+      qTabQ: () => this.setState({ qTab: 'q' }),
+      qTabA: () => this.setState({ qTab: 'a' }),
+      qIsQueue: S.qTab === 'q', qIsArchive: S.qTab === 'a',
+      tqBg: S.qTab === 'q' ? '#17150F' : 'transparent', tqFg: S.qTab === 'q' ? '#fff' : 'rgba(23,21,15,.6)',
+      taBg: S.qTab === 'a' ? '#17150F' : 'transparent', taFg: S.qTab === 'a' ? '#fff' : 'rgba(23,21,15,.6)',
+      queueRows, queueN: queueRows.length,
+      queueChips: this.perChips('queuePer'),
+      archiveRows, archN: archiveRows.length,
+      archChips: this.perChips('archPer'),
+      archOpen: S.archOpen !== null,
+      closeArch: () => this.setState({ archOpen: null }),
+      archNetC: archNet ? archNet.c : '#000', archNetS: archNet ? archNet.s : '', archNetN: archNet ? archNet.n : '',
+      archL: arch ? arch.l : '', archWhen: arch ? arch.when : '', archText: arch ? arch.text : '',
+      archViews: arch ? this.fmtNum(arch.viewsN) : '', archLikes: arch ? this.fmtNum(arch.likes) : '',
+      archReposts: arch ? arch.reposts : '', archComm: arch ? arch.comm : '', archClicks: arch ? arch.clicks : '',
+      archEr: arch ? (((arch.likes + arch.reposts + arch.comm) / arch.viewsN) * 100).toFixed(1) + '%' : '',
+      archUtm: archNet ? archNet.id : '',
+
+      mediaPhotos: S.mediaItems.map((n, i) => ({ n, i })).filter(x => !x.n.includes('.mp4')).map(x => ({ n: x.n, open: () => this.setState({ mediaOpen: x.i }) })),
+      mediaVideos: S.mediaItems.map((n, i) => ({ n, i })).filter(x => x.n.includes('.mp4')).map(x => ({ n: x.n, open: () => this.setState({ mediaOpen: x.i }) })),
+      mediaOpen: S.mediaOpen !== null,
+      mediaName: S.mediaOpen !== null ? S.mediaItems[S.mediaOpen] : '',
+      mediaIsVideo: S.mediaOpen !== null ? S.mediaItems[S.mediaOpen].includes('.mp4') : false,
+      mediaMeta: S.mediaOpen !== null ? (S.mediaItems[S.mediaOpen].includes('.mp4') ? 'MP4 · 48 МБ · загружено 12 ноября' : 'JPG · 1,4 МБ · загружено 12 ноября') : '',
+      closeMediaPrev: () => this.setState({ mediaOpen: null }),
+      deleteMedia: () => this.setState(s => ({ mediaItems: s.mediaItems.filter((_, j) => j !== s.mediaOpen), mediaOpen: null })),
+      openMediaUp: () => this.setState({ mediaUpOpen: true, mediaAdded: 0 }),
+      closeMediaUp: () => this.setState({ mediaUpOpen: false }),
+      mediaUpOpen: S.mediaUpOpen,
+      mediaAddedAny: S.mediaAdded > 0,
+      mediaAddedN: S.mediaAdded + ' ' + this.plural(S.mediaAdded, ['файл', 'файла', 'файлов']),
+      addMediaFile: () => this.setState(s => {
+        const n = s.mediaItems.length + 1;
+        const name = (n % 3 === 0 ? 'видео ' + n + '.mp4' : 'фото ' + n + '.jpg');
+        return { mediaItems: s.mediaItems.concat([name]), mediaAdded: s.mediaAdded + 1 };
+      }),
+
+      upFileOpen: !!S.upFile,
+      upFileTitle: S.upFile === 'video' ? 'Загрузить видео' : (S.upFile === 'cover' ? 'Загрузить обложку' : 'Загрузить фото'),
+      upFileFormats: S.upFile === 'video' ? 'MP4, MOV до 2 ГБ' : 'JPG, PNG до 20 МБ',
+      upFileFromLib: S.upFile === 'photo' || S.upFile === 'cover',
+      upLibTiles: S.mediaItems.filter(n => !n.includes('.mp4')).slice(0, 4).map(n => ({
+        n,
+        pick: () => this.confirmUp()
+      })),
+      openUpPhoto: () => this.setState({ upFile: 'photo' }),
+      openUpVideo: () => this.setState({ upFile: 'video' }),
+      openUpCover: () => this.setState({ upFile: 'cover' }),
+      closeUpFile: () => this.setState({ upFile: null }),
+      confirmUpFile: () => this.confirmUp(),
+      vFileLabel: S.vFile ? '✓ ' + S.vFile + ' — нажмите, чтобы заменить' : 'Перетащите видео сюда или нажмите, чтобы выбрать · до 2 ГБ, MP4',
+      vFileBd: S.vFile ? 'rgba(34,160,107,.6)' : 'rgba(23,21,15,.22)',
+      vFileFg: S.vFile ? '#1E7F4F' : 'rgba(23,21,15,.5)',
+      coverLabel: S.cover ? '✓ ' + S.cover : '1280 × 720',
+      coverBd: S.cover ? 'rgba(34,160,107,.6)' : 'rgba(23,21,15,.22)',
+      coverFg: S.cover ? '#1E7F4F' : 'rgba(23,21,15,.45)',
+
+      connOpen: !!S.connNet,
+      closeConn: () => this.setState({ connNet: null }),
+      connC: connNetObj ? connNetObj.c : '#000',
+      connS: connNetObj ? connNetObj.s : '',
+      connN: connNetObj ? connNetObj.n : '',
+      connTitle: connNetObj ? (connIsConnect ? 'Подключить ' + connNetObj.n : 'Отключить ' + connNetObj.n + '?') : '',
+      connText: connNetObj ? (connIsConnect
+        ? 'Отложка получит право публиковать контент от имени вашего сообщества — через официальный API площадки.'
+        : 'Публикации в «' + connNetObj.n + '» остановятся. Запланированные посты останутся в календаре и выйдут после повторного подключения.') : '',
+      connIsConnect: connIsConnect,
+      connIsDisconnect: !connIsConnect,
+      connConfirm: () => {
+        const id = S.connNet;
+        this.mutateProj(p => { p.connected = Object.assign({}, p.connected, { [id]: connIsConnect }); });
+        this.setState({ connNet: null });
+      },
+
+      repChips: this.REP_PERIODS.map(([k, n]) => ({
+        n,
+        bg: S.repPeriod === k ? '#17150F' : 'transparent',
+        fg: S.repPeriod === k ? '#fff' : 'rgba(23,21,15,.6)',
+        pick: () => this.setState({ repPeriod: k })
+      })),
+      repYear: S.repYear,
+      setRepYear: (e) => this.setState({ repYear: e.target.value }),
+      repLabel: REP_NAMES[S.repPeriod] + ' · ' + S.repYear,
+      reportRows,
+      repTotalPosts: this.fmtNum(tp), repTotalViews: this.fmtNum(tv), repTotalClicks: this.fmtNum(tc),
+
+      teamRows,
+      inviteMail: S.inviteMail,
+      setInviteMail: (e) => this.setState({ inviteMail: e.target.value }),
+      roleAuthor: () => this.setState({ inviteRole: 'Автор' }),
+      roleEditor: () => this.setState({ inviteRole: 'Редактор' }),
+      raBg: S.inviteRole === 'Автор' ? '#17150F' : '#fff', raFg: S.inviteRole === 'Автор' ? '#fff' : 'rgba(23,21,15,.7)', raBd: S.inviteRole === 'Автор' ? '#17150F' : 'rgba(23,21,15,.15)',
+      reBg: S.inviteRole === 'Редактор' ? '#17150F' : '#fff', reFg: S.inviteRole === 'Редактор' ? '#fff' : 'rgba(23,21,15,.7)', reBd: S.inviteRole === 'Редактор' ? '#17150F' : 'rgba(23,21,15,.15)',
+      inviteBg: canInvite ? '#2B50EC' : 'rgba(23,21,15,.25)',
+      inviteCursor: canInvite ? 'pointer' : 'not-allowed',
+      sendInvite: () => {
+        if (!canInvite) return;
+        const mail = S.inviteMail.trim();
+        this.setState(s => ({
+          team: s.team.concat([{ init: mail.slice(0, 2).toUpperCase(), color: '#6E5BFF', name: mail, mail: mail, role: s.inviteRole, pending: true }]),
+          inviteMail: ''
+        }));
+      },
+
+      profileName: S.profileName,
+      profileInit: (S.profileName.trim().slice(0, 1) || 'М').toUpperCase(),
+      setProfileName: (e) => this.setState({ profileName: e.target.value }),
+
+      tariffName: S.tariff,
+      aiUsed: S.aiUsed,
+      aiLimitLabel: limit === Infinity ? '∞' : limit,
+      aiBarW: limit === Infinity ? '6%' : Math.min(100, Math.round(S.aiUsed / limit * 100)) + '%',
+      aiLeftLabel: limit === Infinity ? 'безлимит' : 'осталось ' + aiLeft,
+      upgradeLabel: S.tariff === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф',
+      openUpgrade: () => this.setState({ upModal: true, upStep: 'plan' }),
+      closeUpgrade: () => this.setState({ upModal: false, upStep: 'plan' }),
+      upModal: S.upModal,
+      upPlanStep: S.upStep === 'plan', upCardStep: S.upStep === 'card', upDoneStep: S.upStep === 'done',
+      upBack: () => this.setState({ upStep: 'plan' }),
+      upSetMonthly: () => this.setState({ upYearly: false }),
+      upSetYearly: () => this.setState({ upYearly: true }),
+      umBg: S.upYearly ? 'transparent' : '#17150F', umFg: S.upYearly ? 'rgba(23,21,15,.6)' : '#fff',
+      uyBg: S.upYearly ? '#17150F' : 'transparent', uyFg: S.upYearly ? '#fff' : 'rgba(23,21,15,.6)',
+      upPlans: upPlanObjs,
+      upPlan: S.upPlan,
+      upPeriodNote: S.upYearly ? 'оплата за год со скидкой 20%' : 'оплата помесячно',
+      upTotal,
+      upDoneText: S.tariff === 'Бесплатный'
+        ? 'Вы перешли на бесплатный тариф: 3 соцсети, 10 постов и 5 ИИ-текстов в месяц. Вернуться на платный можно в любой момент.'
+        : 'Чек отправили на почту. Карта привязана, продление — автоматически. Лимит ИИ-текстов теперь ' + (limit === Infinity ? '∞' : limit) + ' в месяц.',
+      upPay: () => this.setState({ upStep: 'done', tariff: S.upPlan }),
+
+      modalOpen: S.modalOpen,
+      modalTitle: S.editing ? 'Настройки поста' : 'Новый пост',
+      isEditing: !!S.editing,
+      openModal: () => this.setState({ modalOpen: true, editing: null, attach: [], postType: 'post', selRep: 'none', vFile: '', cover: '', vDesc: '', timeOpen: false }),
+      closeModal: () => this.setState({ modalOpen: false, editing: null }),
+      isPost: !isVideo, isVideo,
+      pickPost: () => this.setState(s => ({ postType: 'post', selNets: Object.assign({}, s.selNets, { rt: false, yt: false }) })),
+      pickVideo: () => this.setState({ postType: 'video' }),
+      tpBg: !isVideo ? '#17150F' : 'transparent', tpFg: !isVideo ? '#fff' : 'rgba(23,21,15,.6)',
+      tvBg: isVideo ? '#17150F' : 'transparent', tvFg: isVideo ? '#fff' : 'rgba(23,21,15,.6)',
+      edRef: this.edRef,
+      fmtB: cmd('bold'), fmtI: cmd('italic'), fmtS: cmd('strikeThrough'), fmtL: cmd('createLink', 'https://otlozhka.ru'),
+      aiModel: S.aiModel,
+      setAiModel: (e) => this.setState({ aiModel: e.target.value }),
+      aiPrompt: S.aiPrompt,
+      setAiPrompt: (e) => this.setState({ aiPrompt: e.target.value }),
+      aiSuggest: () => {
+        if (limit !== Infinity && S.aiUsed >= limit) return;
+        const base = this.AI[S.aiIdx % this.AI.length];
+        const text = S.aiPrompt.trim() ? base : base;
+        if (this.edRef.current) this.edRef.current.innerText = text;
+        this.setState(s => ({ aiUsed: s.aiUsed + 1, aiIdx: s.aiIdx + 1 }));
+      },
+      aiDesc: () => {
+        if (limit !== Infinity && S.aiUsed >= limit) return;
+        this.setState(s => ({
+          vDesc: 'В этом ролике — закулисье «' + P.name.replace(/«|»/g, '') + '»: как всё устроено, кто за этим стоит и что попробовать в первую очередь. Подписывайтесь, чтобы не пропустить новые видео. #' + P.letter.toLowerCase() + 'жизнь',
+          aiUsed: s.aiUsed + 1
+        }));
+      },
+      vDesc: S.vDesc,
+      setVDesc: (e) => this.setState({ vDesc: e.target.value }),
+      attachRows: S.attach.map((_, i) => ({
+        n: 'фото ' + (i + 1),
+        remove: () => this.setState(s => ({ attach: s.attach.filter((_, j) => j !== i) }))
+      })),
+      canAttach: S.attach.length < 4,
+      vTitle: S.vTitle,
+      setVTitle: (e) => this.setState({ vTitle: e.target.value }),
+      modalNets, modalDays,
+      timeOpen: S.timeOpen,
+      toggleTime: () => this.setState(s => ({ timeOpen: !s.timeOpen })),
+      timeLabel: S.selH + ':' + S.selM + ':' + S.selS,
+      hoursList: Array.from({ length: 24 }, (_, i) => this.timeOpt('selH', i)),
+      minsList: Array.from({ length: 60 }, (_, i) => this.timeOpt('selM', i)),
+      secsList: Array.from({ length: 60 }, (_, i) => this.timeOpt('selS', i)),
+      selRep: S.selRep,
+      setSelRep: (e) => this.setState({ selRep: e.target.value }),
+      repHint: REPS[S.selRep],
+      modalHint: selCount === 0 ? 'Выберите хотя бы одну площадку' : 'Выйдет ' + selCount + ' ' + this.plural(selCount, ['публикация', 'публикации', 'публикаций']),
+      submitBg: selCount === 0 ? 'rgba(23,21,15,.25)' : '#2B50EC',
+      submitCursor: selCount === 0 ? 'not-allowed' : 'pointer',
+      submitLabel: S.editing ? 'Сохранить' : 'В отложку',
+      deletePost: () => {
+        const ed = S.editing;
+        if (!ed) return;
+        this.mutateWeekAt(ed.wi, w => { w[ed.di] = w[ed.di].filter((_, j) => j !== ed.pi); });
+        this.setState({ modalOpen: false, editing: null });
+      },
+      submitPost: () => {
+        if (selCount === 0) return;
+        let label;
+        if (isVideo) {
+          label = '▶ ' + (S.vTitle.trim() || 'Новое видео');
+        } else {
+          const text = this.edRef.current ? this.edRef.current.innerText.trim() : '';
+          label = text || 'Новый пост';
+        }
+        if (label.length > 26) label = label.slice(0, 24) + '…';
+        const t = S.selS !== '00' ? S.selH + ':' + S.selM + ':' + S.selS : S.selH + ':' + S.selM;
+        const ph = isVideo ? 0 : S.attach.length;
+        const rep = S.selRep;
+        const mkPosts = (w, s, dayIdx) => {
+          this.NETS.forEach((net, ni) => {
+            const blocked = !isVideo && net.video;
+            if (!blocked && s.selNets[net.id]) w[dayIdx] = w[dayIdx].concat([{ net: ni, t, l: label, ph, rep: rep !== 'none' ? rep : undefined }]);
+          });
+        };
+        const ed = S.editing;
+        if (ed) {
+          this.mutateWeekAt(ed.wi, (w, s) => {
+            w[ed.di] = w[ed.di].filter((_, j) => j !== ed.pi);
+            mkPosts(w, s, s.selDay);
+          });
+        } else if (rep === 'day') {
+          this.mutateWeekAt(S.wi, (w, s) => { for (let d = 0; d < 7; d++) mkPosts(w, s, d); });
+        } else if (rep === 'week' || rep === 'month') {
+          [1, 2, 3].forEach(wi => this.mutateWeekAt(wi, (w, s) => mkPosts(w, s, s.selDay)));
+        } else {
+          this.mutateWeekAt(S.wi, (w, s) => mkPosts(w, s, s.selDay));
+        }
+        if (this.edRef.current) this.edRef.current.innerHTML = '';
+        this.setState({ modalOpen: false, vTitle: '', vDesc: '', vFile: '', cover: '', attach: [], editing: null, selRep: 'none' });
+      }
+    };
+  }
+
+  confirmUp() {
+    const S = this.state;
+    if (S.upFile === 'photo') {
+      this.setState(s => ({ attach: s.attach.length < 4 ? s.attach.concat([s.attach.length]) : s.attach, upFile: null }));
+    } else if (S.upFile === 'video') {
+      this.setState({ vFile: 'ролик_демо.mp4', upFile: null });
+    } else if (S.upFile === 'cover') {
+      this.setState({ cover: 'обложка.png', upFile: null });
+    }
+  }
+}
+</script>
+</body>
+</html>

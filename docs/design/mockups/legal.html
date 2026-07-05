@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F4EF;color:#17150F;font-family:'Golos Text',system-ui,sans-serif}
+html{scroll-behavior:smooth}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:50;background:rgba(246,244,239,.93);backdrop-filter:blur(10px);border-bottom:1px solid rgba(23,21,15,.08)" data-screen-label="Шапка">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;padding:15px 24px">
+    <a href="Главная.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit">
+      <span style="width:28px;height:28px;border-radius:8px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">О</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-.2px">Отложка</span>
+    </a>
+    <a href="Главная.dc.html" style="margin-left:auto;font-size:14px;font-weight:600;color:rgba(23,21,15,.6);text-decoration:none" style-hover="color:#17150F">← На главную</a>
+  </div>
+</div>
+
+<div style="max-width:1100px;margin:0 auto;padding:40px 24px 72px" data-screen-label="Правовая информация">
+  <h1 style="margin:0;font-size:36px;font-weight:800;letter-spacing:-.6px">Правовая информация</h1>
+  <div style="margin-top:14px;display:inline-flex;gap:10px;align-items:baseline;background:#FFF3C4;border:1px solid #E8CF6A;border-radius:10px;padding:10px 14px;font-size:13.5px;line-height:1.5;color:rgba(23,21,15,.75)">Это шаблон структуры документов — перед запуском замените тексты на согласованные с вашим юристом.</div>
+
+  <div style="display:grid;grid-template-columns:230px minmax(0,1fr);gap:36px;margin-top:28px;align-items:start">
+    <div style="position:sticky;top:80px;display:flex;flex-direction:column;gap:4px">
+      <a href="#oferta" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.7);text-decoration:none;padding:9px 12px;border-radius:9px" style-hover="background:#fff;color:#2B50EC">Публичная оферта</a>
+      <a href="#privacy" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.7);text-decoration:none;padding:9px 12px;border-radius:9px" style-hover="background:#fff;color:#2B50EC">Политика конфиденциальности</a>
+      <a href="#pd" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.7);text-decoration:none;padding:9px 12px;border-radius:9px" style-hover="background:#fff;color:#2B50EC">Персональные данные</a>
+      <a href="#req" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.7);text-decoration:none;padding:9px 12px;border-radius:9px" style-hover="background:#fff;color:#2B50EC">Реквизиты</a>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div id="oferta" style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:30px;scroll-margin-top:84px">
+        <h2 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.3px">Публичная оферта</h2>
+        <div style="margin-top:4px;font-size:12.5px;color:rgba(23,21,15,.45)">Редакция от 1 июля 2026 года</div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:14px;font-size:14.5px;line-height:1.65;color:rgba(23,21,15,.75)">
+          <p style="margin:0"><b style="color:#17150F">1. Термины.</b> «Сервис» — программа «Отложка», доступная на сайте и через API. «Пользователь» — лицо, создавшее аккаунт. «Тариф» — объём функций и лимитов, описанный на странице «Тарифы».</p>
+          <p style="margin:0"><b style="color:#17150F">2. Предмет.</b> Исполнитель предоставляет Пользователю доступ к Сервису для планирования и автоматической публикации контента в подключённые социальные сети. Публикация выполняется через официальные интерфейсы (API) площадок.</p>
+          <p style="margin:0"><b style="color:#17150F">3. Оплата.</b> Стоимость определяется выбранным Тарифом. Оплата — банковской картой, СБП или по счёту для юридических лиц. Подписка продлевается автоматически; автопродление отключается в настройках в любой момент.</p>
+          <p style="margin:0"><b style="color:#17150F">4. Возвраты.</b> В течение 14 дней с момента оплаты Пользователь вправе запросить возврат без объяснения причин. Далее возврат рассчитывается пропорционально неиспользованному периоду.</p>
+          <p style="margin:0"><b style="color:#17150F">5. Ответственность.</b> Сервис не отвечает за недоступность API социальных сетей, блокировки со стороны площадок и содержание публикуемого контента. Пользователь обязуется не публиковать материалы, нарушающие закон и правила площадок.</p>
+          <p style="margin:0"><b style="color:#17150F">6. Изменение условий.</b> Актуальная редакция оферты публикуется на этой странице. Об изменениях, ухудшающих условия, уведомляем по почте не менее чем за 10 дней.</p>
+        </div>
+      </div>
+
+      <div id="privacy" style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:30px;scroll-margin-top:84px">
+        <h2 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.3px">Политика конфиденциальности</h2>
+        <div style="margin-top:4px;font-size:12.5px;color:rgba(23,21,15,.45)">Редакция от 1 июля 2026 года</div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:14px;font-size:14.5px;line-height:1.65;color:rgba(23,21,15,.75)">
+          <p style="margin:0"><b style="color:#17150F">1. Что мы собираем.</b> Имя, адрес электронной почты, платёжные метаданные (без данных карты — их обрабатывает платёжный провайдер) и технические токены доступа к подключённым соцсетям.</p>
+          <p style="margin:0"><b style="color:#17150F">2. Зачем.</b> Для работы Сервиса: авторизации, публикации контента от вашего имени, уведомлений о статусе публикаций и поддержки. Мы не продаём данные третьим лицам и не читаем личные переписки.</p>
+          <p style="margin:0"><b style="color:#17150F">3. Токены соцсетей.</b> Пароли от аккаунтов соцсетей нам не передаются. Токены хранятся в зашифрованном виде и отзываются в один клик при отключении площадки.</p>
+          <p style="margin:0"><b style="color:#17150F">4. Cookies.</b> Используем только технические cookies (сессия, настройки интерфейса) и обезличенную аналитику использования Сервиса.</p>
+          <p style="margin:0"><b style="color:#17150F">5. Хранение.</b> Данные хранятся на серверах на территории Российской Федерации. При удалении аккаунта данные удаляются в течение 30 дней.</p>
+        </div>
+      </div>
+
+      <div id="pd" style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:30px;scroll-margin-top:84px">
+        <h2 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.3px">Обработка персональных данных</h2>
+        <div style="margin-top:4px;font-size:12.5px;color:rgba(23,21,15,.45)">Согласие в соответствии со 152-ФЗ</div>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:14px;font-size:14.5px;line-height:1.65;color:rgba(23,21,15,.75)">
+          <p style="margin:0"><b style="color:#17150F">1. Оператор.</b> Оператором персональных данных является ООО «Отложка» (реквизиты — ниже на этой странице).</p>
+          <p style="margin:0"><b style="color:#17150F">2. Состав и цели.</b> Обрабатываются данные, перечисленные в Политике конфиденциальности, в целях исполнения договора-оферты и требований законодательства РФ.</p>
+          <p style="margin:0"><b style="color:#17150F">3. Ваши права.</b> Вы вправе запросить сведения об обработке, потребовать уточнения или удаления данных, а также отозвать согласие, написав на legal@otlozhka.ru.</p>
+          <p style="margin:0"><b style="color:#17150F">4. Срок.</b> Согласие действует до момента удаления аккаунта либо получения отзыва согласия.</p>
+        </div>
+      </div>
+
+      <div id="req" style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:30px;scroll-margin-top:84px">
+        <h2 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-.3px">Реквизиты</h2>
+        <div style="margin-top:18px;display:grid;grid-template-columns:190px 1fr;gap:10px 18px;font-size:14.5px;line-height:1.5">
+          <div style="color:rgba(23,21,15,.5)">Наименование</div><div style="font-weight:600">ООО «Отложка»</div>
+          <div style="color:rgba(23,21,15,.5)">ИНН / КПП</div><div style="font-weight:600">7700000000 / 770001001</div>
+          <div style="color:rgba(23,21,15,.5)">ОГРН</div><div style="font-weight:600">1257700000000</div>
+          <div style="color:rgba(23,21,15,.5)">Адрес</div><div style="font-weight:600">123456, г. Москва, ул. Примерная, д. 1, оф. 1</div>
+          <div style="color:rgba(23,21,15,.5)">Почта</div><div style="font-weight:600">legal@otlozhka.ru</div>
+          <div style="color:rgba(23,21,15,.5)">Поддержка</div><div style="font-weight:600">help@otlozhka.ru · Телеграм-канал</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="background:#17150F;color:#F6F4EF" data-screen-label="Футер">
+  <div style="max-width:1100px;margin:0 auto;padding:20px 24px;display:flex;gap:20px;align-items:center;font-size:12.5px;color:rgba(246,244,239,.45)">
+    <span>© Отложка, 2026</span>
+    <a href="Главная.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Главная</a>
+    <a href="Тарифы.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Тарифы</a>
+    <a href="Вход.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Вход</a>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,60 @@
+import { Anchor, Box, Button, Container, Group } from '@mantine/core'
+import { Link } from 'react-router-dom'
+import { Logo } from '@/shared/ui'
+
+const NAV = [
+  { label: 'Возможности', href: '#features' },
+  { label: 'Как это работает', href: '#how' },
+  { label: 'Соцсети', href: '#networks' },
+  { label: 'Тарифы', href: '#pricing' },
+  { label: 'FAQ', href: '#faq' },
+]
+
+/** Липкая шапка маркетинг-сайта: логотип, якорная навигация, кнопки входа. */
+export function MarketingHeader() {
+  return (
+    <Box
+      component="header"
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        background: 'rgba(246,244,239,0.93)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(23,21,15,0.08)',
+      }}
+    >
+      <Container size="lg">
+        <Group h={64} justify="space-between" wrap="nowrap">
+          <Group gap="xl" wrap="nowrap">
+            <Anchor component={Link} to="/" underline="never" c="inherit">
+              <Logo />
+            </Anchor>
+            <Group gap="lg" visibleFrom="sm">
+              {NAV.map((item) => (
+                <Anchor
+                  key={item.href}
+                  href={item.href}
+                  underline="never"
+                  fw={600}
+                  fz={14}
+                  c="rgba(23,21,15,0.65)"
+                >
+                  {item.label}
+                </Anchor>
+              ))}
+            </Group>
+          </Group>
+          <Group gap="sm" wrap="nowrap">
+            <Button component={Link} to="/login" variant="subtle" color="dark" size="sm" visibleFrom="xs">
+              Войти
+            </Button>
+            <Button component={Link} to="/login" size="sm">
+              Попробовать бесплатно
+            </Button>
+          </Group>
+        </Group>
+      </Container>
+    </Box>
+  )
+}

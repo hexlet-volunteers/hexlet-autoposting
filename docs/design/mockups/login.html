@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F4EF;color:#17150F;font-family:'Golos Text',system-ui,sans-serif}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;padding:20px 28px" data-screen-label="Вход: шапка">
+    <a href="Главная.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit">
+      <span style="width:28px;height:28px;border-radius:8px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">О</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-.2px">Отложка</span>
+    </a>
+    <a href="Главная.dc.html" style="margin-left:auto;font-size:14px;font-weight:600;color:rgba(23,21,15,.6);text-decoration:none" style-hover="color:#17150F">← На главную</a>
+  </div>
+
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px" data-screen-label="Вход: форма">
+    <div style="width:430px;max-width:100%">
+      <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:18px;box-shadow:0 16px 40px rgba(23,21,15,.08);padding:28px">
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:4px;background:rgba(23,21,15,.06);border-radius:12px;padding:4px">
+            <button onClick="{{ pickIn }}" style="font-family:inherit;flex:1;border:none;border-radius:9px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;background:{{ inBg }};color:{{ inFg }}">Вход</button>
+            <button onClick="{{ pickUp }}" style="font-family:inherit;flex:1;border:none;border-radius:9px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;background:{{ upBg }};color:{{ upFg }}">Регистрация</button>
+          </div>
+        </sc-if>
+
+        <h1 style="margin:22px 0 0;font-size:23px;font-weight:800;letter-spacing:-.3px">{{ title }}</h1>
+        <p style="margin:7px 0 0;font-size:13.5px;line-height:1.5;color:rgba(23,21,15,.55)">{{ subtitle }}</p>
+
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px">
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#0077FF;color:#fff;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.92)">VK ID</button>
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#27A6E5;color:#fff;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.92)">Telegram</button>
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#FC3F1D;color:#fff;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.92)">Яндекс</button>
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#21A038;color:#fff;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.92)">Сбер ID</button>
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#FFDD2D;color:#17150F;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:700;cursor:pointer" style-hover="filter:brightness(.95)">T-ID</button>
+            <button style="font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;background:#0D4CD3;color:#fff;border:none;border-radius:10px;padding:10px 4px;font-size:12.5px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.92)">Госуслуги</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;margin:18px 0 0">
+            <span style="flex:1;height:1px;background:rgba(23,21,15,.1)"></span>
+            <span style="font-size:12px;color:rgba(23,21,15,.45)">или по почте</span>
+            <span style="flex:1;height:1px;background:rgba(23,21,15,.1)"></span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isUp }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px">
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Как вас зовут</div>
+            <input type="text" placeholder="Мария" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          </div>
+        </sc-if>
+        <div style="margin-top:16px">
+          <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Почта</div>
+          <input type="email" placeholder="you@example.ru" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+        </div>
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:14px">
+            <div style="font-size:12.5px;font-weight:600;color:rgba(23,21,15,.6)">Пароль</div>
+            <input type="password" placeholder="••••••••" style="box-sizing:border-box;width:100%;margin-top:6px;padding:12px 14px;border:1.5px solid rgba(23,21,15,.15);border-radius:10px;font-family:inherit;font-size:14.5px;background:#fff;outline:none" style-focus="border-color:#2B50EC">
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isIn }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(23,21,15,.65);cursor:pointer"><input type="checkbox" style="accent-color:#2B50EC;width:15px;height:15px">Запомнить меня</label>
+            <button onClick="{{ goForgot }}" style="font-family:inherit;background:none;border:none;padding:0;margin-left:auto;font-size:13px;font-weight:600;color:#2B50EC;cursor:pointer">Забыли пароль?</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isUp }}" hint-placeholder-val="{{ false }}">
+          <label style="display:flex;align-items:flex-start;gap:9px;margin-top:14px;font-size:12.5px;line-height:1.5;color:rgba(23,21,15,.65);cursor:pointer">
+            <input type="checkbox" style="accent-color:#2B50EC;width:15px;height:15px;margin-top:2px">
+            <span>Принимаю <a href="Правовая информация.dc.html#oferta" style="color:#2B50EC;text-decoration:none;font-weight:600">оферту</a> и <a href="Правовая информация.dc.html#privacy" style="color:#2B50EC;text-decoration:none;font-weight:600">политику конфиденциальности</a></span>
+          </label>
+        </sc-if>
+
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+          <a href="Личный кабинет.dc.html" style="display:block;margin-top:18px;background:#2B50EC;color:#fff;text-decoration:none;border-radius:11px;padding:13px;font-size:15px;font-weight:600;text-align:center" style-hover="background:#1F3FD1">{{ submitLabel }}</a>
+        </sc-if>
+        <sc-if value="{{ forgotIdle }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ sendReset }}" style="font-family:inherit;display:block;width:100%;margin-top:18px;background:#2B50EC;color:#fff;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Отправить ссылку</button>
+        </sc-if>
+        <sc-if value="{{ forgotSent }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:18px;background:rgba(34,160,107,.1);border:1px solid rgba(34,160,107,.35);border-radius:11px;padding:13px 15px;font-size:13.5px;line-height:1.55;color:#1E7F4F"><b>Ссылка отправлена.</b> Проверьте входящие — а если письма нет, загляните в «Спам».</div>
+          <button onClick="{{ sendReset }}" style="font-family:inherit;display:block;margin:12px auto 0;background:none;border:none;font-size:13px;font-weight:600;color:#2B50EC;cursor:pointer">Отправить ещё раз</button>
+        </sc-if>
+      </div>
+
+      <div style="text-align:center;margin-top:16px;font-size:13.5px;color:rgba(23,21,15,.55)">
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">{{ switchHint }} <button onClick="{{ switchMode }}" style="font-family:inherit;background:none;border:none;padding:0;font-size:13.5px;font-weight:700;color:#2B50EC;cursor:pointer">{{ switchLabel }}</button></sc-if>
+        <sc-if value="{{ isForgot }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pickIn }}" style="font-family:inherit;background:none;border:none;padding:0;font-size:13.5px;font-weight:700;color:#2B50EC;cursor:pointer">← Вернуться ко входу</button></sc-if>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:12px;color:rgba(23,21,15,.4)">Это демо: кнопки входа ведут в личный кабинет</div>
+    </div>
+  </div>
+
+  <div style="padding:18px;display:flex;justify-content:center;gap:18px;font-size:12px;color:rgba(23,21,15,.45)">
+    <span>© Отложка, 2026</span>
+    <a href="Правовая информация.dc.html" style="color:rgba(23,21,15,.55);text-decoration:none">Правовая информация</a>
+    <a href="Тарифы.dc.html" style="color:rgba(23,21,15,.55);text-decoration:none">Тарифы</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mode: 'in', sent: false };
+
+  renderVals() {
+    const m = this.state.mode;
+    const isUp = m === 'up', isIn = m === 'in', isForgot = m === 'forgot';
+    return {
+      isAuth: !isForgot,
+      isUp, isIn, isForgot,
+      forgotIdle: isForgot && !this.state.sent,
+      forgotSent: isForgot && this.state.sent,
+      inBg: isIn ? '#17150F' : 'transparent',
+      inFg: isIn ? '#fff' : 'rgba(23,21,15,.6)',
+      upBg: isUp ? '#17150F' : 'transparent',
+      upFg: isUp ? '#fff' : 'rgba(23,21,15,.6)',
+      title: isForgot ? 'Восстановим пароль' : (isUp ? 'Создайте аккаунт' : 'С возвращением!'),
+      subtitle: isForgot
+        ? 'Укажите почту аккаунта — пришлём ссылку для сброса пароля.'
+        : (isUp ? 'Бесплатный тариф навсегда: 3 соцсети и 10 постов в месяц. Карта не нужна.' : 'Посты уже заждались — войдите и проверьте очередь.'),
+      submitLabel: isUp ? 'Создать аккаунт' : 'Войти',
+      switchHint: isUp ? 'Уже есть аккаунт?' : 'Ещё нет аккаунта?',
+      switchLabel: isUp ? 'Войти' : 'Зарегистрироваться',
+      pickIn: () => this.setState({ mode: 'in', sent: false }),
+      pickUp: () => this.setState({ mode: 'up', sent: false }),
+      goForgot: () => this.setState({ mode: 'forgot', sent: false }),
+      sendReset: () => this.setState({ sent: true }),
+      switchMode: () => this.setState(s => ({ mode: s.mode === 'in' ? 'up' : 'in', sent: false }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+[
+  {
+    "page": "app-dashboard",
+    "index": -1,
+    "label": "app-dashboard (вся страница)",
+    "file": "app-dashboard__full.png"
+  },
+  {
+    "page": "app-dashboard",
+    "index": 0,
+    "label": "Сайдбар",
+    "file": "app-dashboard__00.png"
+  },
+  {
+    "page": "app-dashboard",
+    "index": 1,
+    "label": "Кабинет: контент",
+    "file": "app-dashboard__01.png"
+  },
+  {
+    "page": "feature-ai",
+    "index": -1,
+    "label": "feature-ai (вся страница)",
+    "file": "feature-ai__full.png"
+  },
+  {
+    "page": "feature-ai",
+    "index": 0,
+    "label": "Шапка",
+    "file": "feature-ai__00.png"
+  },
+  {
+    "page": "feature-ai",
+    "index": 1,
+    "label": "ИИ: hero",
+    "file": "feature-ai__01.png"
+  },
+  {
+    "page": "feature-ai",
+    "index": 2,
+    "label": "ИИ: возможности",
+    "file": "feature-ai__02.png"
+  },
+  {
+    "page": "feature-ai",
+    "index": 3,
+    "label": "CTA и футер",
+    "file": "feature-ai__03.png"
+  },
+  {
+    "page": "feature-autoposting",
+    "index": -1,
+    "label": "feature-autoposting (вся страница)",
+    "file": "feature-autoposting__full.png"
+  },
+  {
+    "page": "feature-autoposting",
+    "index": 0,
+    "label": "Шапка",
+    "file": "feature-autoposting__00.png"
+  },
+  {
+    "page": "feature-autoposting",
+    "index": 1,
+    "label": "Автопостинг: hero",
+    "file": "feature-autoposting__01.png"
+  },
+  {
+    "page": "feature-autoposting",
+    "index": 2,
+    "label": "Автопостинг: возможности",
+    "file": "feature-autoposting__02.png"
+  },
+  {
+    "page": "feature-autoposting",
+    "index": 3,
+    "label": "CTA и футер",
+    "file": "feature-autoposting__03.png"
+  },
+  {
+    "page": "feature-crossposting",
+    "index": -1,
+    "label": "feature-crossposting (вся страница)",
+    "file": "feature-crossposting__full.png"
+  },
+  {
+    "page": "feature-crossposting",
+    "index": 0,
+    "label": "Шапка",
+    "file": "feature-crossposting__00.png"
+  },
+  {
+    "page": "feature-crossposting",
+    "index": 1,
+    "label": "Кросспостинг: hero",
+    "file": "feature-crossposting__01.png"
+  },
+  {
+    "page": "feature-crossposting",
+    "index": 2,
+    "label": "Кросспостинг: возможности",
+    "file": "feature-crossposting__02.png"
+  },
+  {
+    "page": "feature-crossposting",
+    "index": 3,
+    "label": "CTA и футер",
+    "file": "feature-crossposting__03.png"
+  },
+  {
+    "page": "landing-home",
+    "index": -1,
+    "label": "landing-home (вся страница)",
+    "file": "landing-home__full.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 0,
+    "label": "Шапка",
+    "file": "landing-home__00.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 1,
+    "label": "Hero",
+    "file": "landing-home__01.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 2,
+    "label": "Соцсети",
+    "file": "landing-home__02.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 3,
+    "label": "Как это работает",
+    "file": "landing-home__03.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 4,
+    "label": "Возможности",
+    "file": "landing-home__04.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 5,
+    "label": "Кросспостинг",
+    "file": "landing-home__05.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 6,
+    "label": "ИИ-помощник",
+    "file": "landing-home__06.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 7,
+    "label": "Сравнение",
+    "file": "landing-home__07.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 8,
+    "label": "Отзывы",
+    "file": "landing-home__08.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 9,
+    "label": "Тарифы тизер",
+    "file": "landing-home__09.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 10,
+    "label": "FAQ",
+    "file": "landing-home__10.png"
+  },
+  {
+    "page": "landing-home",
+    "index": 11,
+    "label": "CTA и футер",
+    "file": "landing-home__11.png"
+  },
+  {
+    "page": "landing-variants",
+    "index": -1,
+    "label": "landing-variants (вся страница)",
+    "file": "landing-variants__full.png"
+  },
+  {
+    "page": "landing-variants",
+    "index": 0,
+    "label": "1a Планёрка",
+    "file": "landing-variants__00.png"
+  },
+  {
+    "page": "landing-variants",
+    "index": 1,
+    "label": "1b Эфир",
+    "file": "landing-variants__01.png"
+  },
+  {
+    "page": "landing-variants",
+    "index": 2,
+    "label": "1c Магнитики",
+    "file": "landing-variants__02.png"
+  },
+  {
+    "page": "legal",
+    "index": -1,
+    "label": "legal (вся страница)",
+    "file": "legal__full.png"
+  },
+  {
+    "page": "legal",
+    "index": 0,
+    "label": "Шапка",
+    "file": "legal__00.png"
+  },
+  {
+    "page": "legal",
+    "index": 1,
+    "label": "Правовая информация",
+    "file": "legal__01.png"
+  },
+  {
+    "page": "legal",
+    "index": 2,
+    "label": "Футер",
+    "file": "legal__02.png"
+  },
+  {
+    "page": "login",
+    "index": -1,
+    "label": "login (вся страница)",
+    "file": "login__full.png"
+  },
+  {
+    "page": "login",
+    "index": 0,
+    "label": "Вход: шапка",
+    "file": "login__00.png"
+  },
+  {
+    "page": "login",
+    "index": 1,
+    "label": "Вход: форма",
+    "file": "login__01.png"
+  },
+  {
+    "page": "pricing",
+    "index": -1,
+    "label": "pricing (вся страница)",
+    "file": "pricing__full.png"
+  },
+  {
+    "page": "pricing",
+    "index": 0,
+    "label": "Шапка",
+    "file": "pricing__00.png"
+  },
+  {
+    "page": "pricing",
+    "index": 1,
+    "label": "Тарифы: заголовок",
+    "file": "pricing__01.png"
+  },
+  {
+    "page": "pricing",
+    "index": 2,
+    "label": "Тарифы: карточки",
+    "file": "pricing__02.png"
+  },
+  {
+    "page": "pricing",
+    "index": 3,
+    "label": "Тарифы: сравнение",
+    "file": "pricing__03.png"
+  },
+  {
+    "page": "pricing",
+    "index": 4,
+    "label": "Тарифы: FAQ",
+    "file": "pricing__04.png"
+  },
+  {
+    "page": "pricing",
+    "index": 5,
+    "label": "CTA и футер",
+    "file": "pricing__05.png"
+  },
+  {
+    "page": "app-dashboard",
+    "index": 100,
+    "label": "Апгрейд тарифа",
+    "file": "app-dashboard__modal-00.png"
+  },
+  {
+    "page": "app-dashboard",
+    "index": 100,
+    "label": "Композер",
+    "file": "app-dashboard__modal-01.png"
+  },
+  {
+    "page": "app-dashboard",
+    "index": 100,
+    "label": "Подключение площадки",
+    "file": "app-dashboard__modal-02.png"
+  }
+]
