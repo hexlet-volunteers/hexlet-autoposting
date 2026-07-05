@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F4EF;color:#17150F;font-family:'Golos Text',system-ui,sans-serif}
+html{scroll-behavior:smooth}
+</style>
+</helmet>
+
+<!-- ======= ШАПКА ======= -->
+<div style="position:sticky;top:0;z-index:50;background:rgba(246,244,239,.93);backdrop-filter:blur(10px);border-bottom:1px solid rgba(23,21,15,.08)" data-screen-label="Шапка">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;padding:15px 24px">
+    <a href="Главная.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit">
+      <span style="width:28px;height:28px;border-radius:8px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">О</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-.2px">Отложка</span>
+    </a>
+    <div style="display:flex;gap:24px;font-size:14px;font-weight:500">
+      <a href="#features" style="color:rgba(23,21,15,.72);text-decoration:none">Возможности</a>
+      <a href="#how" style="color:rgba(23,21,15,.72);text-decoration:none">Как это работает</a>
+      <a href="#networks" style="color:rgba(23,21,15,.72);text-decoration:none">Соцсети</a>
+      <a href="Тарифы.dc.html" style="color:rgba(23,21,15,.72);text-decoration:none">Тарифы</a>
+      <a href="#faq" style="color:rgba(23,21,15,.72);text-decoration:none">FAQ</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+      <a href="Вход.dc.html" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.75);text-decoration:none" style-hover="color:#17150F">Войти</a>
+      <a href="Вход.dc.html" style="background:#2B50EC;color:#fff;text-decoration:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600" style-hover="background:#1F3FD1">Попробовать бесплатно</a>
+    </div>
+  </div>
+</div>
+
+<!-- ======= HERO ======= -->
+<div style="max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:40px;padding:56px 24px 48px" data-screen-label="Hero">
+  <div style="max-width:720px;margin:0 auto;text-align:center">
+    <div style="display:inline-block;border:1px solid rgba(23,21,15,.2);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;letter-spacing:.3px;color:rgba(23,21,15,.65)">Автопостинг · кросспостинг · 7 площадок</div>
+    <h1 style="margin:18px 0 0;font-size:46px;line-height:1.08;font-weight:800;letter-spacing:-.8px;text-wrap:balance">Посты выходят <span style="background:#FFD84D;padding:0 8px;border-radius:8px">сами</span> — даже когда вы спите</h1>
+    <p style="margin:18px 0 0;font-size:16.5px;line-height:1.55;color:rgba(23,21,15,.7);text-wrap:pretty">Соберите контент-план один раз — Отложка опубликует всё точно в срок: ВКонтакте, Telegram, Дзен и ещё четыре площадки.</p>
+    <div style="display:flex;gap:12px;margin-top:26px;justify-content:center">
+      <a href="Вход.dc.html" style="background:#2B50EC;color:#fff;text-decoration:none;border-radius:12px;padding:14px 22px;font-size:15px;font-weight:600" style-hover="background:#1F3FD1">Попробовать бесплатно</a>
+      <a href="#how" style="background:transparent;border:1.5px solid rgba(23,21,15,.25);border-radius:12px;padding:13px 20px;font-size:15px;font-weight:600;color:#17150F;text-decoration:none" style-hover="border-color:rgba(23,21,15,.5)">Как это работает</a>
+    </div>
+    <div style="margin-top:14px;font-size:13px;color:rgba(23,21,15,.5)">Бесплатный тариф навсегда · Карта не нужна</div>
+  </div>
+
+  <div style="min-width:0;width:100%">
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;box-shadow:0 12px 32px rgba(23,21,15,.08);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 18px">
+        <div style="font-size:15px;font-weight:700">Контент-план · 17–23 ноября</div>
+        <div style="font-size:12px;font-weight:600;color:#2B50EC;background:rgba(43,80,236,.08);border-radius:999px;padding:4px 10px">{{ totalA }} {{ totalALabel }}</div>
+        <div style="margin-left:auto;display:flex;gap:4px;background:rgba(23,21,15,.06);border-radius:9px;padding:3px">
+          <span style="background:#17150F;color:#fff;border-radius:7px;padding:4px 10px;font-size:12px;font-weight:600">Неделя</span>
+          <span style="padding:4px 10px;font-size:12px;font-weight:600;color:rgba(23,21,15,.5)">Месяц</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:rgba(23,21,15,.09);border-top:1px solid rgba(23,21,15,.09)">
+        <sc-for list="{{ daysA }}" as="day" hint-placeholder-count="7">
+          <div style="background:#fff;display:flex;flex-direction:column;min-height:170px;min-width:0;overflow:hidden">
+            <div style="text-align:center;padding:9px 4px 7px;font-size:12px;font-weight:600;color:{{ day.nc }}">{{ day.name }} <span style="opacity:.55;font-weight:500">{{ day.date }}</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:0 6px 8px">
+              <sc-for list="{{ day.posts }}" as="p" hint-placeholder-count="1">
+                <button title="Нажмите, чтобы удалить" onClick="{{ p.remove }}" style="font-family:inherit;width:100%;text-align:left;border:1px solid {{ p.line }};background:{{ p.soft }};border-radius:8px;padding:6px 7px;cursor:pointer;display:flex;flex-direction:column;gap:3px" style-hover="border-color:rgba(23,21,15,.4)">
+                  <span style="display:flex;align-items:center;gap:5px"><span style="flex:none;font-size:9px;font-weight:700;letter-spacing:.3px;color:#fff;background:{{ p.c }};border-radius:4px;padding:2px 5px">{{ p.s }}</span><span style="flex:none;font-size:10px;font-weight:600;color:rgba(23,21,15,.5)">{{ p.t }}</span></span>
+                  <span style="display:block;font-size:11px;font-weight:600;line-height:1.25;color:rgba(23,21,15,.85);min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.l }}</span>
+                </button>
+              </sc-for>
+              <button onClick="{{ day.add }}" style="font-family:inherit;border:1.5px dashed rgba(23,21,15,.18);background:transparent;border-radius:8px;padding:5px;font-size:13px;font-weight:600;color:rgba(23,21,15,.4);cursor:pointer" style-hover="background:rgba(43,80,236,.06);color:#2B50EC;border-color:rgba(43,80,236,.4)">+</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:9px 18px;border-top:1px solid rgba(23,21,15,.09);font-size:12px;color:rgba(23,21,15,.48)">Живое демо: «+» добавляет пост, клик по посту — удаляет</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= СОЦСЕТИ ======= -->
+<div id="networks" style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:0 24px 56px;scroll-margin-top:80px" data-screen-label="Соцсети">
+  <div style="font-size:13px;font-weight:600;color:rgba(23,21,15,.5)">Публикуем везде, где ваша аудитория:</div>
+  <sc-for list="{{ nets }}" as="n" hint-placeholder-count="7">
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:999px;padding:7px 14px 7px 8px">
+      <span style="font-size:9.5px;font-weight:700;color:#fff;background:{{ n.c }};border-radius:999px;padding:4px 7px">{{ n.s }}</span>
+      <span style="font-size:13.5px;font-weight:600">{{ n.n }}</span>
+    </div>
+  </sc-for>
+</div>
+
+<!-- ======= КАК ЭТО РАБОТАЕТ ======= -->
+<div id="how" style="background:#fff;border-top:1px solid rgba(23,21,15,.08);scroll-margin-top:60px" data-screen-label="Как это работает">
+  <div style="max-width:1200px;margin:0 auto;padding:64px 24px 68px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Как это работает</div>
+    <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Три шага — и контент на автопилоте</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:32px">
+      <div style="background:#F6F4EF;border-radius:16px;padding:26px">
+        <div style="font-size:38px;font-weight:800;color:rgba(43,80,236,.25);letter-spacing:-1px">01</div>
+        <div style="margin-top:10px;font-size:18px;font-weight:700">Подключите площадки</div>
+        <p style="margin:8px 0 0;font-size:14.5px;line-height:1.55;color:rgba(23,21,15,.65)">Авторизуйтесь через официальные API соцсетей. Один раз — пароли нам не нужны.</p>
+      </div>
+      <div style="background:#F6F4EF;border-radius:16px;padding:26px">
+        <div style="font-size:38px;font-weight:800;color:rgba(43,80,236,.25);letter-spacing:-1px">02</div>
+        <div style="margin-top:10px;font-size:18px;font-weight:700">Соберите контент-план</div>
+        <p style="margin:8px 0 0;font-size:14.5px;line-height:1.55;color:rgba(23,21,15,.65)">Напишите посты сами или попросите ИИ. Расставьте по календарю — хоть на месяц вперёд.</p>
+      </div>
+      <div style="background:#F6F4EF;border-radius:16px;padding:26px">
+        <div style="font-size:38px;font-weight:800;color:rgba(43,80,236,.25);letter-spacing:-1px">03</div>
+        <div style="margin-top:10px;font-size:18px;font-weight:700">Живите спокойно</div>
+        <p style="margin:8px 0 0;font-size:14.5px;line-height:1.55;color:rgba(23,21,15,.65)">Отложка опубликует всё точно в срок и пришлёт отчёт в Telegram, когда посты выйдут.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ВОЗМОЖНОСТИ ======= -->
+<div id="features" style="max-width:1200px;margin:0 auto;padding:64px 24px;scroll-margin-top:60px" data-screen-label="Возможности">
+  <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Возможности</div>
+  <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Всё для постинга — в одном окне</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:32px">
+    <a href="Фича — Автопостинг.dc.html" style="text-decoration:none;color:inherit;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px" style-hover="border-color:#2B50EC;box-shadow:0 8px 24px rgba(23,21,15,.07)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>
+      <div style="font-size:17px;font-weight:700">Автопостинг по расписанию</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Очередь публикаций, автоповторы и подсказки лучшего времени. Планируйте хоть на год.</p>
+      <span style="margin-top:auto;font-size:13.5px;font-weight:600;color:#2B50EC">Подробнее →</span>
+    </a>
+    <a href="Фича — Кросспостинг.dc.html" style="text-decoration:none;color:inherit;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px" style-hover="border-color:#2B50EC;box-shadow:0 8px 24px rgba(23,21,15,.07)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.6"></circle><circle cx="17.5" cy="5.5" r="2.6"></circle><circle cx="17.5" cy="18.5" r="2.6"></circle><path d="M8.4 10.6l6.7-3.8M8.4 13.4l6.7 3.8"></path></svg>
+      <div style="font-size:17px;font-weight:700">Кросспостинг с адаптацией</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Один пост уходит во все сети сразу — с учётом лимитов и форматов каждой площадки.</p>
+      <span style="margin-top:auto;font-size:13.5px;font-weight:600;color:#2B50EC">Подробнее →</span>
+    </a>
+    <a href="Фича — ИИ-помощник.dc.html" style="text-decoration:none;color:inherit;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px" style-hover="border-color:#2B50EC;box-shadow:0 8px 24px rgba(23,21,15,.07)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l1.8 4.6L18 10l-4.2 1.4L12 16l-1.8-4.6L6 10l4.2-1.4z"></path><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"></path></svg>
+      <div style="font-size:17px;font-weight:700">ИИ-тексты и идеи</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Напишет пост по теме, перепишет под площадку, предложит контент-план на месяц.</p>
+      <span style="margin-top:auto;font-size:13.5px;font-weight:600;color:#2B50EC">Подробнее →</span>
+    </a>
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 012-2h4l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2z"></path></svg>
+      <div style="font-size:17px;font-weight:700">Медиатека и черновики</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Фото и видео в одном месте: шаблоны, водяные знаки, заготовки на будущее.</p>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"></circle><path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5"></path><circle cx="16.5" cy="10" r="2.4"></circle><path d="M15.5 14.3c2.5.2 4.5 2.2 4.5 4.7"></path></svg>
+      <div style="font-size:17px;font-weight:700">Команда и согласование</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Автор пишет, редактор утверждает, клиент смотрит. Роли и комментарии к черновикам.</p>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B50EC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"></path><path d="M6.5 19.5v-6M11 19.5v-10M15.5 19.5v-4M20 19.5V6.5" stroke-linecap="round"></path></svg>
+      <div style="font-size:17px;font-weight:700">Отчёты по публикациям</div>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(23,21,15,.65)">Что вышло, когда и как сработало — сводка по всем площадкам в одном отчёте.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======= КРОССПОСТИНГ SPOTLIGHT ======= -->
+<div style="background:#fff;border-top:1px solid rgba(23,21,15,.08)" data-screen-label="Кросспостинг">
+  <div style="max-width:1200px;margin:0 auto;padding:64px 24px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Кросспостинг</div>
+    <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Один пост — семь публикаций</h2>
+    <p style="margin:10px 0 0;max-width:560px;font-size:15px;line-height:1.55;color:rgba(23,21,15,.65);text-wrap:pretty">Напишите текст один раз. Отложка адаптирует его под каждую площадку — обрежет под лимиты, подставит хештеги — и опубликует в нужное время.</p>
+    <div style="display:grid;grid-template-columns:400px 56px 1fr;gap:0;margin-top:28px;align-items:center">
+      <div style="background:#F6F4EF;border:1px solid rgba(23,21,15,.1);border-radius:14px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:999px;background:#FFD84D;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">М</div>
+          <div><div style="font-size:14px;font-weight:700">Кофейня «Молоко»</div><div style="font-size:12px;color:rgba(23,21,15,.5)">черновик поста</div></div>
+        </div>
+        <p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:rgba(23,21,15,.85)">Открыли запись на новогодние капучино-сеты! Бронируйте столик — вечером мест уже не будет.</p>
+        <div style="margin-top:12px;height:120px;border:1.5px dashed rgba(23,21,15,.2);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(23,21,15,.4)">фото 1200 × 800</div>
+        <button style="font-family:inherit;margin-top:14px;width:100%;background:#2B50EC;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Опубликовать в 7 соцсетей</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;font-size:26px;color:rgba(23,21,15,.3)">→</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ published }}" as="row" hint-placeholder-count="7">
+          <div style="display:flex;align-items:center;gap:10px;background:#F6F4EF;border-radius:10px;padding:9px 14px">
+            <span style="font-size:9.5px;font-weight:700;color:#fff;background:{{ row.c }};border-radius:5px;padding:3px 6px;min-width:22px;text-align:center">{{ row.s }}</span>
+            <span style="font-size:13.5px;font-weight:600">{{ row.n }}</span>
+            <span style="margin-left:auto;font-size:12px;color:rgba(23,21,15,.55)">Опубликовано · {{ row.when }}</span>
+            <span style="width:18px;height:18px;border-radius:999px;background:#22A06B;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center">✓</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ИИ SPOTLIGHT ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:64px 24px" data-screen-label="ИИ-помощник">
+  <div style="display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:20px;overflow:hidden">
+    <div style="padding:36px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">ИИ-помощник</div>
+      <h2 style="margin:12px 0 0;font-size:28px;font-weight:800;letter-spacing:-.4px">Кончились идеи? Есть кнопка</h2>
+      <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:rgba(23,21,15,.65);text-wrap:pretty">ИИ напишет пост в вашем стиле: по теме, по фото или по прошлым публикациям. Отредактируйте и отправьте в отложку — или сразу во все сети.</p>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:24px">
+        <button onClick="{{ nextAi }}" style="font-family:inherit;background:#2B50EC;color:#fff;border:none;border-radius:12px;padding:13px 22px;font-size:14.5px;font-weight:600;cursor:pointer" style-hover="background:#1F3FD1">Предложить пост</button>
+        <span style="font-size:12.5px;color:rgba(23,21,15,.5)">вариант {{ aiNum }} из 4 · живое демо</span>
+      </div>
+    </div>
+    <div style="background:#F6F4EF;padding:36px;display:flex;align-items:center">
+      <div style="width:100%;background:#fff;border:1px solid rgba(23,21,15,.08);border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(23,21,15,.06)">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:32px;height:32px;border-radius:999px;background:#FFD84D;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">М</div>
+          <div style="font-size:13.5px;font-weight:700">Кофейня «Молоко»</div>
+        </div>
+        <p style="margin:12px 0 0;font-size:14px;line-height:1.55">{{ aiText }}</p>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(23,21,15,.15)">
+          <sc-for list="{{ nets }}" as="n" hint-placeholder-count="7">
+            <span style="font-size:8.5px;font-weight:700;color:#fff;background:{{ n.c }};border-radius:4px;padding:2px 4px">{{ n.s }}</span>
+          </sc-for>
+          <span style="margin-left:auto;font-size:11.5px;color:rgba(23,21,15,.5)">в отложку: завтра, 12:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= СРАВНЕНИЕ ======= -->
+<sc-if value="{{ showCompetitors }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border-top:1px solid rgba(23,21,15,.08)" data-screen-label="Сравнение">
+  <div style="max-width:1200px;margin:0 auto;padding:64px 24px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Сравнение</div>
+    <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Честно про конкурентов</h2>
+    <p style="margin:10px 0 0;font-size:15px;color:rgba(23,21,15,.65)">Мы за осознанный выбор — сравнивайте и решайте сами.</p>
+    <div style="margin-top:28px;border:1px solid rgba(23,21,15,.12);border-radius:16px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr;background:#F6F4EF;border-bottom:1px solid rgba(23,21,15,.1)">
+        <div style="padding:14px 18px;font-size:13px;font-weight:600;color:rgba(23,21,15,.55)">Возможность</div>
+        <div style="padding:14px 12px;text-align:center;font-size:14px;font-weight:800;color:#2B50EC;background:rgba(43,80,236,.07)">Отложка</div>
+        <div style="padding:14px 12px;text-align:center;font-size:13.5px;font-weight:600">SMMplanner</div>
+        <div style="padding:14px 12px;text-align:center;font-size:13.5px;font-weight:600">PlanerMax</div>
+        <div style="padding:14px 12px;text-align:center;font-size:13.5px;font-weight:600">LiveDune</div>
+      </div>
+      <sc-for list="{{ compareRows }}" as="r" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr;border-bottom:1px solid rgba(23,21,15,.07)">
+          <div style="padding:13px 18px;font-size:14px;font-weight:600">{{ r.name }}</div>
+          <div style="padding:13px 12px;text-align:center;font-size:13.5px;font-weight:700;color:#1E7F4F;background:rgba(43,80,236,.05)">{{ r.us }}</div>
+          <div style="padding:13px 12px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.6)">{{ r.a }}</div>
+          <div style="padding:13px 12px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.6)">{{ r.b }}</div>
+          <div style="padding:13px 12px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.6)">{{ r.d }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:rgba(23,21,15,.45)">* По открытым данным сайтов сервисов, июль 2026. Проверяйте актуальные условия перед выбором.</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ======= ОТЗЫВЫ ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:64px 24px" data-screen-label="Отзывы">
+  <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Отзывы</div>
+  <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Нас советуют коллегам</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:32px">
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+      <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(23,21,15,.8)">«Веду шесть проектов. Раньше воскресенье уходило на расстановку постов по площадкам, теперь — час в пятницу. Клиенты даже не заметили, что я в отпуске».</p>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:11px">
+        <div style="width:38px;height:38px;border-radius:999px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">МК</div>
+        <div><div style="font-size:14px;font-weight:700">Марина Ковалёва</div><div style="font-size:12.5px;color:rgba(23,21,15,.55)">SMM-фрилансер, 6 проектов</div></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+      <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(23,21,15,.8)">«Я пекарь, а не маркетолог. Сфотографировал хлеб, ИИ написал текст, посты вышли везде сами. Продажи по акциям выросли — вот и вся магия».</p>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:11px">
+        <div style="width:38px;height:38px;border-radius:999px;background:#F7931E;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">СП</div>
+        <div><div style="font-size:14px;font-weight:700">Сергей Панов</div><div style="font-size:12.5px;color:rgba(23,21,15,.55)">владелец пекарни «Корка»</div></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid rgba(23,21,15,.1);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+      <p style="margin:0;font-size:14.5px;line-height:1.6;color:rgba(23,21,15,.8)">«Канал в Telegram, зеркала в Дзене и ВК. Пишу один раз, Отложка сама разносит и подгоняет формат. Подписчики думают, что у меня редакция».</p>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:11px">
+        <div style="width:38px;height:38px;border-radius:999px;background:#22A06B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">АЛ</div>
+        <div><div style="font-size:14px;font-weight:700">Аня Лебедева</div><div style="font-size:12.5px;color:rgba(23,21,15,.55)">автор канала на 40 тыс. подписчиков</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ТАРИФЫ ТИЗЕР ======= -->
+<div style="background:#fff;border-top:1px solid rgba(23,21,15,.08)" data-screen-label="Тарифы тизер">
+  <div style="max-width:1200px;margin:0 auto;padding:64px 24px">
+    <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">Тарифы</div>
+        <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Простые и без звёздочек</h2>
+      </div>
+      <a href="Тарифы.dc.html" style="margin-left:auto;font-size:14px;font-weight:600;color:#2B50EC;text-decoration:none">Все тарифы и сравнение →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:32px">
+      <div style="border:1px solid rgba(23,21,15,.12);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:15px;font-weight:700">Бесплатный</div>
+        <div style="font-size:34px;font-weight:800;letter-spacing:-.5px">0 ₽</div>
+        <div style="font-size:13px;color:rgba(23,21,15,.55)">навсегда</div>
+        <div style="margin-top:14px;font-size:14px;line-height:1.9;color:rgba(23,21,15,.75)">3 соцсети · 10 постов в месяц<br>1 проект · базовый ИИ</div>
+        <a href="Вход.dc.html" style="margin-top:18px;text-align:center;border:1.5px solid rgba(23,21,15,.2);border-radius:10px;padding:11px;font-size:14px;font-weight:600;color:#17150F;text-decoration:none" style-hover="border-color:rgba(23,21,15,.5)">Начать</a>
+      </div>
+      <div style="border:2px solid #2B50EC;border-radius:16px;padding:25px;display:flex;flex-direction:column;gap:6px;position:relative;box-shadow:0 12px 32px rgba(43,80,236,.12)">
+        <div style="position:absolute;top:-11px;left:24px;background:#2B50EC;color:#fff;border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:700">Выбирают чаще всего</div>
+        <div style="font-size:15px;font-weight:700">Старт</div>
+        <div style="font-size:34px;font-weight:800;letter-spacing:-.5px">490 ₽<span style="font-size:15px;font-weight:600;color:rgba(23,21,15,.5)"> /мес</span></div>
+        <div style="font-size:13px;color:rgba(23,21,15,.55)">или 392 ₽/мес при оплате за год</div>
+        <div style="margin-top:14px;font-size:14px;line-height:1.9;color:rgba(23,21,15,.75)">7 соцсетей · посты без лимита<br>1 проект · 50 ИИ-текстов в месяц</div>
+        <a href="Вход.dc.html" style="margin-top:18px;text-align:center;background:#2B50EC;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-decoration:none" style-hover="background:#1F3FD1">Попробовать 7 дней</a>
+      </div>
+      <div style="border:1px solid rgba(23,21,15,.12);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:15px;font-weight:700">Про</div>
+        <div style="font-size:34px;font-weight:800;letter-spacing:-.5px">990 ₽<span style="font-size:15px;font-weight:600;color:rgba(23,21,15,.5)"> /мес</span></div>
+        <div style="font-size:13px;color:rgba(23,21,15,.55)">или 792 ₽/мес при оплате за год</div>
+        <div style="margin-top:14px;font-size:14px;line-height:1.9;color:rgba(23,21,15,.75)">5 проектов · команда из 3 человек<br>200 ИИ-текстов · согласование</div>
+        <a href="Вход.dc.html" style="margin-top:18px;text-align:center;border:1.5px solid rgba(23,21,15,.2);border-radius:10px;padding:11px;font-size:14px;font-weight:600;color:#17150F;text-decoration:none" style-hover="border-color:rgba(23,21,15,.5)">Выбрать</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= FAQ ======= -->
+<div id="faq" style="max-width:1200px;margin:0 auto;padding:64px 24px 72px;scroll-margin-top:60px" data-screen-label="FAQ">
+  <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#2B50EC">FAQ</div>
+  <h2 style="margin:10px 0 0;font-size:32px;font-weight:800;letter-spacing:-.5px">Частые вопросы</h2>
+  <div style="max-width:820px;margin-top:24px">
+    <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="6">
+      <div style="border-bottom:1px solid rgba(23,21,15,.12)">
+        <button onClick="{{ f.toggle }}" style="font-family:inherit;width:100%;background:transparent;border:none;display:flex;align-items:center;gap:16px;padding:18px 2px;cursor:pointer;text-align:left">
+          <span style="font-size:16px;font-weight:600;color:#17150F">{{ f.q }}</span>
+          <span style="margin-left:auto;width:26px;height:26px;border-radius:999px;border:1.5px solid rgba(23,21,15,.2);display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(23,21,15,.6);flex:none">{{ f.chev }}</span>
+        </button>
+        <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;padding:0 44px 18px 2px;font-size:14.5px;line-height:1.6;color:rgba(23,21,15,.65)">{{ f.a }}</p>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ======= CTA + FOOTER ======= -->
+<div data-screen-label="CTA и футер">
+  <div style="background:#2B50EC;color:#fff">
+  <div style="max-width:1200px;margin:0 auto;padding:52px 24px;display:flex;align-items:center;gap:24px">
+    <div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-.4px">Первая неделя контента соберётся за вечер</div>
+      <div style="margin-top:8px;font-size:14.5px;color:rgba(255,255,255,.78)">Бесплатный тариф — без срока действия и без карты.</div>
+    </div>
+    <a href="Вход.dc.html" style="margin-left:auto;background:#FFD84D;color:#17150F;border-radius:12px;padding:14px 22px;font-size:15px;font-weight:700;text-decoration:none;white-space:nowrap" style-hover="background:#FFCE1F">Попробовать бесплатно</a>
+  </div>
+  </div>
+  <div style="background:#fff;border-top:1px solid rgba(23,21,15,.08)">
+  <div style="max-width:1200px;margin:0 auto;padding:44px 24px 36px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:24px">
+    <div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <span style="width:24px;height:24px;border-radius:7px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">О</span>
+        <span style="font-weight:800;font-size:16px;color:#17150F">Отложка</span>
+      </div>
+      <p style="margin:12px 0 0;font-size:13px;line-height:1.6;color:rgba(23,21,15,.55);max-width:260px">Сервис автопостинга и кросспостинга: один контент-план — семь площадок.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(23,21,15,.45)">Продукт</div>
+      <a href="Фича — Автопостинг.dc.html" style="font-size:13.5px;color:rgba(23,21,15,.7);text-decoration:none">Автопостинг</a>
+      <a href="Фича — Кросспостинг.dc.html" style="font-size:13.5px;color:rgba(23,21,15,.7);text-decoration:none">Кросспостинг</a>
+      <a href="Фича — ИИ-помощник.dc.html" style="font-size:13.5px;color:rgba(23,21,15,.7);text-decoration:none">ИИ-помощник</a>
+      <a href="Тарифы.dc.html" style="font-size:13.5px;color:rgba(23,21,15,.7);text-decoration:none">Тарифы</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(23,21,15,.45)">Площадки</div>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7)">ВКонтакте · Telegram</span>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7)">Одноклассники · MAX</span>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7)">Дзен · RUTUBE · YouTube</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(23,21,15,.45)">Помощь</div>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7);cursor:pointer">База знаний</span>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7);cursor:pointer">Поддержка</span>
+      <span style="font-size:13.5px;color:rgba(23,21,15,.7);cursor:pointer">Телеграм-канал</span>
+    </div>
+  </div>
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px 28px;font-size:12px;color:rgba(23,21,15,.45)">© Отложка, 2026 · <a href="Правовая информация.dc.html#oferta" style="color:rgba(23,21,15,.6);text-decoration:none">Оферта</a> · <a href="Правовая информация.dc.html#privacy" style="color:rgba(23,21,15,.6);text-decoration:none">Политика конфиденциальности</a> · <a href="Личный кабинет.dc.html" style="color:rgba(23,21,15,.6);text-decoration:none">Личный кабинет</a></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showCompetitors&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Секции&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    this.TIMES = ['09:00','12:00','15:00','19:00'];
+    this.NETS = [
+      { id:'vk',   n:'ВКонтакте',     s:'ВК',  c:'#0077FF' },
+      { id:'tg',   n:'Telegram',      s:'TG',  c:'#27A6E5' },
+      { id:'ok',   n:'Одноклассники', s:'ОК',  c:'#F7931E' },
+      { id:'max',  n:'MAX',           s:'MAX', c:'#6E5BFF' },
+      { id:'dzen', n:'Дзен',          s:'Дз',  c:'#1E1E20' },
+      { id:'rt',   n:'RUTUBE',        s:'RT',  c:'#E23B54' },
+      { id:'yt',   n:'YouTube',       s:'YT',  c:'#FF0000' }
+    ];
+    this.LABELS = ['Анонс акции','Пост-знакомство','Отзыв клиента','Подборка советов','Бэкстейдж','Розыгрыш','Дайджест недели','Новинка'];
+    this.AI = [
+      'Открываем запись на декабрь! Успейте забронировать любимое время — в прошлом месяце окошки закончились за три дня.',
+      'Секрет идеального капучино — молоко 3,2% и ровно 55 градусов. Приходите, покажем. И нальём.',
+      'Итоги недели: 4 новых вкуса, 120 довольных гостей и один очень счастливый бариста.',
+      'Совет дня: планируйте посты с вечера — утром голова нужна для важных дел.'
+    ];
+    this.FAQ = [
+      { q: 'Это безопасно? Аккаунты не забанят?', a: 'Мы публикуем только через официальные API площадок — так же, как их родные приложения. Пароли от соцсетей нам не нужны: вы авторизуетесь на стороне самой соцсети.' },
+      { q: 'Почему нет Instagram и Facebook?', a: 'Мы работаем с площадками, доступными в России по официальному API. Как только появляется легальная возможность добавить площадку — добавляем.' },
+      { q: 'Можно ли изменить пост после планирования?', a: 'Да, до момента публикации можно менять текст, медиа и время. Изменения применятся сразу ко всем площадкам, куда запланирован пост.' },
+      { q: 'Что умеет ИИ-помощник?', a: 'Пишет тексты по теме или по фото, адаптирует пост под площадку, предлагает идеи и контент-план на месяц. Любой текст можно править перед публикацией.' },
+      { q: 'Есть ли командная работа и согласование?', a: 'Да, на тарифах «Про» и «Агентство»: роли участников, комментарии к черновикам и утверждение постов перед выходом.' },
+      { q: 'Как отменить подписку?', a: 'В один клик в настройках, без писем в поддержку. Оплаченный период доработает до конца, контент-план и черновики сохранятся.' }
+    ];
+    this.state = {
+      a: [
+        [{net:0,t:'09:00',l:'Анонс акции'},{net:1,t:'09:00',l:'Утренний дайджест'}],
+        [{net:4,t:'12:00',l:'Лонгрид про тренды'}],
+        [{net:0,t:'12:00',l:'Отзыв клиента'},{net:2,t:'19:00',l:'Опрос'}],
+        [],
+        [{net:1,t:'15:00',l:'Подборка советов'},{net:6,t:'18:00',l:'Шортс'}],
+        [{net:5,t:'11:00',l:'Влог: бэкстейдж'}],
+        []
+      ],
+      aNext: 3,
+      aiIdx: 0,
+      openFaq: 0
+    };
+  }
+
+  plural(n, forms) {
+    const a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return forms[2];
+    if (b > 1 && b < 5) return forms[1];
+    if (b === 1) return forms[0];
+    return forms[2];
+  }
+
+  addPost(di) {
+    this.setState(s => {
+      const idx = s.aNext % this.NETS.length;
+      const arr = s.a.map(x => x.slice());
+      arr[di] = arr[di].concat([{
+        net: idx,
+        t: this.TIMES[(s.aNext + di) % this.TIMES.length],
+        l: this.LABELS[(s.aNext * 3 + di) % this.LABELS.length]
+      }]);
+      return { a: arr, aNext: s.aNext + 1 };
+    });
+  }
+
+  removePost(di, pi) {
+    this.setState(s => {
+      const arr = s.a.map(x => x.slice());
+      arr[di].splice(pi, 1);
+      return { a: arr };
+    });
+  }
+
+  renderVals() {
+    const S = this.state;
+    const daysA = S.a.map((posts, di) => ({
+      name: this.DAYS[di],
+      date: 17 + di,
+      nc: di >= 5 ? '#C4552D' : 'rgba(23,21,15,.55)',
+      add: () => this.addPost(di),
+      posts: posts.map((p, pi) => {
+        const net = this.NETS[p.net];
+        return {
+          t: p.t, l: p.l, s: net.s, c: net.c,
+          soft: net.c + '14', line: net.c + '59',
+          remove: () => this.removePost(di, pi)
+        };
+      })
+    }));
+    const totalA = S.a.reduce((n, d) => n + d.length, 0);
+
+    const published = this.NETS.map((net, i) => ({
+      n: net.n, s: net.s, c: net.c,
+      when: ['пн, 09:00','пн, 09:05','пн, 12:00','пн, 12:00','пн, 15:00','пн, 15:10','пн, 19:00'][i]
+    }));
+
+    const compareRows = [
+      { name: 'Цена от',                        us: '0 ₽',        a: 'от ~450 ₽/мес', b: 'от ~420 ₽/мес', d: 'от ~800 ₽/мес' },
+      { name: 'Бесплатный тариф',               us: 'Навсегда',   a: 'Демо-период',   b: 'Демо-период',   d: 'Демо-период' },
+      { name: 'ВК, Telegram, ОК, Дзен',         us: '✓',          a: '✓',             b: '✓',             d: '✓' },
+      { name: 'Мессенджер MAX',                 us: '✓',          a: '—',             b: '✓',             d: '—' },
+      { name: 'ИИ-генерация текстов',           us: '✓',          a: '✓',             b: '—',             d: '—' },
+      { name: 'Адаптация поста под площадку',   us: '✓',          a: 'Частично',      b: 'Частично',      d: '—' },
+      { name: 'Согласование с клиентом',        us: '✓ (Про+)',   a: '✓',             b: '—',             d: '✓' }
+    ];
+
+    const faqs = this.FAQ.map((f, i) => ({
+      q: f.q, a: f.a,
+      open: S.openFaq === i,
+      chev: S.openFaq === i ? '−' : '+',
+      toggle: () => this.setState(s => ({ openFaq: s.openFaq === i ? -1 : i }))
+    }));
+
+    return {
+      nets: this.NETS,
+      daysA, totalA,
+      totalALabel: this.plural(totalA, ['пост', 'поста', 'постов']),
+      published,
+      compareRows,
+      faqs,
+      aiText: this.AI[S.aiIdx % this.AI.length],
+      aiNum: (S.aiIdx % this.AI.length) + 1,
+      nextAi: () => this.setState(s => ({ aiIdx: s.aiIdx + 1 })),
+      showCompetitors: this.props.showCompetitors ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

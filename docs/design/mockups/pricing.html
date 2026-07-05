@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F4EF;color:#17150F;font-family:'Golos Text',system-ui,sans-serif}
+</style>
+</helmet>
+
+<!-- ======= ШАПКА ======= -->
+<div style="position:sticky;top:0;z-index:50;background:rgba(246,244,239,.93);backdrop-filter:blur(10px);border-bottom:1px solid rgba(23,21,15,.08)" data-screen-label="Шапка">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;padding:15px 24px">
+    <a href="Главная.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit">
+      <span style="width:28px;height:28px;border-radius:8px;background:#2B50EC;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">О</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:-.2px">Отложка</span>
+    </a>
+    <div style="display:flex;gap:24px;font-size:14px;font-weight:500">
+      <a href="Главная.dc.html#features" style="color:rgba(23,21,15,.72);text-decoration:none">Возможности</a>
+      <a href="Главная.dc.html#how" style="color:rgba(23,21,15,.72);text-decoration:none">Как это работает</a>
+      <a href="Главная.dc.html#networks" style="color:rgba(23,21,15,.72);text-decoration:none">Соцсети</a>
+      <a href="Тарифы.dc.html" style="color:#17150F;font-weight:700;text-decoration:none">Тарифы</a>
+      <a href="Главная.dc.html#faq" style="color:rgba(23,21,15,.72);text-decoration:none">FAQ</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+      <a href="Вход.dc.html" style="font-size:14px;font-weight:600;color:rgba(23,21,15,.75);text-decoration:none" style-hover="color:#17150F">Войти</a>
+      <a href="Вход.dc.html" style="background:#2B50EC;color:#fff;text-decoration:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600" style-hover="background:#1F3FD1">Попробовать бесплатно</a>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ЗАГОЛОВОК + ПЕРЕКЛЮЧАТЕЛЬ ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:56px 24px 8px;text-align:center" data-screen-label="Тарифы: заголовок">
+  <h1 style="margin:0;font-size:42px;font-weight:800;letter-spacing:-.7px;text-wrap:balance">Тарифы простые и без звёздочек</h1>
+  <p style="margin:14px auto 0;max-width:560px;font-size:16px;line-height:1.55;color:rgba(23,21,15,.65);text-wrap:pretty">Начните бесплатно, растите по мере надобности. Смена тарифа — в любой момент, остаток пересчитаем автоматически.</p>
+  <div style="display:inline-flex;gap:4px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:12px;padding:4px;margin-top:24px">
+    <button onClick="{{ setMonthly }}" style="font-family:inherit;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ mBg }};color:{{ mFg }}">Помесячно</button>
+    <button onClick="{{ setYearly }}" style="font-family:inherit;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ yBg }};color:{{ yFg }}">На год <span style="color:#1E7F4F;font-weight:700">−20%</span></button>
+  </div>
+</div>
+
+<!-- ======= КАРТОЧКИ ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:36px 24px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch" data-screen-label="Тарифы: карточки">
+  <sc-for list="{{ plans }}" as="p" hint-placeholder-count="4">
+    <div style="position:relative;background:#fff;border:{{ p.bd }};border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:6px;box-shadow:{{ p.shadow }}">
+      <sc-if value="{{ p.hl }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:-11px;left:20px;background:#2B50EC;color:#fff;border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:700">Выбирают чаще всего</div>
+      </sc-if>
+      <div style="font-size:15px;font-weight:700">{{ p.name }}</div>
+      <div style="font-size:32px;font-weight:800;letter-spacing:-.5px">{{ p.price }}<span style="font-size:14px;font-weight:600;color:rgba(23,21,15,.5)"> {{ p.per }}</span></div>
+      <div style="font-size:12.5px;color:rgba(23,21,15,.55);min-height:16px">{{ p.note }}</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px;margin-bottom:18px">
+        <sc-for list="{{ p.feats }}" as="f" hint-placeholder-count="5">
+          <div style="display:flex;gap:9px;align-items:baseline"><span style="color:#1E7F4F;font-weight:700;font-size:12px;flex:none">✓</span><span style="font-size:13.5px;line-height:1.45;color:rgba(23,21,15,.78)">{{ f.t }}</span></div>
+        </sc-for>
+      </div>
+      <a href="Вход.dc.html" style="margin-top:auto;display:block;text-align:center;text-decoration:none;background:{{ p.ctaBg }};color:{{ p.ctaFg }};border:{{ p.ctaBd }};border-radius:10px;padding:12px;font-size:14px;font-weight:600">{{ p.cta }}</a>
+    </div>
+  </sc-for>
+</div>
+<div style="max-width:1200px;margin:0 auto;padding:0 24px;text-align:center;font-size:13px;color:rgba(23,21,15,.5)">Для юрлиц — оплата по счёту и закрывающие документы. НДС не облагается.</div>
+
+<!-- ======= ПОЛНОЕ СРАВНЕНИЕ ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:56px 24px" data-screen-label="Тарифы: сравнение">
+  <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.4px">Что входит в каждый тариф</h2>
+  <div style="margin-top:22px;background:#fff;border:1px solid rgba(23,21,15,.12);border-radius:16px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr;background:#F6F4EF;border-bottom:1px solid rgba(23,21,15,.1)">
+      <div style="padding:13px 18px;font-size:13px;font-weight:600;color:rgba(23,21,15,.55)"></div>
+      <div style="padding:13px 10px;text-align:center;font-size:13.5px;font-weight:700">Бесплатный</div>
+      <div style="padding:13px 10px;text-align:center;font-size:13.5px;font-weight:800;color:#2B50EC">Старт</div>
+      <div style="padding:13px 10px;text-align:center;font-size:13.5px;font-weight:700">Про</div>
+      <div style="padding:13px 10px;text-align:center;font-size:13.5px;font-weight:700">Агентство</div>
+    </div>
+    <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="10">
+      <div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr 1fr;border-bottom:1px solid rgba(23,21,15,.07)">
+        <div style="padding:12px 18px;font-size:14px;font-weight:600">{{ r.name }}</div>
+        <div style="padding:12px 10px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.65)">{{ r.v0 }}</div>
+        <div style="padding:12px 10px;text-align:center;font-size:13.5px;font-weight:600;color:#17150F;background:rgba(43,80,236,.04)">{{ r.v1 }}</div>
+        <div style="padding:12px 10px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.65)">{{ r.v2 }}</div>
+        <div style="padding:12px 10px;text-align:center;font-size:13.5px;color:rgba(23,21,15,.65)">{{ r.v3 }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ======= FAQ ОПЛАТА ======= -->
+<div style="max-width:1200px;margin:0 auto;padding:8px 24px 64px" data-screen-label="Тарифы: FAQ">
+  <h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.4px">Вопросы про оплату</h2>
+  <div style="max-width:820px;margin-top:16px">
+    <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="3">
+      <div style="border-bottom:1px solid rgba(23,21,15,.12)">
+        <button onClick="{{ f.toggle }}" style="font-family:inherit;width:100%;background:transparent;border:none;display:flex;align-items:center;gap:16px;padding:18px 2px;cursor:pointer;text-align:left">
+          <span style="font-size:16px;font-weight:600;color:#17150F">{{ f.q }}</span>
+          <span style="margin-left:auto;width:26px;height:26px;border-radius:999px;border:1.5px solid rgba(23,21,15,.2);display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(23,21,15,.6);flex:none">{{ f.chev }}</span>
+        </button>
+        <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;padding:0 44px 18px 2px;font-size:14.5px;line-height:1.6;color:rgba(23,21,15,.65)">{{ f.a }}</p>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ======= CTA + ФУТЕР ======= -->
+<div style="background:#17150F;color:#F6F4EF" data-screen-label="CTA и футер">
+  <div style="max-width:1200px;margin:0 auto;padding:48px 24px 36px;display:flex;align-items:center;gap:24px;border-bottom:1px solid rgba(246,244,239,.12)">
+    <div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-.4px">Не уверены? Начните с бесплатного</div>
+      <div style="margin-top:8px;font-size:14.5px;color:rgba(246,244,239,.65)">10 постов в месяц — хватит, чтобы понять, ваше ли это. Карта не нужна.</div>
+    </div>
+    <a href="Вход.dc.html" style="margin-left:auto;background:#FFD84D;color:#17150F;border-radius:12px;padding:14px 22px;font-size:15px;font-weight:700;text-decoration:none;white-space:nowrap" style-hover="background:#FFCE1F">Создать аккаунт</a>
+  </div>
+  <div style="max-width:1200px;margin:0 auto;padding:20px 24px 24px;display:flex;gap:20px;align-items:center;font-size:12.5px;color:rgba(246,244,239,.45)">
+    <span>© Отложка, 2026</span>
+    <a href="Правовая информация.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Правовая информация</a>
+    <a href="Главная.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Главная</a>
+    <a href="Фича — Автопостинг.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Автопостинг</a>
+    <a href="Фича — Кросспостинг.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">Кросспостинг</a>
+    <a href="Фича — ИИ-помощник.dc.html" style="color:rgba(246,244,239,.65);text-decoration:none">ИИ-помощник</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;highlightPlan&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Бесплатный&quot;,&quot;Старт&quot;,&quot;Про&quot;,&quot;Агентство&quot;],&quot;default&quot;:&quot;Старт&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Тарифы&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.PLANS = [
+      { name: 'Бесплатный', m: 0,    cta: 'Начать',
+        feats: ['3 соцсети', '10 постов в месяц', '1 проект', '5 ИИ-текстов в месяц', 'Поддержка в чате'] },
+      { name: 'Старт',      m: 490,  cta: 'Попробовать 7 дней',
+        feats: ['7 соцсетей', 'Посты без лимита', '1 проект', '50 ИИ-текстов в месяц', 'Лучшее время публикации'] },
+      { name: 'Про',        m: 990,  cta: 'Попробовать 7 дней',
+        feats: ['Всё из «Старта»', '5 проектов', 'Команда из 3 человек', '200 ИИ-текстов в месяц', 'Согласование постов', 'Автоповторы'] },
+      { name: 'Агентство',  m: 2490, cta: 'Написать нам',
+        feats: ['Всё из «Про»', '20 проектов', '10 пользователей', 'ИИ без лимита', 'Отчёты для клиентов', 'Личный менеджер'] }
+    ];
+    this.FAQ = [
+      { q: 'Какие способы оплаты?', a: 'Карты российских банков и СБП. Для юрлиц и ИП — оплата по счёту с закрывающими документами.' },
+      { q: 'Можно ли сменить тариф в середине месяца?', a: 'Да, в любой момент. Неиспользованный остаток автоматически зачтём в счёт нового тарифа.' },
+      { q: 'А если не подойдёт?', a: 'В течение 14 дней после оплаты вернём деньги без вопросов — просто напишите в поддержку.' }
+    ];
+    this.state = { yearly: false, openFaq: -1 };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const hlName = this.props.highlightPlan ?? 'Старт';
+
+    const plans = this.PLANS.map(p => {
+      const hl = p.name === hlName;
+      const price = p.m === 0 ? '0 ₽' : (S.yearly ? Math.round(p.m * 0.8) : p.m) + ' ₽';
+      return {
+        name: p.name,
+        price,
+        per: p.m === 0 ? '' : '/мес',
+        note: p.m === 0 ? 'навсегда' : (S.yearly ? 'при оплате за год' : Math.round(p.m * 0.8) + ' ₽/мес при оплате за год'),
+        feats: p.feats.map(t => ({ t })),
+        cta: p.cta,
+        hl,
+        bd: hl ? '2px solid #2B50EC' : '1px solid rgba(23,21,15,.12)',
+        shadow: hl ? '0 12px 32px rgba(43,80,236,.12)' : 'none',
+        ctaBg: hl ? '#2B50EC' : 'transparent',
+        ctaFg: hl ? '#fff' : '#17150F',
+        ctaBd: hl ? 'none' : '1.5px solid rgba(23,21,15,.2)'
+      };
+    });
+
+    const tableRows = [
+      { name: 'Соцсети',                 v0: '3',        v1: '7',         v2: '7',           v3: '7' },
+      { name: 'Постов в месяц',          v0: '10',       v1: 'Без лимита', v2: 'Без лимита', v3: 'Без лимита' },
+      { name: 'Проекты',                 v0: '1',        v1: '1',         v2: '5',           v3: '20' },
+      { name: 'Пользователи',            v0: '1',        v1: '1',         v2: '3',           v3: '10' },
+      { name: 'ИИ-тексты в месяц',       v0: '5',        v1: '50',        v2: '200',         v3: 'Без лимита' },
+      { name: 'Лучшее время публикации', v0: '—',        v1: '✓',         v2: '✓',           v3: '✓' },
+      { name: 'Автоповторы постов',      v0: '—',        v1: '—',         v2: '✓',           v3: '✓' },
+      { name: 'Согласование и роли',     v0: '—',        v1: '—',         v2: '✓',           v3: '✓' },
+      { name: 'Отчёты по публикациям',   v0: '—',        v1: 'Базовые',   v2: 'Расширенные', v3: 'Для клиентов' },
+      { name: 'Поддержка',               v0: 'Чат',      v1: 'Чат',       v2: 'Приоритетная', v3: 'Личный менеджер' }
+    ];
+
+    const faqs = this.FAQ.map((f, i) => ({
+      q: f.q, a: f.a,
+      open: S.openFaq === i,
+      chev: S.openFaq === i ? '−' : '+',
+      toggle: () => this.setState(s => ({ openFaq: s.openFaq === i ? -1 : i }))
+    }));
+
+    return {
+      plans, tableRows, faqs,
+      mBg: S.yearly ? 'transparent' : '#17150F',
+      mFg: S.yearly ? 'rgba(23,21,15,.6)' : '#fff',
+      yBg: S.yearly ? '#17150F' : 'transparent',
+      yFg: S.yearly ? '#fff' : 'rgba(23,21,15,.6)',
+      setMonthly: () => this.setState({ yearly: false }),
+      setYearly: () => this.setState({ yearly: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
