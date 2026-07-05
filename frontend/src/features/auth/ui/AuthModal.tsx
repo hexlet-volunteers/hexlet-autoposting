@@ -31,7 +31,7 @@ export function AuthModal() {
 
   return (
     <Modal opened={opened} onClose={close} centered radius="lg" size="sm" title={null}>
-      <Stack gap="md">
+      <Stack gap="sm">
         <SegmentedControl
           fullWidth
           color="dark"
@@ -44,10 +44,10 @@ export function AuthModal() {
         />
 
         <div>
-          <Title order={3} fz={22} fw={800}>
+          <Title order={3} fz={20} fw={800}>
             {COPY[mode].title}
           </Title>
-          <Text c="dimmed" fz={13} mt={4}>
+          <Text c="dimmed" fz={12.5} mt={2}>
             {COPY[mode].subtitle}
           </Text>
         </div>
