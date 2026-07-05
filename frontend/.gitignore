@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.DS_Store
+
+# Generated API client (Design First) — regenerated from OpenAPI, not committed.
+# See openapi-ts.config.ts and shared/api/README.md.
+src/shared/api/generated
