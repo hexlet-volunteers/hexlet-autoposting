@@ -114,14 +114,38 @@ CI-гардрейлы: перегенерация + `git diff --exit-code` (не
 
 ## Локальный запуск
 
-```bash
-# Backend + инфраструктура (PostgreSQL, Kafka)
-docker-compose up --build      # API на :8080
+Инфраструктура (PostgreSQL 16 + Kafka 3.9.1 в режиме KRaft, без ZooKeeper) поднимается через Docker Compose. Удобные обёртки — в `Makefile`:
 
-# Frontend
+```bash
+make up        # поднять сервисы (PostgreSQL + Kafka)
+make ps        # статус контейнеров (должны быть healthy)
+make down      # остановить
+make clean     # остановить и удалить volume-данные (чистый старт)
+```
+
+Диагностика инфраструктуры:
+
+```bash
+make postgres        # подключиться к PostgreSQL (креды из .env)
+make kafka-api       # проверить доступность брокера
+make kafka-topics    # список топиков Kafka
+make logs            # логи всех сервисов (make logs-postgres / make logs-kafka)
+```
+
+Бэкенд (Go):
+
+```bash
+make tidy      # go mod tidy + fmt + go vet
+make test      # тесты
+make lint      # golangci-lint (make lint-fix — с автоправками)
+```
+
+Фронтенд:
+
+```bash
 cd frontend
 npm install
-npm run dev                    # http://localhost:5173
+npm run dev    # http://localhost:5173
 ```
 
 Переменные окружения — в `.env` (см. `.env.example`): доступ к БД, секреты JWT, ключи OAuth-провайдеров, брокеры Kafka.
