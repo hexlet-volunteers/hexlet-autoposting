@@ -1,9 +1,12 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { AppLayout } from '@/widgets/app-shell'
 import { LandingPage } from '@/pages/landing'
-import { PostsPage } from '@/pages/posts'
+import { ContentPlanPage } from '@/pages/content-plan'
+import { QueuePage } from '@/pages/queue'
+import { MediaPage } from '@/pages/media'
+import { ReportsPage } from '@/pages/reports'
+import { TeamPage } from '@/pages/team'
 import { SettingsPage } from '@/pages/settings'
-import { SectionStub } from '@/pages/section-stub'
 import { LoginPage } from '@/pages/login'
 import { LegalPage } from '@/pages/legal'
 import { PricingPage } from '@/pages/pricing'
@@ -36,11 +39,11 @@ const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <Navigate to="/app/calendar" replace /> },
-          { path: 'calendar', element: <PostsPage /> },
-          { path: 'queue', element: <SectionStub title="Очередь" /> },
-          { path: 'media', element: <SectionStub title="Медиатека" /> },
-          { path: 'reports', element: <SectionStub title="Отчёты" /> },
-          { path: 'team', element: <SectionStub title="Команда" /> },
+          { path: 'calendar', element: <ContentPlanPage /> },
+          { path: 'queue', element: <QueuePage /> },
+          { path: 'media', element: <MediaPage /> },
+          { path: 'reports', element: <ReportsPage /> },
+          { path: 'team', element: <TeamPage /> },
           { path: 'settings', element: <SettingsPage /> },
         ],
       },

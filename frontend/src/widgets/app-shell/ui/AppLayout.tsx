@@ -31,6 +31,10 @@ import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
 import { useDispatch } from 'react-redux'
 import { CreateProjectModal } from '@/features/create-project'
+import { ComposerModal } from '@/features/composer'
+import { ConnectPlatformModal } from '@/features/connect-platform'
+import { UpgradePlanModal } from '@/features/upgrade-plan'
+import { useAppModals } from '@/features/app-modals'
 
 const NAV = [
   { label: 'Календарь', to: '/app/calendar', icon: IconCalendar },
@@ -119,6 +123,7 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
 }
 
 function PlanWidget() {
+  const { openUpgrade } = useAppModals()
   return (
     <Box
       p="sm"
@@ -136,7 +141,7 @@ function PlanWidget() {
         ИИ-тексты: 5 / 50
       </Text>
       <Progress value={10} size="sm" color="brand" mb="sm" />
-      <Button component={Link} to="/pricing" size="xs" variant="light" fullWidth>
+      <Button size="xs" variant="light" fullWidth onClick={openUpgrade}>
         Улучшить тариф
       </Button>
     </Box>
@@ -207,6 +212,9 @@ export function AppLayout() {
       </AppShell.Main>
 
       <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} />
+      <ComposerModal />
+      <ConnectPlatformModal />
+      <UpgradePlanModal />
     </AppShell>
   )
 }
