@@ -1,6 +1,5 @@
 import { Anchor, Button, Checkbox, Group, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import { useAuthModal } from '../model/hooks'
 
 interface LoginValues {
@@ -22,8 +21,8 @@ export function LoginForm() {
 
   const submit = form.onSubmit(() => {
     // TODO (Design First): POST /auth/login (email + password, remember-me), issue #110. Пока заглушка.
-    notifications.show({ color: 'green', message: 'Вход выполнен (демо)' })
     close()
+    window.location.assign('/app/calendar')
   })
 
   return (
