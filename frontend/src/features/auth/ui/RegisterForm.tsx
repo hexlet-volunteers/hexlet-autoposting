@@ -1,6 +1,5 @@
 import { Anchor, Button, Checkbox, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import { useAuthModal } from '../model/hooks'
 
 interface RegisterValues {
@@ -25,8 +24,8 @@ export function RegisterForm() {
 
   const submit = form.onSubmit(() => {
     // TODO (Design First): POST /auth/register + провижининг free-тарифа, issue #110. Пока заглушка.
-    notifications.show({ color: 'green', message: 'Аккаунт создан (демо)' })
     close()
+    window.location.assign('/app/calendar')
   })
 
   return (

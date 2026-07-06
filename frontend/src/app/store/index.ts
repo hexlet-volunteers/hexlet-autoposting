@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit'
 import { sessionSlice } from '@/entities/session'
 import { postsFilterSlice } from '@/features/filter-posts-by-status'
 import { authModalSlice } from '@/features/auth'
+import { projectSlice } from '@/entities/project'
+import { appModalsSlice } from '@/features/app-modals'
 
 /**
  * Redux Toolkit store — holds ONLY client/UI state (session, filters).
@@ -12,6 +14,8 @@ export const store = configureStore({
     session: sessionSlice.reducer,
     postsFilter: postsFilterSlice.reducer,
     authModal: authModalSlice.reducer,
+    project: projectSlice.reducer,
+    appModals: appModalsSlice.reducer,
   },
 })
 
