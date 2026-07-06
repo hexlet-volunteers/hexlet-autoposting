@@ -1,6 +1,4 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { sessionSlice } from '@/entities/session'
-import { postsFilterSlice } from '@/features/filter-posts-by-status'
 import { authModalSlice } from '@/features/auth'
 import { projectSlice } from '@/entities/project'
 import { appModalsSlice } from '@/features/app-modals'
@@ -11,8 +9,6 @@ import { appModalsSlice } from '@/features/app-modals'
  */
 export const store = configureStore({
   reducer: {
-    session: sessionSlice.reducer,
-    postsFilter: postsFilterSlice.reducer,
     authModal: authModalSlice.reducer,
     project: projectSlice.reducer,
     appModals: appModalsSlice.reducer,
