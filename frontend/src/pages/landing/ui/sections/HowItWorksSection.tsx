@@ -16,12 +16,14 @@ const STEPS: Step[] = [
   {
     number: '02',
     title: 'Соберите контент-план',
-    description: 'Напишите посты сами или попросите ИИ. Расставьте по календарю — хоть на месяц вперёд.',
+    description:
+      'Напишите посты сами или попросите ИИ. Расставьте по календарю — хоть на месяц вперёд.',
   },
   {
     number: '03',
     title: 'Живите спокойно',
-    description: 'Отложка опубликует всё точно в срок и пришлёт отчёт в Telegram, когда посты выйдут.',
+    description:
+      'Отложка опубликует всё точно в срок и пришлёт отчёт в Telegram, когда посты выйдут.',
   },
 ]
 
@@ -32,7 +34,13 @@ export function HowItWorksSection() {
         {STEPS.map((step) => (
           <Card key={step.number} withBorder radius="lg" p="lg" bg="#F6F4EF">
             <Stack gap={8}>
-              <Text fz={38} fw={800} c="rgba(43, 80, 236, 0.25)" lh={1} style={{ letterSpacing: '-1px' }}>
+              <Text
+                fz={38}
+                fw={800}
+                c="rgba(43, 80, 236, 0.25)"
+                lh={1}
+                style={{ letterSpacing: '-1px' }}
+              >
                 {step.number}
               </Text>
               <Text fz={18} fw={700}>

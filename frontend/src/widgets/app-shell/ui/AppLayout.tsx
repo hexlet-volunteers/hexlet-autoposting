@@ -31,10 +31,8 @@ import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
 import { useDispatch } from 'react-redux'
 import { CreateProjectModal } from '@/features/create-project'
-import { ComposerModal } from '@/features/composer'
-import { ConnectPlatformModal } from '@/features/connect-platform'
-import { UpgradePlanModal } from '@/features/upgrade-plan'
 import { useAppModals } from '@/features/app-modals'
+import { AppModals } from './AppModals'
 
 const NAV = [
   { label: 'Календарь', to: '/app/calendar', icon: IconCalendar },
@@ -127,7 +125,11 @@ function PlanWidget() {
   return (
     <Box
       p="sm"
-      style={{ borderRadius: 12, background: 'rgba(43,80,236,0.06)', border: '1px solid rgba(43,80,236,0.12)' }}
+      style={{
+        borderRadius: 12,
+        background: 'rgba(43,80,236,0.06)',
+        border: '1px solid rgba(43,80,236,0.12)',
+      }}
     >
       <Group justify="space-between" mb={4}>
         <Text fw={700} fz={13}>
@@ -198,7 +200,12 @@ export function AppLayout() {
                 </Text>
               </Group>
               <Tooltip label="Выйти">
-                <ActionIcon variant="subtle" color="gray" onClick={() => navigate('/')} aria-label="Выйти">
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  onClick={() => navigate('/')}
+                  aria-label="Выйти"
+                >
                   <IconLogout size={18} />
                 </ActionIcon>
               </Tooltip>
@@ -212,9 +219,7 @@ export function AppLayout() {
       </AppShell.Main>
 
       <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} />
-      <ComposerModal />
-      <ConnectPlatformModal />
-      <UpgradePlanModal />
+      <AppModals />
     </AppShell>
   )
 }

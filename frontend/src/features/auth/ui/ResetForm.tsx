@@ -38,7 +38,12 @@ export function ResetForm() {
   return (
     <form onSubmit={submit}>
       <Stack gap="sm">
-        <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
+        <TextInput
+          label="Почта"
+          placeholder="you@example.ru"
+          withAsterisk
+          {...form.getInputProps('email')}
+        />
         <Button type="submit" fullWidth mt={4}>
           Отправить ссылку
         </Button>

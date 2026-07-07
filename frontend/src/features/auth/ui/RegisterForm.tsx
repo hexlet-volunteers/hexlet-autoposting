@@ -31,8 +31,18 @@ export function RegisterForm() {
   return (
     <form onSubmit={submit}>
       <Stack gap="xs">
-        <TextInput label="Как вас зовут" placeholder="Мария" withAsterisk {...form.getInputProps('name')} />
-        <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
+        <TextInput
+          label="Как вас зовут"
+          placeholder="Мария"
+          withAsterisk
+          {...form.getInputProps('name')}
+        />
+        <TextInput
+          label="Почта"
+          placeholder="you@example.ru"
+          withAsterisk
+          {...form.getInputProps('email')}
+        />
         <PasswordInput
           label="Пароль"
           placeholder="••••••••"

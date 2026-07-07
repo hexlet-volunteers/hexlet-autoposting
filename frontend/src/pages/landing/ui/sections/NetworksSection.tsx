@@ -1,6 +1,6 @@
 import { Group, Stack, Text } from '@mantine/core'
 import { NetworkPill } from '@/shared/ui'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { Section } from '../Section'
 
 /** Секция «Соцсети»: короткая подпись + все 7 площадок как NetworkPill. */

@@ -1,7 +1,8 @@
 import { Button, Modal, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useState } from 'react'
-import { ColorSwatchPicker, PROJECT_COLORS } from '@/shared/ui'
+import { PROJECT_COLORS } from '@/shared/config'
+import { ColorSwatchPicker } from '@/shared/ui'
 import { useCreateProject } from '../api/useCreateProject'
 
 interface CreateProjectModalProps {

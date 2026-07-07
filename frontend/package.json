@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "generate:api": "openapi-ts"
+    "generate:api": "openapi-ts",
+    "lint": "eslint . && steiger src",
+    "format": "prettier --write src"
   },
   "dependencies": {
     "@fontsource-variable/golos-text": "^5.2.8",
@@ -28,10 +30,20 @@
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@feature-sliced/steiger-plugin": "^0.6.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.4",
+    "steiger": "^0.5.13",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.63.0",
     "vite": "^6.0.5"
   }
 }

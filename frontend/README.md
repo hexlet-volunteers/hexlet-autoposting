@@ -11,6 +11,8 @@ npm install
 cp .env.example .env        # при необходимости укажи VITE_API_URL
 npm run dev                 # http://localhost:5173 (проксирует /posts, /platforms на :8080)
 npm run typecheck           # проверка типов
+npm run lint                # ESLint + границы FSD (steiger)
+npm run format              # Prettier
 npm run build               # прод-сборка
 ```
 

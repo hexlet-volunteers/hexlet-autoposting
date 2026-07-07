@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Alert,
   Badge,
@@ -16,11 +16,10 @@ import {
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconCheck, IconFileInvoice } from '@tabler/icons-react'
-import { useAppModals } from '@/features/app-modals'
 
 /**
- * Глобальная модалка апгрейда тарифа. Состояние открытия читается из useAppModals()
- * (upgrade.opened / closeUpgrade), пропсов НЕ принимает — монтируется один раз интегратором.
+ * Глобальная модалка апгрейда тарифа. Состояние открытия приходит пропсами
+ * от хоста модалок (widgets/app-shell), монтируется один раз интегратором.
  *
  * Трёхшаговый флоу (Mantine Stepper): выбор тарифа → оплата → готово. Всё локальное и
  * демо: тарифы захардкожены (страницу /pricing НЕ импортируем), данные карты не сохраняем.
@@ -92,45 +91,18 @@ function formatRub(value: number): string {
   return `${value.toLocaleString('ru-RU')} ₽`
 }
 
-export function UpgradePlanModal() {
-  const { upgrade, closeUpgrade } = useAppModals()
+interface UpgradePlanModalProps {
+  opened: boolean
+  onClose: () => void
+}
 
-  const [step, setStep] = useState(0)
-  const [period, setPeriod] = useState<BillingPeriod>('monthly')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+export function UpgradePlanModal({ opened, onClose }: UpgradePlanModalProps) {
   const [activeTariff, setActiveTariff] = useState(CURRENT_TARIFF)
-
-  // Сбрасываем флоу при каждом открытии модалки.
-  useEffect(() => {
-    if (upgrade.opened) {
-      setStep(0)
-      setPeriod('monthly')
-      setSelectedId(null)
-    }
-  }, [upgrade.opened])
-
-  const selectedPlan = PLANS.find((p) => p.id === selectedId) ?? null
-
-  const periodNote = period === 'yearly' ? 'на год' : 'на месяц'
-  const totalLabel = selectedPlan ? formatRub(totalPrice(selectedPlan, period)) : ''
-
-  const pickPlan = (id: string) => {
-    setSelectedId(id)
-    setStep(1)
-  }
-
-  const pay = () => {
-    // TODO (Design First, backlog #204): POST /billing/subscription { plan, period, paymentMethod }.
-    // Данные карты на фронте НЕ храним — они уходят напрямую в платёжный шлюз.
-    if (selectedPlan) setActiveTariff(selectedPlan.name)
-    notifications.show({ color: 'green', message: 'Тариф изменён (демо)' })
-    setStep(2)
-  }
 
   return (
     <Modal
-      opened={upgrade.opened}
-      onClose={closeUpgrade}
+      opened={opened}
+      onClose={onClose}
       centered
       radius="lg"
       size="lg"
@@ -145,6 +117,46 @@ export function UpgradePlanModal() {
         </Group>
       }
     >
+      <UpgradeFlow activeTariff={activeTariff} onPaid={setActiveTariff} onClose={onClose} />
+    </Modal>
+  )
+}
+
+interface UpgradeFlowProps {
+  activeTariff: string
+  onPaid: (tariff: string) => void
+  onClose: () => void
+}
+
+/**
+ * Трёхшаговый флоу апгрейда. Живёт в детях модалки: Mantine размонтирует их при
+ * закрытии, поэтому каждое открытие начинается с шага 0 без ручного сброса.
+ */
+function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
+  const [step, setStep] = useState(0)
+  const [period, setPeriod] = useState<BillingPeriod>('monthly')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  const selectedPlan = PLANS.find((p) => p.id === selectedId) ?? null
+
+  const periodNote = period === 'yearly' ? 'на год' : 'на месяц'
+  const totalLabel = selectedPlan ? formatRub(totalPrice(selectedPlan, period)) : ''
+
+  const pickPlan = (id: string) => {
+    setSelectedId(id)
+    setStep(1)
+  }
+
+  const pay = () => {
+    // TODO (Design First, backlog #204): POST /billing/subscription { plan, period, paymentMethod }.
+    // Данные карты на фронте НЕ храним — они уходят напрямую в платёжный шлюз.
+    if (selectedPlan) onPaid(selectedPlan.name)
+    notifications.show({ color: 'green', message: 'Тариф изменён (демо)' })
+    setStep(2)
+  }
+
+  return (
+    <>
       <Stepper active={step} onStepClick={setStep} size="sm" allowNextStepsSelect={false} mb="lg">
         <Stepper.Step label="Выбор тарифа" allowStepSelect={step === 2 ? false : true} />
         <Stepper.Step label="Оплата" allowStepSelect={step > 0 && step < 2} />
@@ -322,15 +334,15 @@ export function UpgradePlanModal() {
           </Text>
 
           <Text maw={380} ta="center" fz={13.5} lh={1.55} c="rgba(23,21,15,.6)">
-            Тариф «{activeTariff}» активен. Новые лимиты уже применены к проекту — можно
-            подключать площадки и планировать посты без ограничений.
+            Тариф «{activeTariff}» активен. Новые лимиты уже применены к проекту — можно подключать
+            площадки и планировать посты без ограничений.
           </Text>
 
-          <Button mt="sm" color="brand" onClick={closeUpgrade}>
+          <Button mt="sm" color="brand" onClick={onClose}>
             Готово
           </Button>
         </Stack>
       )}
-    </Modal>
+    </>
   )
 }

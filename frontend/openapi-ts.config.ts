@@ -13,8 +13,5 @@ export default defineConfig({
     path: 'src/shared/api/generated',
     format: 'prettier',
   },
-  plugins: [
-    '@hey-api/client-fetch',
-    '@tanstack/react-query',
-  ],
+  plugins: ['@hey-api/client-fetch', '@tanstack/react-query'],
 })

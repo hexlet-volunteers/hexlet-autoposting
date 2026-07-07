@@ -40,7 +40,12 @@ const COLUMNS: FooterColumn[] = [
 /** Футер маркетинг-сайта: 4 колонки + нижняя строка с копирайтом и правовыми ссылками. */
 export function MarketingFooter() {
   return (
-    <Box component="footer" bg="white" style={{ borderTop: '1px solid rgba(23,21,15,0.08)' }} py={48}>
+    <Box
+      component="footer"
+      bg="white"
+      style={{ borderTop: '1px solid rgba(23,21,15,0.08)' }}
+      py={48}
+    >
       <Container size="lg">
         <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="xl">
           <Stack gap="sm">
@@ -56,7 +61,14 @@ export function MarketingFooter() {
               </Text>
               {col.links?.map((l) =>
                 l.to ? (
-                  <Anchor key={l.label} component={Link} to={l.to} c="dimmed" fz={14} underline="never">
+                  <Anchor
+                    key={l.label}
+                    component={Link}
+                    to={l.to}
+                    c="dimmed"
+                    fz={14}
+                    underline="never"
+                  >
                     {l.label}
                   </Anchor>
                 ) : (

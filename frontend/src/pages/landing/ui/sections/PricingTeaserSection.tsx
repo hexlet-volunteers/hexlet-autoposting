@@ -100,7 +100,12 @@ export function PricingTeaserSection() {
 
               <Box mt={14}>
                 {plan.features.map((feature) => (
-                  <Text key={feature} fz={14} c="rgba(23, 21, 15, 0.75)" style={{ lineHeight: 1.9 }}>
+                  <Text
+                    key={feature}
+                    fz={14}
+                    c="rgba(23, 21, 15, 0.75)"
+                    style={{ lineHeight: 1.9 }}
+                  >
                     {feature}
                   </Text>
                 ))}

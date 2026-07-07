@@ -28,7 +28,12 @@ export function LoginForm() {
   return (
     <form onSubmit={submit}>
       <Stack gap="xs">
-        <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
+        <TextInput
+          label="Почта"
+          placeholder="you@example.ru"
+          withAsterisk
+          {...form.getInputProps('email')}
+        />
         <PasswordInput
           label="Пароль"
           placeholder="••••••••"
@@ -36,7 +41,10 @@ export function LoginForm() {
           {...form.getInputProps('password')}
         />
         <Group justify="space-between">
-          <Checkbox label="Запомнить меня" {...form.getInputProps('remember', { type: 'checkbox' })} />
+          <Checkbox
+            label="Запомнить меня"
+            {...form.getInputProps('remember', { type: 'checkbox' })}
+          />
           <Anchor component="button" type="button" size="sm" onClick={() => setMode('reset')}>
             Забыли пароль?
           </Anchor>

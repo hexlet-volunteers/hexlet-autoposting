@@ -1,6 +1,6 @@
 import { Anchor, Group, Modal, Paper, SimpleGrid, Stack, Text } from '@mantine/core'
 import { IconExternalLink } from '@tabler/icons-react'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { NetworkPill } from '@/shared/ui'
 import { formatDateTime } from '@/shared/lib'
 import type { Post } from '@/entities/scheduled-post'

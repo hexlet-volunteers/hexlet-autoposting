@@ -51,4 +51,5 @@ export const {
   closeConnectPlatform,
 } = appModalsSlice.actions
 
-export const selectAppModals = (state: { appModals: AppModalsState }): AppModalsState => state.appModals
+export const selectAppModals = (state: { appModals: AppModalsState }): AppModalsState =>
+  state.appModals
