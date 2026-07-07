@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { AppLayout } from '@/widgets/app-shell'
+import { AuthModal } from '@/features/auth'
 import { LandingPage } from '@/pages/landing'
 import { ContentPlanPage } from '@/pages/content-plan'
 import { QueuePage } from '@/pages/queue'
@@ -15,11 +16,19 @@ import { RouteErrorPage, ServerErrorPage, ServiceUnavailablePage } from '@/pages
 import { AutopostingPage } from '@/pages/feature-autoposting'
 import { CrosspostingPage } from '@/pages/feature-crossposting'
 import { AiFeaturePage } from '@/pages/feature-ai'
+import { RequireAuth } from './RequireAuth'
 
 const router = createBrowserRouter([
   {
-    // Пустой корневой маршрут с errorElement — глобальная граница ошибок.
-    element: <Outlet />,
+    // Корневой маршрут: errorElement — глобальная граница ошибок роутера.
+    // AuthModal смонтирован ЗДЕСЬ (внутри RouterProvider), чтобы формы входа
+    // могли пользоваться useNavigate/Link — SPA-переход сохраняет Redux-сессию.
+    element: (
+      <>
+        <Outlet />
+        <AuthModal />
+      </>
+    ),
     errorElement: <RouteErrorPage />,
     children: [
       // Публичный маркетинг-сайт
@@ -33,18 +42,23 @@ const router = createBrowserRouter([
       { path: '/500', element: <ServerErrorPage /> },
       { path: '/503', element: <ServiceUnavailablePage /> },
 
-      // Приложение (личный кабинет) под оболочкой с сайдбаром
+      // Приложение (личный кабинет): гард сессии → оболочка с сайдбаром
       {
         path: 'app',
-        element: <AppLayout />,
+        element: <RequireAuth />,
         children: [
-          { index: true, element: <Navigate to="/app/calendar" replace /> },
-          { path: 'calendar', element: <ContentPlanPage /> },
-          { path: 'queue', element: <QueuePage /> },
-          { path: 'media', element: <MediaPage /> },
-          { path: 'reports', element: <ReportsPage /> },
-          { path: 'team', element: <TeamPage /> },
-          { path: 'settings', element: <SettingsPage /> },
+          {
+            element: <AppLayout />,
+            children: [
+              { index: true, element: <Navigate to="/app/calendar" replace /> },
+              { path: 'calendar', element: <ContentPlanPage /> },
+              { path: 'queue', element: <QueuePage /> },
+              { path: 'media', element: <MediaPage /> },
+              { path: 'reports', element: <ReportsPage /> },
+              { path: 'team', element: <TeamPage /> },
+              { path: 'settings', element: <SettingsPage /> },
+            ],
+          },
         ],
       },
 

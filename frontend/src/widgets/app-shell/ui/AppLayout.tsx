@@ -29,6 +29,7 @@ import {
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
+import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
 import { CreateProjectModal } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
@@ -154,7 +155,14 @@ function PlanWidget() {
 export function AppLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [newProjectOpened, newProject] = useDisclosure(false)
+
+  const handleLogout = () => {
+    // Мок-сессия: сбрасываем признак входа, чтобы /app/* снова требовал входа.
+    dispatch(logout())
+    navigate('/')
+  }
 
   return (
     <AppShell navbar={{ width: 264, breakpoint: 'sm' }} padding="md">
@@ -200,12 +208,7 @@ export function AppLayout() {
                 </Text>
               </Group>
               <Tooltip label="Выйти">
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => navigate('/')}
-                  aria-label="Выйти"
-                >
+                <ActionIcon variant="subtle" color="gray" onClick={handleLogout} aria-label="Выйти">
                   <IconLogout size={18} />
                 </ActionIcon>
               </Tooltip>
