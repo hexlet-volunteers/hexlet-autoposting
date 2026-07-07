@@ -20,7 +20,6 @@ import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
 
 const BRAND = '#2B50EC'
-const ACCENT = '#FFD84D'
 const INK = '#17150F'
 const BORDER = 'rgba(23,21,15,.12)'
 
@@ -416,7 +415,7 @@ export function PricingPage() {
                 size="md"
                 radius="md"
                 onClick={() => open('register')}
-                styles={{ root: { background: ACCENT, color: INK, fontWeight: 700 } }}
+                styles={{ root: { background: 'var(--mantine-color-accent-5)', color: INK, fontWeight: 700 } }}
               >
                 Создать аккаунт
               </Button>

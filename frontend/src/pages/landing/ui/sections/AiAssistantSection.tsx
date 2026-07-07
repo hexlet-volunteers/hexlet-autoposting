@@ -59,8 +59,8 @@ export function AiAssistantSection() {
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: 999,
-                    background: '#FFD84D',
+                    borderRadius: 'var(--mantine-radius-pill)',
+                    background: 'var(--mantine-color-accent-5)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
