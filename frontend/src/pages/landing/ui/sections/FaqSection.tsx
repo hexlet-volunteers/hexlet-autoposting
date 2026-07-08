@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Accordion, Box, Text } from '@mantine/core'
 import { Section } from '../Section'
 
@@ -28,15 +29,47 @@ const FAQ_ITEMS = [
   },
 ]
 
+/** Круглый значок из макета: «−» у раскрытого пункта, «+» у свёрнутых. */
+function FaqIcon({ open }: { open: boolean }) {
+  return (
+    <Box
+      style={{
+        width: 26,
+        height: 26,
+        borderRadius: 'var(--mantine-radius-pill)',
+        border: '1.5px solid rgba(23,21,15,.2)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 15,
+        color: 'rgba(23,21,15,.6)',
+        flex: 'none',
+      }}
+    >
+      {open ? '−' : '+'}
+    </Box>
+  )
+}
+
 /** FAQ: аккордеон с частыми вопросами, по умолчанию открыт первый. */
 export function FaqSection() {
+  // управляемое значение нужно, чтобы значок каждого пункта знал, раскрыт ли он
+  const [opened, setOpened] = useState<string | null>('0')
+
   return (
     <Section id="faq" eyebrow="FAQ" title="Частые вопросы">
       <Box maw={760} mx="auto" w="100%">
-        <Accordion defaultValue="0" variant="default" chevronPosition="right">
+        <Accordion
+          value={opened}
+          onChange={setOpened}
+          variant="default"
+          chevronPosition="right"
+          chevronSize={26}
+          disableChevronRotation
+        >
           {FAQ_ITEMS.map((item, index) => (
             <Accordion.Item key={item.q} value={String(index)}>
-              <Accordion.Control>
+              <Accordion.Control chevron={<FaqIcon open={opened === String(index)} />}>
                 <Text fw={600} fz={16} c="#17150F">
                   {item.q}
                 </Text>

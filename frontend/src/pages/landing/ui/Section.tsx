@@ -13,7 +13,8 @@ interface SectionProps {
 /** Обёртка секции лендинга: единый ритм (вертикальные отступы, контейнер, eyebrow/заголовок). */
 export function Section({ id, eyebrow, title, subtitle, bg, children }: SectionProps) {
   return (
-    <Box component="section" id={id} style={{ background: bg }} py={64}>
+    // scrollMarginTop: при переходе по якорю заголовок не прячется под липкую 64px-шапку
+    <Box component="section" id={id} style={{ background: bg, scrollMarginTop: 72 }} py={64}>
       <Container size="lg">
         <Stack gap="md">
           {(eyebrow || title || subtitle) && (

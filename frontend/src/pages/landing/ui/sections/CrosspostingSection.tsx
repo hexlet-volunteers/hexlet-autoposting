@@ -24,7 +24,12 @@ export function CrosspostingSection() {
             <Center
               w={36}
               h={36}
-              style={{ borderRadius: 'var(--mantine-radius-pill)', background: 'var(--mantine-color-accent-5)', fontWeight: 800, fontSize: 15 }}
+              style={{
+                borderRadius: 'var(--mantine-radius-pill)',
+                background: 'var(--mantine-color-accent-5)',
+                fontWeight: 800,
+                fontSize: 15,
+              }}
             >
               М
             </Center>

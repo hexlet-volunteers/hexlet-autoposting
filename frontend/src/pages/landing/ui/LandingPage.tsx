@@ -35,7 +35,7 @@ export function LandingPage() {
       <FeaturesSection />
       <CrosspostingSection />
       <AiAssistantSection />
-      <ComparisonSection />
+      <ComparisonSection showCompetitors />
       <TestimonialsSection />
       <PricingTeaserSection />
       <FaqSection />
