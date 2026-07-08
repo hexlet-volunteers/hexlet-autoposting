@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Provider as ReduxProvider } from 'react-redux'
 import type { ReactNode } from 'react'
 import { store } from '@/app/store'
-import { queryClient } from '@/shared/config/queryClient'
+import { queryClient } from '@/shared/config'
 import { theme } from './theme'
 
 export function AppProviders({ children }: { children: ReactNode }) {

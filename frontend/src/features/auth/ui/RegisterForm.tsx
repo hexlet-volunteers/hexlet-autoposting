@@ -1,5 +1,8 @@
 import { Anchor, Button, Checkbox, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { login } from '@/entities/session'
 import { useAuthModal } from '../model/hooks'
 
 interface RegisterValues {
@@ -11,6 +14,8 @@ interface RegisterValues {
 
 export function RegisterForm() {
   const { close } = useAuthModal()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const form = useForm<RegisterValues>({
     initialValues: { name: '', email: '', password: '', oferta: false },
@@ -23,16 +28,27 @@ export function RegisterForm() {
   })
 
   const submit = form.onSubmit(() => {
-    // TODO (Design First): POST /auth/register + провижининг free-тарифа, issue #110. Пока заглушка.
+    // TODO (Design First): POST /auth/register + провижининг free-тарифа, issue #110. Пока мок.
+    dispatch(login())
     close()
-    window.location.assign('/app/calendar')
+    navigate('/app/calendar')
   })
 
   return (
     <form onSubmit={submit}>
       <Stack gap="xs">
-        <TextInput label="Как вас зовут" placeholder="Мария" withAsterisk {...form.getInputProps('name')} />
-        <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
+        <TextInput
+          label="Как вас зовут"
+          placeholder="Мария"
+          withAsterisk
+          {...form.getInputProps('name')}
+        />
+        <TextInput
+          label="Почта"
+          placeholder="you@example.ru"
+          withAsterisk
+          {...form.getInputProps('email')}
+        />
         <PasswordInput
           label="Пароль"
           placeholder="••••••••"

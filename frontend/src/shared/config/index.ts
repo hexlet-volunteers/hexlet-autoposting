@@ -1,2 +1,5 @@
 export { env } from './env'
 export { queryClient } from './queryClient'
+export { PROJECT_COLORS } from './projectColors'
+export { NETWORKS } from './networks'
+export type { Network } from './networks'

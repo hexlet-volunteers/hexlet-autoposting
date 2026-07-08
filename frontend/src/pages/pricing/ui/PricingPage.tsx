@@ -20,7 +20,6 @@ import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
 
 const BRAND = '#2B50EC'
-const ACCENT = '#FFD84D'
 const INK = '#17150F'
 const BORDER = 'rgba(23,21,15,.12)'
 
@@ -176,8 +175,8 @@ export function PricingPage() {
               Тарифы простые и без звёздочек
             </Title>
             <Text mt={14} maw={560} fz={16} lh={1.55} c="rgba(23,21,15,.65)">
-              Начните бесплатно, растите по мере надобности. Смена тарифа — в любой момент,
-              остаток пересчитаем автоматически.
+              Начните бесплатно, растите по мере надобности. Смена тарифа — в любой момент, остаток
+              пересчитаем автоматически.
             </Text>
 
             <SegmentedControl
@@ -346,10 +345,8 @@ export function PricingPage() {
                         style={{
                           fontSize: 13.5,
                           fontWeight: index === FEATURED_COLUMN ? 600 : 400,
-                          color:
-                            index === FEATURED_COLUMN ? INK : 'rgba(23,21,15,.65)',
-                          background:
-                            index === FEATURED_COLUMN ? 'rgba(43,80,236,.04)' : undefined,
+                          color: index === FEATURED_COLUMN ? INK : 'rgba(23,21,15,.65)',
+                          background: index === FEATURED_COLUMN ? 'rgba(43,80,236,.04)' : undefined,
                         }}
                       >
                         {value}
@@ -394,7 +391,10 @@ export function PricingPage() {
       {/* Финальный CTA-баннер */}
       <Box component="section" py={{ base: 40, sm: 56 }}>
         <Container size="lg">
-          <Box p={{ base: 28, sm: 40 }} style={{ background: INK, borderRadius: 20, color: '#F6F4EF' }}>
+          <Box
+            p={{ base: 28, sm: 40 }}
+            style={{ background: INK, borderRadius: 20, color: '#F6F4EF' }}
+          >
             <Group justify="space-between" align="center" gap={24} wrap="wrap">
               <Stack gap={8} maw={620}>
                 <Text
@@ -415,7 +415,7 @@ export function PricingPage() {
                 size="md"
                 radius="md"
                 onClick={() => open('register')}
-                styles={{ root: { background: ACCENT, color: INK, fontWeight: 700 } }}
+                styles={{ root: { background: 'var(--mantine-color-accent-5)', color: INK, fontWeight: 700 } }}
               >
                 Создать аккаунт
               </Button>

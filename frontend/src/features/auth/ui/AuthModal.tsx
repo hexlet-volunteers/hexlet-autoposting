@@ -30,7 +30,16 @@ export function AuthModal() {
   const isAuth = mode !== 'reset'
 
   return (
-    <Modal opened={opened} onClose={close} centered radius="lg" size="md" yOffset="12px" padding="md" title={null}>
+    <Modal
+      opened={opened}
+      onClose={close}
+      centered
+      radius="lg"
+      size="md"
+      yOffset="12px"
+      padding="md"
+      title={null}
+    >
       <Stack gap="xs">
         <SegmentedControl
           fullWidth

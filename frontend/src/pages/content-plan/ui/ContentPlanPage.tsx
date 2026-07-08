@@ -14,7 +14,7 @@ import {
 } from '@mantine/core'
 import { IconLink, IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { NetworkPill } from '@/shared/ui'
 import { useAppModals } from '@/features/app-modals'
 import { useContentPlan } from '@/entities/scheduled-post'
@@ -86,7 +86,12 @@ export function ContentPlanPage() {
       <Box style={{ overflowX: 'auto' }}>
         <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 7 }} spacing="xs" style={{ minWidth: 720 }}>
           {days.map((day) => (
-            <DayCard key={day.key} day={day} onOpenPost={openComposer} onAdd={() => openComposer()} />
+            <DayCard
+              key={day.key}
+              day={day}
+              onOpenPost={openComposer}
+              onAdd={() => openComposer()}
+            />
           ))}
         </SimpleGrid>
       </Box>
@@ -106,7 +111,12 @@ interface DayCardProps {
 
 function DayCard({ day, onOpenPost, onAdd }: DayCardProps) {
   return (
-    <Paper withBorder radius="md" p="xs" style={{ minHeight: 230, display: 'flex', flexDirection: 'column' }}>
+    <Paper
+      withBorder
+      radius="md"
+      p="xs"
+      style={{ minHeight: 230, display: 'flex', flexDirection: 'column' }}
+    >
       <Group gap={6} justify="center" mb="xs">
         <Text size="sm" fw={600} c={day.isToday ? 'brand' : undefined}>
           {day.name}
@@ -177,12 +187,7 @@ function PostCard({ post, onClick }: PostCardProps) {
           </Badge>
         ) : null}
       </Group>
-      <Text
-        size="xs"
-        fw={600}
-        lineClamp={1}
-        style={{ color: 'var(--mantine-color-text)' }}
-      >
+      <Text size="xs" fw={600} lineClamp={1} style={{ color: 'var(--mantine-color-text)' }}>
         {post.title}
       </Text>
     </UnstyledButton>

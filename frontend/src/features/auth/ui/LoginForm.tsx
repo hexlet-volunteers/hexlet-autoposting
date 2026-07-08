@@ -1,5 +1,8 @@
 import { Anchor, Button, Checkbox, Group, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { login } from '@/entities/session'
 import { useAuthModal } from '../model/hooks'
 
 interface LoginValues {
@@ -10,6 +13,8 @@ interface LoginValues {
 
 export function LoginForm() {
   const { close, setMode } = useAuthModal()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const form = useForm<LoginValues>({
     initialValues: { email: '', password: '', remember: false },
@@ -20,15 +25,21 @@ export function LoginForm() {
   })
 
   const submit = form.onSubmit(() => {
-    // TODO (Design First): POST /auth/login (email + password, remember-me), issue #110. Пока заглушка.
+    // TODO (Design First): POST /auth/login (email + password, remember-me), issue #110. Пока мок.
+    dispatch(login())
     close()
-    window.location.assign('/app/calendar')
+    navigate('/app/calendar')
   })
 
   return (
     <form onSubmit={submit}>
       <Stack gap="xs">
-        <TextInput label="Почта" placeholder="you@example.ru" withAsterisk {...form.getInputProps('email')} />
+        <TextInput
+          label="Почта"
+          placeholder="you@example.ru"
+          withAsterisk
+          {...form.getInputProps('email')}
+        />
         <PasswordInput
           label="Пароль"
           placeholder="••••••••"
@@ -36,7 +47,10 @@ export function LoginForm() {
           {...form.getInputProps('password')}
         />
         <Group justify="space-between">
-          <Checkbox label="Запомнить меня" {...form.getInputProps('remember', { type: 'checkbox' })} />
+          <Checkbox
+            label="Запомнить меня"
+            {...form.getInputProps('remember', { type: 'checkbox' })}
+          />
           <Anchor component="button" type="button" size="sm" onClick={() => setMode('reset')}>
             Забыли пароль?
           </Anchor>

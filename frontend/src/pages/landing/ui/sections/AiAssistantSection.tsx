@@ -1,7 +1,7 @@
 import { Box, Button, Card, Divider, Group, Stack, Text, Title } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { NetworkPill } from '@/shared/ui'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { Section } from '../Section'
 
 /** Пример поста, сгенерированного ИИ (вариант 1 из демо макета). */
@@ -59,8 +59,8 @@ export function AiAssistantSection() {
                   style={{
                     width: 32,
                     height: 32,
-                    borderRadius: 999,
-                    background: '#FFD84D',
+                    borderRadius: 'var(--mantine-radius-pill)',
+                    background: 'var(--mantine-color-accent-5)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

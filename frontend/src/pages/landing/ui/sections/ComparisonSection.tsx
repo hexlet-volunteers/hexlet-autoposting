@@ -3,13 +3,12 @@ import type { ReactNode } from 'react'
 import { IconCheck } from '@tabler/icons-react'
 import { Section } from '../Section'
 
-const GREEN = '#22A06B'
 const HIGHLIGHT_BG = 'rgba(43, 80, 236, 0.05)'
 
 /** Зелёная галочка для колонки «Отложка». */
 function UsCheck({ label }: { label?: string }) {
   return (
-    <Text component="span" c={GREEN} fw={700} fz="sm" style={{ whiteSpace: 'nowrap' }}>
+    <Text component="span" c="success.6" fw={700} fz="sm" style={{ whiteSpace: 'nowrap' }}>
       <IconCheck size={16} stroke={2.4} style={{ verticalAlign: '-3px' }} />
       {label ? ` ${label}` : ''}
     </Text>
@@ -34,14 +33,22 @@ interface CompareRow {
 const ROWS: CompareRow[] = [
   {
     name: 'Цена от',
-    us: <Text component="span" c="brand.6" fw={700} fz="sm">0 ₽</Text>,
+    us: (
+      <Text component="span" c="brand.6" fw={700} fz="sm">
+        0 ₽
+      </Text>
+    ),
     smmplanner: 'от ~450 ₽/мес',
     planermax: 'от ~420 ₽/мес',
     livedune: 'от ~800 ₽/мес',
   },
   {
     name: 'Бесплатный тариф',
-    us: <Text component="span" c="brand.6" fw={700} fz="sm">Навсегда</Text>,
+    us: (
+      <Text component="span" c="brand.6" fw={700} fz="sm">
+        Навсегда
+      </Text>
+    ),
     smmplanner: 'Демо-период',
     planermax: 'Демо-период',
     livedune: 'Демо-период',
@@ -152,7 +159,8 @@ export function ComparisonSection() {
         </Table>
       </Box>
       <Text fz={12} c="dimmed">
-        * По открытым данным сайтов сервисов, июль 2026. Проверяйте актуальные условия перед выбором.
+        * По открытым данным сайтов сервисов, июль 2026. Проверяйте актуальные условия перед
+        выбором.
       </Text>
     </Section>
   )

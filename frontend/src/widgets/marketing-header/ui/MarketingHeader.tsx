@@ -68,7 +68,13 @@ export function MarketingHeader() {
             </Group>
           </Group>
           <Group gap="sm" wrap="nowrap">
-            <Button variant="subtle" color="dark" size="sm" visibleFrom="xs" onClick={() => open('login')}>
+            <Button
+              variant="subtle"
+              color="dark"
+              size="sm"
+              visibleFrom="xs"
+              onClick={() => open('login')}
+            >
               Войти
             </Button>
             <Button size="sm" onClick={() => open('register')}>

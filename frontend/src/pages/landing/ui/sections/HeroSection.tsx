@@ -13,8 +13,8 @@ import {
 } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { NetworkPill } from '@/shared/ui'
-import { NETWORKS } from '@/shared/config/networks'
-import type { Network } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
+import type { Network } from '@/shared/config'
 
 const networkById = (id: string): Network => {
   const found = NETWORKS.find((n) => n.id === id)
@@ -115,11 +115,7 @@ export function HeroSection() {
               style={{ letterSpacing: '-.8px', textWrap: 'balance' }}
             >
               Посты выходят{' '}
-              <Box
-                component="span"
-                px={8}
-                style={{ background: '#FFD84D', borderRadius: 8 }}
-              >
+              <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                 сами
               </Box>{' '}
               — даже когда вы спите
@@ -174,7 +170,12 @@ export function HeroSection() {
               >
                 9 постов
               </Badge>
-              <Group gap={4} ml="auto" p={3} style={{ background: 'rgba(23,21,15,.06)', borderRadius: 9 }}>
+              <Group
+                gap={4}
+                ml="auto"
+                p={3}
+                style={{ background: 'rgba(23,21,15,.06)', borderRadius: 9 }}
+              >
                 <Box
                   px={10}
                   py={4}
@@ -226,13 +227,7 @@ export function HeroSection() {
                             {post.time}
                           </Text>
                         </Group>
-                        <Text
-                          fz={11}
-                          fw={600}
-                          lh={1.25}
-                          c="rgba(23,21,15,.85)"
-                          truncate
-                        >
+                        <Text fz={11} fw={600} lh={1.25} c="rgba(23,21,15,.85)" truncate>
                           {post.label}
                         </Text>
                       </Card>
@@ -243,7 +238,10 @@ export function HeroSection() {
                       radius="md"
                       size="compact-sm"
                       c="rgba(23,21,15,.4)"
-                      style={{ border: '1.5px dashed rgba(23,21,15,.18)', background: 'transparent' }}
+                      style={{
+                        border: '1.5px dashed rgba(23,21,15,.18)',
+                        background: 'transparent',
+                      }}
                     >
                       <IconPlus size={16} stroke={2.5} />
                     </Button>

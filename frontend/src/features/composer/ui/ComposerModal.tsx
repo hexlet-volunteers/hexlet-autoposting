@@ -24,12 +24,12 @@ import {
   IconPhoto,
   IconSparkles,
 } from '@tabler/icons-react'
-import { NETWORKS } from '@/shared/config/networks'
-import { useAppModals } from '@/features/app-modals'
+import { NETWORKS } from '@/shared/config'
 
 /**
  * Глобальный композер поста (features/composer).
- * Открывается из любого экрана через useAppModals().openComposer(postId?).
+ * Состояние открытия приходит пропсами от хоста модалок (widgets/app-shell);
+ * экраны открывают композер через useAppModals().openComposer(postId?).
  * Все мутации — заглушки (Design First): реальный сабмит уедет в POST/PUT /api/posts.
  */
 
@@ -56,9 +56,14 @@ interface FormValues {
   aiModel: string
 }
 
-export function ComposerModal() {
-  const { composer, closeComposer } = useAppModals()
-  const isEditing = composer.postId != null
+interface ComposerModalProps {
+  opened: boolean
+  postId: string | null
+  onClose: () => void
+}
+
+export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
+  const isEditing = postId != null
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const form = useForm<FormValues>({
@@ -80,7 +85,7 @@ export function ComposerModal() {
 
   const handleClose = () => {
     form.reset()
-    closeComposer()
+    onClose()
   }
 
   // Форматирующая панель — визуальная заглушка: оборачивает выделение маркерами.
@@ -110,7 +115,7 @@ export function ComposerModal() {
 
   const handleSubmit = form.onSubmit(() => {
     // TODO (Design First): создание/обновление поста →
-    // POST /api/posts (новый) или PUT /api/posts/{id} (composer.postId).
+    // POST /api/posts (новый) или PUT /api/posts/{id} (postId).
     notifications.show({
       color: 'green',
       message: isEditing ? 'Пост обновлён (демо)' : 'Пост запланирован (демо)',
@@ -126,7 +131,7 @@ export function ComposerModal() {
 
   return (
     <Modal
-      opened={composer.opened}
+      opened={opened}
       onClose={handleClose}
       size="lg"
       title={
@@ -282,7 +287,11 @@ export function ComposerModal() {
                   border: '1.5px dashed rgba(23,21,15,.25)',
                 }}
               />
-              <Button variant="light" leftSection={<IconPhoto size={16} />} onClick={handleAddMedia}>
+              <Button
+                variant="light"
+                leftSection={<IconPhoto size={16} />}
+                onClick={handleAddMedia}
+              >
                 Добавить медиа
               </Button>
               <Text fz="xs" c="dimmed" style={{ alignSelf: 'center' }}>

@@ -33,7 +33,7 @@ export function CtaSection() {
               radius="md"
               styles={{
                 root: {
-                  background: '#FFD84D',
+                  background: 'var(--mantine-color-accent-5)',
                   color: '#17150F',
                   fontWeight: 700,
                 },

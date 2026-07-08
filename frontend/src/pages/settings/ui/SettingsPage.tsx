@@ -14,7 +14,8 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconArchive } from '@tabler/icons-react'
-import { ColorSwatchPicker, PROJECT_COLORS } from '@/shared/ui'
+import { PROJECT_COLORS } from '@/shared/config'
+import { ColorSwatchPicker } from '@/shared/ui'
 import { useCurrentProject } from '@/entities/project'
 
 const TIMEZONES = [

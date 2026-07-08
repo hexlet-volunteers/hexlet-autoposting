@@ -1,18 +1,8 @@
 import { useState } from 'react'
 import { useDisclosure } from '@mantine/hooks'
-import {
-  Badge,
-  Box,
-  Group,
-  Paper,
-  Stack,
-  Tabs,
-  Text,
-  Title,
-  UnstyledButton,
-} from '@mantine/core'
+import { Badge, Box, Group, Paper, Stack, Tabs, Text, Title, UnstyledButton } from '@mantine/core'
 import dayjs from 'dayjs'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { EmptyState, NetworkPill } from '@/shared/ui'
 import { useAppModals } from '@/features/app-modals'
 import { useQueue } from '@/entities/scheduled-post'
@@ -47,7 +37,11 @@ export function QueuePage() {
 
         <Tabs.Panel value="upcoming" pt="md">
           <Paper withBorder radius="lg" style={{ overflow: 'hidden' }}>
-            <Group gap="sm" p="md" style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}>
+            <Group
+              gap="sm"
+              p="md"
+              style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}
+            >
               <Text fw={700}>Ближайшие публикации</Text>
               <Text size="sm" c="dimmed" style={{ marginLeft: 'auto' }}>
                 клик по строке — настройки поста
@@ -69,14 +63,21 @@ export function QueuePage() {
 
         <Tabs.Panel value="sent" pt="md">
           <Paper withBorder radius="lg" style={{ overflow: 'hidden' }}>
-            <Group gap="sm" p="md" style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}>
+            <Group
+              gap="sm"
+              p="md"
+              style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}
+            >
               <Text fw={700}>Архив отправленных</Text>
               <Text size="sm" c="dimmed" style={{ marginLeft: 'auto' }}>
                 клик по строке — статистика поста
               </Text>
             </Group>
             {sent.length === 0 ? (
-              <EmptyState title="Пока ничего не отправлено" description="Здесь появятся опубликованные посты." />
+              <EmptyState
+                title="Пока ничего не отправлено"
+                description="Здесь появятся опубликованные посты."
+              />
             ) : (
               <Box style={{ overflowX: 'auto' }}>
                 <Stack gap="xs" p="md" style={{ minWidth: 520 }}>

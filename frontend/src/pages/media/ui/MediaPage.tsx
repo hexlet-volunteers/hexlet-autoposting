@@ -79,7 +79,12 @@ export function MediaPage() {
             title="В медиатеке пусто"
             description="Загрузите фото и видео, чтобы прикреплять их к постам."
             action={
-              <Button color="brand" radius="md" leftSection={<IconUpload size={17} />} onClick={upload.open}>
+              <Button
+                color="brand"
+                radius="md"
+                leftSection={<IconUpload size={17} />}
+                onClick={upload.open}
+              >
                 Загрузить
               </Button>
             }

@@ -19,12 +19,23 @@ export function Section({ id, eyebrow, title, subtitle, bg, children }: SectionP
           {(eyebrow || title || subtitle) && (
             <Stack gap={6} maw={760}>
               {eyebrow && (
-                <Text tt="uppercase" fw={700} c="brand.6" fz={12} style={{ letterSpacing: '1.5px' }}>
+                <Text
+                  tt="uppercase"
+                  fw={700}
+                  c="brand.6"
+                  fz={12}
+                  style={{ letterSpacing: '1.5px' }}
+                >
                   {eyebrow}
                 </Text>
               )}
               {title && (
-                <Title order={2} fz={{ base: 26, sm: 32 }} fw={800} style={{ letterSpacing: '-0.5px' }}>
+                <Title
+                  order={2}
+                  fz={{ base: 26, sm: 32 }}
+                  fw={800}
+                  style={{ letterSpacing: '-0.5px' }}
+                >
                   {title}
                 </Title>
               )}

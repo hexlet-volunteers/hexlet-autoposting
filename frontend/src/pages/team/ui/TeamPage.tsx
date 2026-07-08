@@ -28,7 +28,10 @@ const ROLE_OPTIONS = (Object.keys(ROLE_LABELS) as MemberRole[]).map((role) => ({
 
 /** Инициалы из имени/почты для аватара (напр. «Мария Ковалёва» → «МК»). */
 function initials(value: string): string {
-  const parts = value.trim().split(/[\s@.]+/).filter(Boolean)
+  const parts = value
+    .trim()
+    .split(/[\s@.]+/)
+    .filter(Boolean)
   const chars = parts.slice(0, 2).map((part) => part[0] ?? '')
   return chars.join('').toUpperCase() || value.slice(0, 2).toUpperCase()
 }
@@ -61,7 +64,10 @@ export function TeamPage() {
         status: 'pending',
       },
     ])
-    notifications.show({ color: 'green', message: `Приглашение отправлено на ${values.email} (демо)` })
+    notifications.show({
+      color: 'green',
+      message: `Приглашение отправлено на ${values.email} (демо)`,
+    })
     form.reset()
   })
 
@@ -177,8 +183,8 @@ export function TeamPage() {
                 Пригласить
               </Button>
               <Text size="xs" c="dimmed">
-                Автор пишет черновики, редактор утверждает и публикует. Отозвать доступ можно в любой
-                момент.
+                Автор пишет черновики, редактор утверждает и публикует. Отозвать доступ можно в
+                любой момент.
               </Text>
             </Stack>
           </form>

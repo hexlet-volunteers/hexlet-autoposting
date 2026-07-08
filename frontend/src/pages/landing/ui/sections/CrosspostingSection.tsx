@@ -2,7 +2,7 @@ import { Button, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon } from 
 import { IconCheck } from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
 import { NetworkPill } from '@/shared/ui'
-import { NETWORKS } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
 import { Section } from '../Section'
 
 /** Время публикации для каждой площадки — статичная выборка вместо data-driven демо из макета. */
@@ -24,7 +24,7 @@ export function CrosspostingSection() {
             <Center
               w={36}
               h={36}
-              style={{ borderRadius: 999, background: '#FFD84D', fontWeight: 800, fontSize: 15 }}
+              style={{ borderRadius: 'var(--mantine-radius-pill)', background: 'var(--mantine-color-accent-5)', fontWeight: 800, fontSize: 15 }}
             >
               М
             </Center>
@@ -39,7 +39,8 @@ export function CrosspostingSection() {
           </Group>
 
           <Text mt={12} fz={14} lh={1.5}>
-            Открыли запись на новогодние капучино-сеты! Бронируйте столик — вечером мест уже не будет.
+            Открыли запись на новогодние капучино-сеты! Бронируйте столик — вечером мест уже не
+            будет.
           </Text>
 
           <Center
@@ -79,7 +80,7 @@ export function CrosspostingSection() {
               <Text ml="auto" fz={12} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                 Опубликовано · {PUBLISHED_TIMES[index]}
               </Text>
-              <ThemeIcon color="teal" radius={999} size={18} variant="filled">
+              <ThemeIcon color="teal" radius="pill" size={18} variant="filled">
                 <IconCheck size={11} stroke={3} />
               </ThemeIcon>
             </Group>

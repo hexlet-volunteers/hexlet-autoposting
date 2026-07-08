@@ -19,7 +19,12 @@ export function ConfirmDeleteButton({
   const [opened, { open, close }] = useDisclosure(false)
 
   return (
-    <Popover opened={opened} onChange={(o) => (o ? open() : close())} withArrow position="bottom-end">
+    <Popover
+      opened={opened}
+      onChange={(o) => (o ? open() : close())}
+      withArrow
+      position="bottom-end"
+    >
       <Popover.Target>
         <Tooltip label={tooltip}>
           <ActionIcon color="red" variant="subtle" onClick={open} aria-label={tooltip}>

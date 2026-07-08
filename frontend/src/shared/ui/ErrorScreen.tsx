@@ -18,12 +18,7 @@ interface ErrorScreenProps {
  */
 export function ErrorScreen({ code, title, description, action }: ErrorScreenProps) {
   return (
-    <Container
-      size="md"
-      mih="100vh"
-      py={64}
-      style={{ display: 'flex', flexDirection: 'column' }}
-    >
+    <Container size="md" mih="100vh" py={64} style={{ display: 'flex', flexDirection: 'column' }}>
       <Group justify="center">
         <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           <Logo />

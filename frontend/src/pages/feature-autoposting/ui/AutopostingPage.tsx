@@ -12,11 +12,7 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core'
-import {
-  IconCalendarEvent,
-  IconClockHour4,
-  IconRefresh,
-} from '@tabler/icons-react'
+import { IconCalendarEvent, IconClockHour4, IconRefresh } from '@tabler/icons-react'
 import type { Icon } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
@@ -35,20 +31,17 @@ const FEATURES: FeatureCard[] = [
   {
     icon: IconCalendarEvent,
     title: 'Календарь наперёд',
-    description:
-      'Неделя, месяц или год — расставьте посты заранее и меняйте план перетаскиванием.',
+    description: 'Неделя, месяц или год — расставьте посты заранее и меняйте план перетаскиванием.',
   },
   {
     icon: IconRefresh,
     title: 'Автоповторы',
-    description:
-      'Вечнозелёные посты выходят снова сами — раз в неделю или месяц, как настроите.',
+    description: 'Вечнозелёные посты выходят снова сами — раз в неделю или месяц, как настроите.',
   },
   {
     icon: IconClockHour4,
     title: 'Лучшее время',
-    description:
-      'Подскажем, когда ваша аудитория онлайн, — по статистике прошлых публикаций.',
+    description: 'Подскажем, когда ваша аудитория онлайн, — по статистике прошлых публикаций.',
   },
 ]
 
@@ -128,7 +121,10 @@ export function AutopostingPage() {
           >
             Возможности
           </Text>{' '}
-          / <Text component="span" fw={600} c="#17150F">Автопостинг</Text>
+          /{' '}
+          <Text component="span" fw={600} c="#17150F">
+            Автопостинг
+          </Text>
         </Text>
       </Container>
 
@@ -157,27 +153,18 @@ export function AutopostingPage() {
                 style={{ letterSpacing: '-.7px', textWrap: 'balance' }}
               >
                 Посты выходят по расписанию —{' '}
-                <Box
-                  component="span"
-                  px={8}
-                  style={{ background: '#FFD84D', borderRadius: 8 }}
-                >
+                <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                   без вас
                 </Box>
               </Title>
 
               <Text mt={16} fz={{ base: 15.5, sm: 16 }} lh={1.55} c="rgba(23,21,15,.7)">
-                Соберите очередь публикаций на неделю или месяц вперёд. Отложка выпустит всё
-                точно в срок и пришлёт отчёт в Telegram — а вы займётесь делом.
+                Соберите очередь публикаций на неделю или месяц вперёд. Отложка выпустит всё точно в
+                срок и пришлёт отчёт в Telegram — а вы займётесь делом.
               </Text>
 
               <Group gap={12} mt={24}>
-                <Button
-                  size="md"
-                  radius="md"
-                  color="brand"
-                  onClick={() => open('register')}
-                >
+                <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
                   Попробовать бесплатно
                 </Button>
                 <Button
@@ -205,7 +192,14 @@ export function AutopostingPage() {
                 overflow: 'hidden',
               }}
             >
-              <Group gap={12} align="center" px={18} py={14} wrap="wrap" style={{ borderBottom: `1px solid ${SOFT_BORDER}` }}>
+              <Group
+                gap={12}
+                align="center"
+                px={18}
+                py={14}
+                wrap="wrap"
+                style={{ borderBottom: `1px solid ${SOFT_BORDER}` }}
+              >
                 <Text fz={15} fw={700}>
                   Очередь публикаций
                 </Text>
@@ -264,7 +258,7 @@ export function AutopostingPage() {
                       style={{
                         color: item.statusColor,
                         background: item.statusBg,
-                        borderRadius: 999,
+                        borderRadius: 'var(--mantine-radius-pill)',
                         padding: '4px 10px',
                         flex: 'none',
                         whiteSpace: 'nowrap',
@@ -295,7 +289,10 @@ export function AutopostingPage() {
       </Box>
 
       {/* Что внутри */}
-      <Box component="section" style={{ background: '#fff', borderTop: `1px solid ${SOFT_BORDER}` }}>
+      <Box
+        component="section"
+        style={{ background: '#fff', borderTop: `1px solid ${SOFT_BORDER}` }}
+      >
         <Container size="lg" py={{ base: 48, sm: 64 }}>
           <Title order={2} fz={{ base: 26, sm: 30 }} fw={800} style={{ letterSpacing: '-.5px' }}>
             Что внутри
@@ -359,7 +356,7 @@ export function AutopostingPage() {
                 onClick={() => open('register')}
                 styles={{
                   root: {
-                    background: '#FFD84D',
+                    background: 'var(--mantine-color-accent-5)',
                     color: '#17150F',
                     fontWeight: 700,
                   },

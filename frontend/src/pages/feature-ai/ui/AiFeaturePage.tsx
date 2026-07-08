@@ -12,11 +12,7 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core'
-import {
-  IconCalendarStats,
-  IconPencil,
-  IconSparkles,
-} from '@tabler/icons-react'
+import { IconCalendarStats, IconPencil, IconSparkles } from '@tabler/icons-react'
 import type { Icon } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
@@ -45,12 +41,10 @@ const FEATURES: FeatureItem[] = [
   {
     icon: IconCalendarStats,
     title: 'Идеи и план на месяц',
-    description:
-      'Предложит рубрики и календарь публикаций по вашей нише — останется заполнить.',
+    description: 'Предложит рубрики и календарь публикаций по вашей нише — останется заполнить.',
   },
 ]
 
-const ACCENT = '#FFD84D'
 const DARK = '#17150F'
 const BORDER = 'rgba(23,21,15,.1)'
 
@@ -64,13 +58,7 @@ export function AiFeaturePage() {
       {/* Хлебные крошки */}
       <Container size="lg" pt={24} pb={0}>
         <Text fz={13} c="rgba(23,21,15,.5)">
-          <Anchor
-            component={Link}
-            to="/#features"
-            fz={13}
-            c="rgba(23,21,15,.5)"
-            underline="never"
-          >
+          <Anchor component={Link} to="/#features" fz={13} c="rgba(23,21,15,.5)" underline="never">
             Возможности
           </Anchor>{' '}
           /{' '}
@@ -88,7 +76,7 @@ export function AiFeaturePage() {
               style={{
                 alignSelf: 'flex-start',
                 background: 'rgba(43,80,236,.08)',
-                borderRadius: 999,
+                borderRadius: 'var(--mantine-radius-pill)',
                 padding: '6px 12px',
               }}
             >
@@ -106,28 +94,19 @@ export function AiFeaturePage() {
               style={{ letterSpacing: '-0.5px', textWrap: 'balance' }}
             >
               ИИ{' '}
-              <Box
-                component="span"
-                px={8}
-                style={{ background: ACCENT, borderRadius: 8 }}
-              >
+              <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                 пишет
               </Box>{' '}
               — вы публикуете
             </Title>
 
             <Text mt={16} fz={{ base: 15.5, sm: 16 }} lh={1.55} c="rgba(23,21,15,.7)">
-              Пост по теме, по фото или по прошлым публикациям — в вашем тоне. Отредактируйте
-              пару слов и отправьте в отложку. Идеи больше не заканчиваются.
+              Пост по теме, по фото или по прошлым публикациям — в вашем тоне. Отредактируйте пару
+              слов и отправьте в отложку. Идеи больше не заканчиваются.
             </Text>
 
             <Group gap={12} mt={26} wrap="wrap">
-              <Button
-                size="md"
-                radius="md"
-                color="brand"
-                onClick={() => open('register')}
-              >
+              <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
                 Попробовать бесплатно
               </Button>
               <Button
@@ -154,7 +133,13 @@ export function AiFeaturePage() {
 
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" mt={28}>
             {FEATURES.map((feature) => (
-              <Card key={feature.title} withBorder radius="lg" p="lg" style={{ borderColor: BORDER }}>
+              <Card
+                key={feature.title}
+                withBorder
+                radius="lg"
+                p="lg"
+                style={{ borderColor: BORDER }}
+              >
                 <Stack gap={10}>
                   <ThemeIcon variant="light" color="brand" size={44} radius="md">
                     <feature.icon size={24} stroke={1.8} />
@@ -175,7 +160,10 @@ export function AiFeaturePage() {
       {/* Финальный CTA-баннер */}
       <Box component="section" py={{ base: 40, sm: 56 }}>
         <Container size="lg">
-          <Box p={{ base: 28, sm: 40 }} style={{ background: DARK, borderRadius: 20, color: '#F6F4EF' }}>
+          <Box
+            p={{ base: 28, sm: 40 }}
+            style={{ background: DARK, borderRadius: 20, color: '#F6F4EF' }}
+          >
             <Group justify="space-between" align="center" gap={24} wrap="wrap">
               <Stack gap={8} maw={620}>
                 <Text
@@ -198,7 +186,7 @@ export function AiFeaturePage() {
                 onClick={() => open('register')}
                 styles={{
                   root: {
-                    background: ACCENT,
+                    background: 'var(--mantine-color-accent-5)',
                     color: DARK,
                     fontWeight: 700,
                   },

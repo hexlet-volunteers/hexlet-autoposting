@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Box, Button, Group, Select, Stack, Table, Text, Title } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconDownload } from '@tabler/icons-react'
-import { NETWORKS } from '@/shared/config/networks'
-import type { Network } from '@/shared/config/networks'
+import { NETWORKS } from '@/shared/config'
+import type { Network } from '@/shared/config'
 import { EmptyState, NetworkPill } from '@/shared/ui'
 import { useReport } from '@/entities/report'
 import type { ReportRow } from '@/entities/report'
@@ -54,11 +54,7 @@ export function ReportsPage() {
     <Stack gap="lg">
       <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
         <Title order={2}>Отчёты</Title>
-        <Button
-          variant="default"
-          leftSection={<IconDownload size={16} />}
-          onClick={handleDownload}
-        >
+        <Button variant="default" leftSection={<IconDownload size={16} />} onClick={handleDownload}>
           Скачать отчёт
         </Button>
       </Group>
@@ -133,8 +129,7 @@ export function ReportsPage() {
       )}
 
       <Text size="sm" c="dimmed">
-        Отчёт уходит в Telegram каждое воскресенье в 20:00 — настроить можно в разделе
-        «Настройки».
+        Отчёт уходит в Telegram каждое воскресенье в 20:00 — настроить можно в разделе «Настройки».
       </Text>
     </Stack>
   )

@@ -36,7 +36,7 @@ export function NetworkPill({ network, variant = 'pill' }: NetworkPillProps) {
       wrap="nowrap"
       style={{
         padding: '6px 12px 6px 6px',
-        borderRadius: 999,
+        borderRadius: 'var(--mantine-radius-pill)',
         border: `1px solid ${network.color}59`,
         background: `${network.color}14`,
       }}

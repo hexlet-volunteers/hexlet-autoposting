@@ -11,11 +11,7 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core'
-import {
-  IconLayoutGrid,
-  IconLink,
-  IconChecks,
-} from '@tabler/icons-react'
+import { IconLayoutGrid, IconLink, IconChecks } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
@@ -38,8 +34,7 @@ const CAPABILITIES: Capability[] = [
   {
     icon: IconLink,
     title: 'UTM-метки под каждую сеть',
-    description:
-      'Ссылки помечаются автоматически — увидите, какая площадка приводит клиентов.',
+    description: 'Ссылки помечаются автоматически — увидите, какая площадка приводит клиентов.',
   },
   {
     icon: IconChecks,
@@ -61,13 +56,7 @@ export function CrosspostingPage() {
         {/* Хлебные крошки */}
         <Container size="lg" pt={{ base: 20, sm: 24 }}>
           <Text fz={13} c="dimmed">
-            <Anchor
-              component={Link}
-              to="/#features"
-              c="dimmed"
-              underline="never"
-              inherit
-            >
+            <Anchor component={Link} to="/#features" c="dimmed" underline="never" inherit>
               Возможности
             </Anchor>{' '}
             /{' '}
@@ -87,7 +76,7 @@ export function CrosspostingPage() {
                   alignSelf: 'flex-start',
                   background: 'rgba(43,80,236,.08)',
                   color: '#2B50EC',
-                  borderRadius: 999,
+                  borderRadius: 'var(--mantine-radius-pill)',
                   padding: '6px 12px',
                   fontSize: 12,
                   fontWeight: 700,
@@ -109,7 +98,7 @@ export function CrosspostingPage() {
                   component="span"
                   inherit
                   style={{
-                    background: '#FFD84D',
+                    background: 'var(--mantine-color-accent-5)',
                     padding: '0 8px',
                     borderRadius: 8,
                   }}
@@ -120,26 +109,15 @@ export function CrosspostingPage() {
               </Text>
 
               <Text mt={16} fz={16} lh={1.55} c="rgba(23,21,15,.7)">
-                Напишите текст один раз. Отложка сама адаптирует его под каждую
-                сеть: лимиты символов, форматы, заголовки, кнопки и UTM-метки.
+                Напишите текст один раз. Отложка сама адаптирует его под каждую сеть: лимиты
+                символов, форматы, заголовки, кнопки и UTM-метки.
               </Text>
 
               <Group mt={24} gap={12}>
-                <Button
-                  size="md"
-                  radius="md"
-                  color="brand"
-                  onClick={() => open('register')}
-                >
+                <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
                   Попробовать бесплатно
                 </Button>
-                <Button
-                  component={Link}
-                  to="/#features"
-                  size="md"
-                  radius="md"
-                  variant="default"
-                >
+                <Button component={Link} to="/#features" size="md" radius="md" variant="default">
                   Все возможности
                 </Button>
               </Group>
@@ -215,7 +193,7 @@ export function CrosspostingPage() {
                   onClick={() => open('register')}
                   styles={{
                     root: {
-                      background: '#FFD84D',
+                      background: 'var(--mantine-color-accent-5)',
                       color: '#17150F',
                       fontWeight: 700,
                     },
