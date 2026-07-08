@@ -1,42 +1,31 @@
 import { useRef, useState } from 'react'
 import {
-  Badge,
   Box,
   Button,
   Card,
   Container,
   Group,
   Modal,
-  SimpleGrid,
   Stack,
   Text,
-  ThemeIcon,
   Title,
   UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { IconPhoto, IconUpload, IconVideo } from '@tabler/icons-react'
-import { useMedia } from '@/entities/media'
+import { IconUpload } from '@tabler/icons-react'
+import { useMedia, MediaThumb } from '@/entities/media'
 import type { Media } from '@/entities/media'
+import { MediaGallery, MediaGallerySkeleton } from '@/widgets/media-gallery'
 import { EmptyState, QueryState, ConfirmDeleteButton } from '@/shared/ui'
 import { formatDateTime } from '@/shared/lib'
 
 const PLACEHOLDER_BG = '#F6F4EF'
 const DASHED_BORDER = '1.5px dashed rgba(23,21,15,.2)'
 
-/** Иконка-заглушка миниатюры по типу медиа. */
-function MediaThumb({ kind, size = 34 }: { kind: Media['kind']; size?: number }) {
-  const Icon = kind === 'video' ? IconVideo : IconPhoto
-  return (
-    <ThemeIcon variant="light" color="brand" size={size + 22} radius="md">
-      <Icon size={size} stroke={1.6} />
-    </ThemeIcon>
-  )
-}
-
 export function MediaPage() {
-  const { data: media, isLoading, error } = useMedia()
+  const { data, isLoading, error } = useMedia()
+  const media = data ?? []
 
   const [uploadOpened, upload] = useDisclosure(false)
   const [selected, setSelected] = useState<Media | null>(null)
@@ -58,90 +47,47 @@ export function MediaPage() {
 
   return (
     <Container size="lg" px={0}>
-      <Group align="center" gap={14} wrap="wrap" mb="lg">
-        <Title order={1} fz={{ base: 22, sm: 24 }} fw={800} style={{ letterSpacing: '-.4px' }}>
-          Медиатека
-        </Title>
-        <Box style={{ flex: 1 }} />
-        <Button
-          color="brand"
-          radius="md"
-          leftSection={<IconUpload size={17} />}
-          onClick={upload.open}
-        >
-          Загрузить
-        </Button>
-      </Group>
+      {/* Карточка медиатеки по макету: белый фон, бордер, radius 16, padding 18 */}
+      <Card withBorder radius={16} p={18} style={{ borderColor: 'rgba(23,21,15,.1)' }}>
+        <Group align="center" gap={10} wrap="wrap" mb="md">
+          <Title order={1} fz={14.5} fw={700}>
+            Фото и видео проекта
+          </Title>
+          <Box style={{ flex: 1 }} />
+          <Button
+            color="brand"
+            radius="md"
+            leftSection={<IconUpload size={17} />}
+            onClick={upload.open}
+          >
+            Загрузить
+          </Button>
+        </Group>
 
-      <QueryState isLoading={isLoading} error={error}>
-        {media.length === 0 ? (
-          <EmptyState
-            title="В медиатеке пусто"
-            description="Загрузите фото и видео, чтобы прикреплять их к постам."
-            action={
-              <Button
-                color="brand"
-                radius="md"
-                leftSection={<IconUpload size={17} />}
-                onClick={upload.open}
-              >
-                Загрузить
-              </Button>
-            }
-          />
-        ) : (
-          <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
-            {media.map((item) => (
-              <Card
-                key={item.id}
-                withBorder
-                radius="lg"
-                p="sm"
-                role="button"
-                tabIndex={0}
-                onClick={() => setSelected(item)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    setSelected(item)
-                  }
-                }}
-                style={{ borderColor: 'rgba(23,21,15,.1)', cursor: 'pointer' }}
-              >
-                <Box
-                  mb="sm"
-                  style={{
-                    aspectRatio: '4 / 3',
-                    borderRadius: 10,
-                    background: PLACEHOLDER_BG,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+        {/* Скелетоны сетки показываем сами, поэтому isLoading в QueryState не передаём */}
+        <QueryState isLoading={false} error={error}>
+          {isLoading ? (
+            <MediaGallerySkeleton />
+          ) : media.length === 0 ? (
+            <EmptyState
+              title="В медиатеке пусто"
+              description="Загрузите фото и видео, чтобы прикреплять их к постам."
+              action={
+                <Button
+                  color="brand"
+                  radius="md"
+                  leftSection={<IconUpload size={17} />}
+                  onClick={upload.open}
                 >
-                  <MediaThumb kind={item.kind} />
-                </Box>
-                <Text fz={13.5} fw={600} lineClamp={1} title={item.name}>
-                  {item.name}
-                </Text>
-                <Group gap={6} mt={4} justify="space-between" wrap="nowrap">
-                  <Text fz={12} c="dimmed">
-                    {item.sizeLabel}
-                  </Text>
-                  <Badge
-                    size="sm"
-                    variant="light"
-                    color={item.kind === 'video' ? 'grape' : 'brand'}
-                    styles={{ root: { textTransform: 'none', fontWeight: 600 } }}
-                  >
-                    {item.kind === 'video' ? 'Видео' : 'Фото'}
-                  </Badge>
-                </Group>
-              </Card>
-            ))}
-          </SimpleGrid>
-        )}
-      </QueryState>
+                  Загрузить
+                </Button>
+              }
+            />
+          ) : (
+            <MediaGallery media={media} onSelect={setSelected} onAdd={upload.open} />
+          )}
+        </QueryState>
+      </Card>
 
       {/* ===== Загрузка в медиатеку ===== */}
       <Modal

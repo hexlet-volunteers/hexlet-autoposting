@@ -1,3 +1,5 @@
 export { useMedia, mediaKeys } from './api/mediaApi'
 export { MEDIA_MOCK } from './model/mock'
+export { MediaTile } from './ui/MediaTile'
+export { MediaThumb } from './ui/MediaThumb'
 export type { Media } from './model/types'

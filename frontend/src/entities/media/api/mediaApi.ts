@@ -7,15 +7,18 @@ export const mediaKeys = {
 }
 
 /**
- * Медиатека проекта. Пока отдаём мок синхронно через initialData,
- * чтобы сетка была готова на первом рендере.
+ * Медиатека проекта. Мок отдаётся с короткой задержкой, чтобы при переходе
+ * на страницу состояние isLoading было видно скелетонами сетки.
  * TODO (Design First, backlog): заменить queryFn на GET /media (oapi-codegen хук).
  */
 export function useMedia() {
   return useQuery({
     queryKey: mediaKeys.all,
-    queryFn: async (): Promise<Media[]> => MEDIA_MOCK,
-    initialData: MEDIA_MOCK,
+    queryFn: async (): Promise<Media[]> => {
+      // Эмуляция сетевой задержки, пока нет реального API.
+      await new Promise((resolve) => setTimeout(resolve, 400))
+      return MEDIA_MOCK
+    },
     staleTime: Infinity,
   })
 }
