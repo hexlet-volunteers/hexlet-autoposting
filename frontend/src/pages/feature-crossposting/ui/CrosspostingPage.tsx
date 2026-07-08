@@ -50,7 +50,7 @@ export function CrosspostingPage() {
 
   return (
     <>
-      <MarketingHeader />
+      <MarketingHeader active="features" />
 
       <Box component="main">
         {/* Хлебные крошки */}
