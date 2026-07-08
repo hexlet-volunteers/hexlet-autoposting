@@ -5,6 +5,7 @@ import {
   Card,
   Container,
   Group,
+  Image,
   Modal,
   Stack,
   Text,
@@ -14,14 +15,23 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconUpload } from '@tabler/icons-react'
-import { useMedia, MediaThumb } from '@/entities/media'
+import {
+  useMedia,
+  useDeleteMediaMutation,
+  PlayOverlay,
+  formatDateShort,
+  getMediaTypeLabel,
+  MEDIA_PREVIEW_FALLBACK,
+} from '@/entities/media'
 import type { Media } from '@/entities/media'
 import { MediaGallery, MediaGallerySkeleton } from '@/widgets/media-gallery'
-import { EmptyState, QueryState, ConfirmDeleteButton } from '@/shared/ui'
-import { formatDateTime } from '@/shared/lib'
+import { EmptyState, QueryState } from '@/shared/ui'
+import classes from './MediaPage.module.css'
 
 const PLACEHOLDER_BG = '#F6F4EF'
 const DASHED_BORDER = '1.5px dashed rgba(23,21,15,.2)'
+// Красный удаления из макета (кнопка «Удалить» в предпросмотре).
+const DANGER_COLOR = '#C4352D'
 
 export function MediaPage() {
   const { data, isLoading, error } = useMedia()
@@ -29,7 +39,11 @@ export function MediaPage() {
 
   const [uploadOpened, upload] = useDisclosure(false)
   const [selected, setSelected] = useState<Media | null>(null)
+  // Подтверждение удаления (действие необратимо) — отдельная маленькая модалка.
+  const [confirmOpened, confirm] = useDisclosure(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const deleteMedia = useDeleteMediaMutation()
 
   // Загрузка — заглушка: реальная отправка появится с Design First.
   const handleUpload = () => {
@@ -38,12 +52,24 @@ export function MediaPage() {
     upload.close()
   }
 
-  // Удаление — заглушка.
-  const handleDelete = () => {
-    // TODO (Design First, backlog): DELETE /media/{id} + инвалидация mediaKeys.all.
-    notifications.show({ color: 'green', message: 'Медиа удалено (демо)' })
-    setSelected(null)
+  // Удаление после подтверждения: мок-мутация правит кэш, плитка исчезает из сетки сразу.
+  const handleConfirmDelete = () => {
+    if (!selected) return
+    deleteMedia.mutate(selected.id, {
+      onSuccess: () => {
+        notifications.show({ color: 'green', message: 'Медиа удалено (демо)' })
+        confirm.close()
+        setSelected(null)
+      },
+    })
   }
+
+  // Строка метаданных по макету: «ТИП · РАЗМЕР · загружено ДАТА».
+  const mediaMeta = selected
+    ? `${getMediaTypeLabel(selected)} · ${selected.sizeLabel} · загружено ${formatDateShort(
+        selected.uploadedAt,
+      )}`
+    : ''
 
   return (
     <Container size="lg" px={0}>
@@ -137,7 +163,7 @@ export function MediaPage() {
         title={selected?.name}
         radius="lg"
         centered
-        size="lg"
+        size={520}
         styles={{
           title: {
             fontWeight: 800,
@@ -149,73 +175,71 @@ export function MediaPage() {
         }}
       >
         {selected ? (
-          <Stack gap="md">
+          <Stack gap={12}>
+            {/* Метаданные одной строкой по макету: «ТИП · РАЗМЕР · загружено ДАТА» */}
+            <Text fz={12} c="dimmed">
+              {mediaMeta}
+            </Text>
+
             <Box
               style={{
+                position: 'relative',
                 aspectRatio: '16 / 10',
                 border: DASHED_BORDER,
                 borderRadius: 12,
                 background: PLACEHOLDER_BG,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 9,
-                alignItems: 'center',
-                justifyContent: 'center',
+                overflow: 'hidden',
               }}
             >
-              <MediaThumb kind={selected.kind} size={30} />
-              <Text fz={12.5} c="dimmed">
-                предпросмотр · {selected.name}
-              </Text>
+              {/* Реальное превью по url; при пустом/битом url — аккуратный fallback */}
+              <Image
+                src={selected.url}
+                fallbackSrc={MEDIA_PREVIEW_FALLBACK}
+                fit="contain"
+                w="100%"
+                h="100%"
+                alt={selected.name}
+              />
+              {/* Для видео — круглая иконка play по центру превью, у фото её нет */}
+              {selected.kind === 'video' ? <PlayOverlay /> : null}
             </Box>
 
-            <Stack gap={6}>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Имя
-                </Text>
-                <Text fz={13} fw={600} lineClamp={1}>
-                  {selected.name}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Тип
-                </Text>
-                <Text fz={13} fw={600}>
-                  {selected.kind === 'video' ? 'Видео' : 'Фото'}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Размер
-                </Text>
-                <Text fz={13} fw={600}>
-                  {selected.sizeLabel}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Дата
-                </Text>
-                <Text fz={13} fw={600}>
-                  {formatDateTime(selected.uploadedAt)}
-                </Text>
-              </Group>
-            </Stack>
-
-            <Group justify="space-between" mt="xs">
-              <ConfirmDeleteButton
-                onConfirm={handleDelete}
-                tooltip="Удалить медиа"
-                confirmText="Удалить медиа безвозвратно?"
-              />
-              <Button variant="default" radius="md" onClick={() => setSelected(null)}>
+            <Group justify="space-between" mt={4}>
+              <Button variant="outline" color={DANGER_COLOR} radius="md" onClick={confirm.open}>
+                Удалить
+              </Button>
+              <Button radius="md" className={classes.closeButton} onClick={() => setSelected(null)}>
                 Закрыть
               </Button>
             </Group>
           </Stack>
         ) : null}
+      </Modal>
+
+      {/* ===== Подтверждение удаления ===== */}
+      <Modal
+        opened={confirmOpened}
+        onClose={confirm.close}
+        title="Удалить медиа?"
+        radius="lg"
+        centered
+        size="sm"
+        styles={{ title: { fontWeight: 800, fontSize: 15 } }}
+      >
+        <Text fz={13.5}>Файл «{selected?.name}» будет удалён из медиатеки безвозвратно.</Text>
+        <Group justify="flex-end" mt="md">
+          <Button variant="default" radius="md" onClick={confirm.close}>
+            Отмена
+          </Button>
+          <Button
+            color={DANGER_COLOR}
+            radius="md"
+            loading={deleteMedia.isPending}
+            onClick={handleConfirmDelete}
+          >
+            Удалить
+          </Button>
+        </Group>
       </Modal>
     </Container>
   )

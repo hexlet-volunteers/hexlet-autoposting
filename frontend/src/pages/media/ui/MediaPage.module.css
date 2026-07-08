@@ -1,0 +1,10 @@
+/*
+ * Кнопка «Закрыть» предпросмотра по макету app-dashboard.html:
+ * тёмная filled (#17150F), при наведении — фирменный синий.
+ * Переопределяем CSS-переменные Button, поэтому variant/color не передаём.
+ */
+.closeButton {
+  --button-bg: #17150f;
+  --button-color: var(--mantine-color-white);
+  --button-hover: var(--mantine-color-brand-6);
+}
