@@ -25,8 +25,11 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
+import { useSubscription, useQuota } from '@/entities/subscription'
 import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
 import { CreateProjectModal } from '@/features/create-project'
@@ -130,9 +133,19 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
 
 function PlanWidget() {
   const { openUpgrade } = useAppModals()
-  // Тариф пока из заглушки; на «Старте» предлагаем улучшение, на остальных — смену
-  const plan: string = 'Бесплатный'
-  const upgradeLabel = plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
+  const { data: subscription } = useSubscription()
+  const { used, limit, exhausted } = useQuota('ai')
+
+  // Безлимитный тариф: показываем «безлимит» без счётчика и прогресс-бара
+  const unlimited = !Number.isFinite(limit)
+  const percent = unlimited ? 0 : Math.min(100, Math.round((used / limit) * 100))
+  // Подсветка: с ~80% — предупреждение, при исчерпании — цвет ошибки
+  const nearLimit = !unlimited && !exhausted && percent >= 80
+  const quotaColor = exhausted ? 'red' : nearLimit ? 'orange' : 'brand'
+  // На «Старте» предлагаем улучшение, на остальных тарифах — смену
+  const upgradeLabel = subscription.plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
+  const renewsLabel = `до ${dayjs(subscription.renewsAt).locale('ru').format('D MMM').replace('.', '')}`
+
   return (
     <Box
       p="sm"
@@ -144,17 +157,35 @@ function PlanWidget() {
     >
       <Group justify="space-between" mb={4}>
         <Text fw={700} fz={13}>
-          {plan}
+          {subscription.plan}
         </Text>
         <Text fz={11} c="dimmed">
-          до 12 дек
+          {renewsLabel}
         </Text>
       </Group>
-      <Text fz={11} c="dimmed" mb={4}>
-        ИИ-тексты: 5 / 50
-      </Text>
-      <Progress value={10} size="sm" color="brand" mb="sm" />
-      <Button size="xs" variant="light" fullWidth onClick={openUpgrade}>
+      {unlimited ? (
+        <Text fz={11} c="dimmed" mb="xs">
+          ИИ-тексты: безлимит
+        </Text>
+      ) : (
+        <>
+          <Text fz={11} c={exhausted ? 'red.7' : nearLimit ? 'orange.8' : 'dimmed'} mb={4}>
+            ИИ-тексты: {used} / {limit}
+          </Text>
+          <Progress value={percent} size="sm" color={quotaColor} mb="sm" />
+          {exhausted && (
+            <Text fz={11} c="red.7" mb="xs">
+              Лимит на период исчерпан — поднимите его апгрейдом тарифа
+            </Text>
+          )}
+        </>
+      )}
+      <Button
+        size="xs"
+        variant={exhausted || nearLimit ? 'filled' : 'light'}
+        fullWidth
+        onClick={openUpgrade}
+      >
         {upgradeLabel} →
       </Button>
     </Box>
