@@ -97,6 +97,9 @@ export function MarketingFooter() {
             <Anchor component={Link} to="/legal#privacy" c="dimmed" fz={13} underline="never">
               Политика конфиденциальности
             </Anchor>
+            <Anchor component={Link} to="/app" c="dimmed" fz={13} underline="never">
+              Личный кабинет
+            </Anchor>
           </Group>
         </Group>
       </Container>

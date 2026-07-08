@@ -108,7 +108,7 @@ export function AutopostingPage() {
 
   return (
     <Box style={{ background: '#F6F4EF', color: '#17150F' }}>
-      <MarketingHeader />
+      <MarketingHeader active="features" />
 
       {/* Хлебные крошки */}
       <Container size="lg" pt={{ base: 20, sm: 28 }}>
@@ -153,7 +153,11 @@ export function AutopostingPage() {
                 style={{ letterSpacing: '-.7px', textWrap: 'balance' }}
               >
                 Посты выходят по расписанию —{' '}
-                <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
+                <Box
+                  component="span"
+                  px={8}
+                  style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}
+                >
                   без вас
                 </Box>
               </Title>

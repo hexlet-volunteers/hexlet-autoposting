@@ -159,7 +159,7 @@ export function PricingPage() {
 
   return (
     <Box style={{ background: '#F6F4EF', color: INK }}>
-      <MarketingHeader />
+      <MarketingHeader active="pricing" />
 
       {/* Hero: заголовок, подзаголовок и переключатель периода */}
       <Box component="section">

@@ -53,7 +53,7 @@ export function AiFeaturePage() {
 
   return (
     <Box>
-      <MarketingHeader />
+      <MarketingHeader active="features" />
 
       {/* Хлебные крошки */}
       <Container size="lg" pt={24} pb={0}>
@@ -94,7 +94,11 @@ export function AiFeaturePage() {
               style={{ letterSpacing: '-0.5px', textWrap: 'balance' }}
             >
               ИИ{' '}
-              <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
+              <Box
+                component="span"
+                px={8}
+                style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}
+              >
                 пишет
               </Box>{' '}
               — вы публикуете
