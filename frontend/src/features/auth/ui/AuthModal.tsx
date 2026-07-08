@@ -13,7 +13,7 @@ const COPY: Record<AuthMode, { title: string; subtitle: string }> = {
   },
   register: {
     title: 'Создайте аккаунт',
-    subtitle: 'Бесплатный тариф навсегда. Карта не нужна.',
+    subtitle: 'Бесплатный тариф навсегда: 3 соцсети и 10 постов в месяц. Карта не нужна.',
   },
   reset: {
     title: 'Восстановим пароль',
@@ -41,16 +41,19 @@ export function AuthModal() {
       title={null}
     >
       <Stack gap="xs">
-        <SegmentedControl
-          fullWidth
-          color="dark"
-          value={mode === 'register' ? 'register' : 'login'}
-          onChange={(v) => setMode(v as AuthMode)}
-          data={[
-            { label: 'Вход', value: 'login' },
-            { label: 'Регистрация', value: 'register' },
-          ]}
-        />
+        {/* Вкладки — только в режимах входа/регистрации: в режиме сброса их нет (как в макете) */}
+        {isAuth && (
+          <SegmentedControl
+            fullWidth
+            color="dark"
+            value={mode === 'register' ? 'register' : 'login'}
+            onChange={(v) => setMode(v as AuthMode)}
+            data={[
+              { label: 'Вход', value: 'login' },
+              { label: 'Регистрация', value: 'register' },
+            ]}
+          />
+        )}
 
         <div>
           <Title order={3} fz={18} fw={800}>
