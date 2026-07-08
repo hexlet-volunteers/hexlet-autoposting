@@ -153,7 +153,7 @@ export function AutopostingPage() {
                 style={{ letterSpacing: '-.7px', textWrap: 'balance' }}
               >
                 Посты выходят по расписанию —{' '}
-                <Box component="span" px={8} style={{ background: '#FFD84D', borderRadius: 8 }}>
+                <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                   без вас
                 </Box>
               </Title>
@@ -258,7 +258,7 @@ export function AutopostingPage() {
                       style={{
                         color: item.statusColor,
                         background: item.statusBg,
-                        borderRadius: 999,
+                        borderRadius: 'var(--mantine-radius-pill)',
                         padding: '4px 10px',
                         flex: 'none',
                         whiteSpace: 'nowrap',
@@ -356,7 +356,7 @@ export function AutopostingPage() {
                 onClick={() => open('register')}
                 styles={{
                   root: {
-                    background: '#FFD84D',
+                    background: 'var(--mantine-color-accent-5)',
                     color: '#17150F',
                     fontWeight: 700,
                   },

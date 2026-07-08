@@ -24,7 +24,7 @@ export function CrosspostingSection() {
             <Center
               w={36}
               h={36}
-              style={{ borderRadius: 999, background: '#FFD84D', fontWeight: 800, fontSize: 15 }}
+              style={{ borderRadius: 'var(--mantine-radius-pill)', background: 'var(--mantine-color-accent-5)', fontWeight: 800, fontSize: 15 }}
             >
               М
             </Center>
@@ -80,7 +80,7 @@ export function CrosspostingSection() {
               <Text ml="auto" fz={12} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                 Опубликовано · {PUBLISHED_TIMES[index]}
               </Text>
-              <ThemeIcon color="teal" radius={999} size={18} variant="filled">
+              <ThemeIcon color="teal" radius="pill" size={18} variant="filled">
                 <IconCheck size={11} stroke={3} />
               </ThemeIcon>
             </Group>

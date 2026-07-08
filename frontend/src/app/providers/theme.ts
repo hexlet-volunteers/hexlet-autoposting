@@ -32,11 +32,30 @@ const accent: MantineColorsTuple = [
   '#7d6100',
 ]
 
+// Семантический зелёный «успех/да» вокруг #22A06B (index 6).
+// Не путать с произвольными аватарными цветами проектов/авторов — те не токен.
+const success: MantineColorsTuple = [
+  '#e7f8ef',
+  '#d0f0e0',
+  '#a3e2c2',
+  '#71d3a2',
+  '#48c688',
+  '#2fb877',
+  '#22a06b', // success
+  '#178f5c',
+  '#0c7f50',
+  '#006e42',
+]
+
 export const theme = createTheme({
   primaryColor: 'brand',
   primaryShade: 6,
-  colors: { brand, accent },
+  colors: { brand, accent, success },
   defaultRadius: 'md',
+  // Шкала отступов макета: ритм 8px (см. docs/design/mockups/landing-home.html).
+  spacing: { xs: '8px', sm: '12px', md: '16px', lg: '20px', xl: '32px' },
+  // Радиус «пилюль» (NetworkPill, чипы демо-секций): radius="pill" / var(--mantine-radius-pill).
+  radius: { pill: '999px' },
   fontFamily: "'Golos Text Variable', 'Golos Text', system-ui, sans-serif",
   headings: { fontFamily: "'Golos Text Variable', 'Golos Text', system-ui, sans-serif" },
 })

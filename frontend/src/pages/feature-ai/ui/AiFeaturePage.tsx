@@ -45,7 +45,6 @@ const FEATURES: FeatureItem[] = [
   },
 ]
 
-const ACCENT = '#FFD84D'
 const DARK = '#17150F'
 const BORDER = 'rgba(23,21,15,.1)'
 
@@ -77,7 +76,7 @@ export function AiFeaturePage() {
               style={{
                 alignSelf: 'flex-start',
                 background: 'rgba(43,80,236,.08)',
-                borderRadius: 999,
+                borderRadius: 'var(--mantine-radius-pill)',
                 padding: '6px 12px',
               }}
             >
@@ -95,7 +94,7 @@ export function AiFeaturePage() {
               style={{ letterSpacing: '-0.5px', textWrap: 'balance' }}
             >
               ИИ{' '}
-              <Box component="span" px={8} style={{ background: ACCENT, borderRadius: 8 }}>
+              <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                 пишет
               </Box>{' '}
               — вы публикуете
@@ -187,7 +186,7 @@ export function AiFeaturePage() {
                 onClick={() => open('register')}
                 styles={{
                   root: {
-                    background: ACCENT,
+                    background: 'var(--mantine-color-accent-5)',
                     color: DARK,
                     fontWeight: 700,
                   },

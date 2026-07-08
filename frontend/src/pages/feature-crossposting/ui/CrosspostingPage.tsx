@@ -76,7 +76,7 @@ export function CrosspostingPage() {
                   alignSelf: 'flex-start',
                   background: 'rgba(43,80,236,.08)',
                   color: '#2B50EC',
-                  borderRadius: 999,
+                  borderRadius: 'var(--mantine-radius-pill)',
                   padding: '6px 12px',
                   fontSize: 12,
                   fontWeight: 700,
@@ -98,7 +98,7 @@ export function CrosspostingPage() {
                   component="span"
                   inherit
                   style={{
-                    background: '#FFD84D',
+                    background: 'var(--mantine-color-accent-5)',
                     padding: '0 8px',
                     borderRadius: 8,
                   }}
@@ -193,7 +193,7 @@ export function CrosspostingPage() {
                   onClick={() => open('register')}
                   styles={{
                     root: {
-                      background: '#FFD84D',
+                      background: 'var(--mantine-color-accent-5)',
                       color: '#17150F',
                       fontWeight: 700,
                     },

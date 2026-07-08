@@ -115,7 +115,7 @@ export function HeroSection() {
               style={{ letterSpacing: '-.8px', textWrap: 'balance' }}
             >
               Посты выходят{' '}
-              <Box component="span" px={8} style={{ background: '#FFD84D', borderRadius: 8 }}>
+              <Box component="span" px={8} style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}>
                 сами
               </Box>{' '}
               — даже когда вы спите

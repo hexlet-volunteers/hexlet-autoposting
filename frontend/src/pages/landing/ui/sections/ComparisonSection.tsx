@@ -3,13 +3,12 @@ import type { ReactNode } from 'react'
 import { IconCheck } from '@tabler/icons-react'
 import { Section } from '../Section'
 
-const GREEN = '#22A06B'
 const HIGHLIGHT_BG = 'rgba(43, 80, 236, 0.05)'
 
 /** Зелёная галочка для колонки «Отложка». */
 function UsCheck({ label }: { label?: string }) {
   return (
-    <Text component="span" c={GREEN} fw={700} fz="sm" style={{ whiteSpace: 'nowrap' }}>
+    <Text component="span" c="success.6" fw={700} fz="sm" style={{ whiteSpace: 'nowrap' }}>
       <IconCheck size={16} stroke={2.4} style={{ verticalAlign: '-3px' }} />
       {label ? ` ${label}` : ''}
     </Text>
