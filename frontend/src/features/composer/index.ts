@@ -1,1 +1,5 @@
 export { ComposerModal } from './ui/ComposerModal'
+export { useCreatePost } from './api/useCreatePost'
+export { useUpdatePost } from './api/useUpdatePost'
+export { useDeletePost } from './api/useDeletePost'
+export type { PostDraft } from './api/useCreatePost'
