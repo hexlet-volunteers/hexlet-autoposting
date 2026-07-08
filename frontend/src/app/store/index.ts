@@ -3,6 +3,7 @@ import { authModalSlice } from '@/features/auth'
 import { projectSlice } from '@/entities/project'
 import { sessionSlice } from '@/entities/session'
 import { appModalsSlice } from '@/features/app-modals'
+import { calendarFilterSlice } from '@/features/filter-by-platform'
 
 /**
  * Redux Toolkit store — holds ONLY client/UI state (session, filters).
@@ -14,6 +15,7 @@ export const store = configureStore({
     project: projectSlice.reducer,
     session: sessionSlice.reducer,
     appModals: appModalsSlice.reducer,
+    calendarFilter: calendarFilterSlice.reducer,
   },
 })
 

@@ -17,8 +17,10 @@ import dayjs from 'dayjs'
 import { NETWORKS } from '@/shared/config'
 import { NetworkPill } from '@/shared/ui'
 import { useAppModals } from '@/features/app-modals'
+import { useCalendarFilter } from '@/features/filter-by-platform'
 import { useContentPlan } from '@/entities/scheduled-post'
 import type { Post } from '@/entities/scheduled-post'
+import { PlatformChips } from './PlatformChips'
 
 const NETWORK_BY_ID = new Map(NETWORKS.map((n) => [n.id, n]))
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
@@ -36,10 +38,13 @@ export function ContentPlanPage() {
   const [scale, setScale] = useState<'week' | 'month'>('week')
   const { openComposer, openConnectPlatform } = useAppModals()
   const { data: posts } = useContentPlan()
+  const { activeNetworkIds } = useCalendarFilter()
 
   const days = useMemo<DayColumn[]>(() => {
     const weekStart = dayjs().startOf('week').add(1, 'day')
     const today = dayjs()
+    // Фильтр по площадкам: пост виден, если хотя бы одна из его сетей активна
+    const activeSet = new Set(activeNetworkIds)
     return Array.from({ length: 7 }, (_, i) => {
       const d = weekStart.add(i, 'day')
       return {
@@ -48,11 +53,14 @@ export function ContentPlanPage() {
         date: d.format('D MMM'),
         isToday: d.isSame(today, 'day'),
         posts: posts
-          .filter((p) => dayjs(p.scheduledAt).isSame(d, 'day'))
+          .filter(
+            (p) =>
+              dayjs(p.scheduledAt).isSame(d, 'day') && p.networkIds.some((id) => activeSet.has(id)),
+          )
           .sort((a, b) => dayjs(a.scheduledAt).valueOf() - dayjs(b.scheduledAt).valueOf()),
       }
     })
-  }, [posts])
+  }, [posts, activeNetworkIds])
 
   return (
     <Stack gap="lg">
@@ -82,6 +90,8 @@ export function ContentPlanPage() {
           </Button>
         </Group>
       </Group>
+
+      <PlatformChips />
 
       <Box style={{ overflowX: 'auto' }}>
         <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 7 }} spacing="xs" style={{ minWidth: 720 }}>
