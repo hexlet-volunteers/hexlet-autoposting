@@ -1,5 +1,5 @@
 import {
-  ActionIcon,
+  Anchor,
   AppShell,
   Avatar,
   Box,
@@ -11,7 +11,6 @@ import {
   ScrollArea,
   Stack,
   Text,
-  Tooltip,
   UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
@@ -20,7 +19,6 @@ import {
   IconChartBar,
   IconChevronDown,
   IconClockHour4,
-  IconLogout,
   IconPhoto,
   IconPlus,
   IconSettings,
@@ -29,6 +27,7 @@ import {
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
+import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
 import { CreateProjectModal } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
@@ -49,6 +48,8 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   const current = useCurrentProject()
   const active = projects.filter((p) => !p.archived)
   const archived = projects.filter((p) => p.archived)
+  // Порядковый номер текущего проекта среди активных — для подписи «проект N из M»
+  const activeIndex = current ? active.findIndex((p) => p.id === current.id) : -1
 
   const dot = (color: string, letter: string) => (
     <Box
@@ -71,7 +72,7 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   )
 
   return (
-    <Menu width={232} position="bottom-start" shadow="md">
+    <Menu width="target" position="bottom-start" shadow="md">
       <Menu.Target>
         <UnstyledButton
           style={{
@@ -83,9 +84,16 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
         >
           <Group gap={8} wrap="nowrap">
             {current ? dot(current.color, current.letter) : null}
-            <Text fw={600} fz={14} lineClamp={1} style={{ flex: 1 }}>
-              {current?.name ?? 'Проект'}
-            </Text>
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Text fw={600} fz={14} lineClamp={1}>
+                {current?.name ?? 'Проект'}
+              </Text>
+              {activeIndex >= 0 && (
+                <Text fz={11} c="dimmed">
+                  проект {activeIndex + 1} из {active.length}
+                </Text>
+              )}
+            </Box>
             <IconChevronDown size={16} />
           </Group>
         </UnstyledButton>
@@ -122,6 +130,9 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
 
 function PlanWidget() {
   const { openUpgrade } = useAppModals()
+  // Тариф пока из заглушки; на «Старте» предлагаем улучшение, на остальных — смену
+  const plan: string = 'Бесплатный'
+  const upgradeLabel = plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
   return (
     <Box
       p="sm"
@@ -133,7 +144,7 @@ function PlanWidget() {
     >
       <Group justify="space-between" mb={4}>
         <Text fw={700} fz={13}>
-          Бесплатный
+          {plan}
         </Text>
         <Text fz={11} c="dimmed">
           до 12 дек
@@ -144,7 +155,7 @@ function PlanWidget() {
       </Text>
       <Progress value={10} size="sm" color="brand" mb="sm" />
       <Button size="xs" variant="light" fullWidth onClick={openUpgrade}>
-        Улучшить тариф
+        {upgradeLabel} →
       </Button>
     </Box>
   )
@@ -154,10 +165,17 @@ function PlanWidget() {
 export function AppLayout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [newProjectOpened, newProject] = useDisclosure(false)
 
+  const handleLogout = () => {
+    // Мок-сессия: сбрасываем признак входа, чтобы /app/* снова требовал входа.
+    dispatch(logout())
+    navigate('/')
+  }
+
   return (
-    <AppShell navbar={{ width: 264, breakpoint: 'sm' }} padding="md">
+    <AppShell navbar={{ width: 236, breakpoint: 'sm' }} padding="md">
       <AppShell.Navbar p="sm" bg="white">
         <AppShell.Section>
           <Box px={6} py={4}>
@@ -190,25 +208,24 @@ export function AppLayout() {
         <AppShell.Section mt="md">
           <Stack gap="sm">
             <PlanWidget />
-            <Group justify="space-between" wrap="nowrap" px={4}>
-              <Group gap={8} wrap="nowrap">
-                <Avatar color="brand" radius="xl" size={30}>
-                  М
-                </Avatar>
+            <Group gap={8} wrap="nowrap" px={4}>
+              <Avatar color="brand" radius="xl" size={30}>
+                М
+              </Avatar>
+              <Box>
                 <Text fw={600} fz={13} lineClamp={1}>
                   Мария
                 </Text>
-              </Group>
-              <Tooltip label="Выйти">
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  onClick={() => navigate('/')}
-                  aria-label="Выйти"
+                <Anchor
+                  component="button"
+                  type="button"
+                  fz={11.5}
+                  c="dimmed"
+                  onClick={handleLogout}
                 >
-                  <IconLogout size={18} />
-                </ActionIcon>
-              </Tooltip>
+                  Выйти
+                </Anchor>
+              </Box>
             </Group>
           </Stack>
         </AppShell.Section>

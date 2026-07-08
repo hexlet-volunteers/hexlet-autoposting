@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { authModalSlice } from '@/features/auth'
 import { projectSlice } from '@/entities/project'
+import { sessionSlice } from '@/entities/session'
 import { appModalsSlice } from '@/features/app-modals'
 
 /**
@@ -11,6 +12,7 @@ export const store = configureStore({
   reducer: {
     authModal: authModalSlice.reducer,
     project: projectSlice.reducer,
+    session: sessionSlice.reducer,
     appModals: appModalsSlice.reducer,
   },
 })
