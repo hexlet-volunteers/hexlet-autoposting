@@ -32,7 +32,7 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
         <Stack gap="md">
           <TextInput
             label="Название проекта"
-            placeholder="Мой бренд"
+            placeholder="Цветочная «Пион»"
             withAsterisk
             data-autofocus
             {...form.getInputProps('name')}
@@ -43,9 +43,12 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
             </Text>
             <ColorSwatchPicker value={color} onChange={setColor} />
           </div>
-          <Button type="submit" fullWidth mt={4}>
+          <Button type="submit" fullWidth mt={4} disabled={form.values.name.trim().length === 0}>
             Создать проект
           </Button>
+          <Text c="dimmed" fz="xs">
+            Площадки подключите после создания — на вкладке «Календарь».
+          </Text>
         </Stack>
       </form>
     </Modal>

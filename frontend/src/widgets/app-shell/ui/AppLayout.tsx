@@ -17,6 +17,7 @@ import { useDisclosure } from '@mantine/hooks'
 import {
   IconCalendar,
   IconChartBar,
+  IconCheck,
   IconChevronDown,
   IconClockHour4,
   IconPhoto,
@@ -25,14 +26,17 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
 import { useSubscription, useQuota } from '@/entities/subscription'
+import { mediaKeys } from '@/entities/media'
+import { scheduledPostKeys } from '@/entities/scheduled-post'
 import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
-import { CreateProjectModal } from '@/features/create-project'
+import { CreateProjectModal, useRestoreProject } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
 import { AppModals } from './AppModals'
 
@@ -47,6 +51,8 @@ const NAV = [
 
 function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   const dispatch = useDispatch()
+  const queryClient = useQueryClient()
+  const restoreProject = useRestoreProject()
   const { data: projects = [] } = useProjects()
   const current = useCurrentProject()
   const active = projects.filter((p) => !p.archived)
@@ -54,14 +60,22 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   // Порядковый номер текущего проекта среди активных — для подписи «проект N из M»
   const activeIndex = current ? active.findIndex((p) => p.id === current.id) : -1
 
-  const dot = (color: string, letter: string) => (
+  const selectProject = (id: string) => {
+    dispatch(setCurrentProject(id))
+    // Разделы перечитывают мок-данные под новый проект
+    // (ключи с projectId появятся вместе с реальным API — см. #147)
+    queryClient.invalidateQueries({ queryKey: scheduledPostKeys.all })
+    queryClient.invalidateQueries({ queryKey: mediaKeys.all })
+  }
+
+  const dot = (color: string, letter: string, muted = false) => (
     <Box
       style={{
         width: 26,
         height: 26,
         borderRadius: 8,
-        background: color,
-        color: '#fff',
+        background: muted ? 'rgba(23,21,15,0.12)' : color,
+        color: muted ? 'rgba(23,21,15,0.5)' : '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -107,7 +121,12 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
           <Menu.Item
             key={p.id}
             leftSection={dot(p.color, p.letter)}
-            onClick={() => dispatch(setCurrentProject(p.id))}
+            rightSection={
+              p.id === current?.id ? (
+                <IconCheck size={16} color="var(--mantine-color-brand-6)" stroke={2.5} />
+              ) : undefined
+            }
+            onClick={() => selectProject(p.id)}
           >
             {p.name}
           </Menu.Item>
@@ -120,9 +139,21 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
             <Menu.Divider />
             <Menu.Label>Архив</Menu.Label>
             {archived.map((p) => (
-              <Menu.Item key={p.id} leftSection={dot(p.color, p.letter)} disabled>
-                {p.name}
-              </Menu.Item>
+              <Group key={p.id} gap={8} wrap="nowrap" px={10} py={6}>
+                {dot(p.color, p.letter, true)}
+                <Text fz={13} fw={600} c="dimmed" lineClamp={1} style={{ flex: 1 }}>
+                  {p.name}
+                </Text>
+                <Anchor
+                  component="button"
+                  type="button"
+                  fz={11.5}
+                  fw={700}
+                  onClick={() => restoreProject(p.id)}
+                >
+                  Вернуть
+                </Anchor>
+              </Group>
             ))}
           </>
         )}
