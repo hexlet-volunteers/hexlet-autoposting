@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getMediaStore, removeFromMediaStore } from '../model/mock'
+import { mediaFromFile } from '../lib/upload'
+import { addToMediaStore, getMediaStore, removeFromMediaStore } from '../model/mock'
 import type { Media } from '../model/types'
 
 export const mediaKeys = {
@@ -20,6 +21,28 @@ export function useMedia() {
       return getMediaStore()
     },
     staleTime: Infinity,
+  })
+}
+
+/**
+ * «Загрузка» файла на мок-уровне: валидация типа/размера — на стороне дроп-зоны,
+ * здесь файл превращается в элемент медиатеки, попадает в in-memory список
+ * и сразу в кэш по mediaKeys.all (setQueryData). Возвращает созданный элемент —
+ * вызывающему может понадобиться его id (например, чтобы прикрепить к посту).
+ * TODO (Design First, backlog #147): заменить mutationFn на POST /media (multipart).
+ */
+export function useUploadMediaMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (file: File): Promise<{ item: Media; list: Media[] }> => {
+      // Эмуляция сетевой задержки, пока нет реального API.
+      await new Promise((resolve) => setTimeout(resolve, 900))
+      const item = mediaFromFile(file)
+      return { item, list: addToMediaStore(item) }
+    },
+    onSuccess: ({ list }) => {
+      queryClient.setQueryData(mediaKeys.all, list)
+    },
   })
 }
 

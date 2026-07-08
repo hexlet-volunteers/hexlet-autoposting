@@ -1,9 +1,5 @@
-import { makeMockPreviewUrl } from '../lib/preview'
+import { makeMockPreviewUrl, VIDEO_PREVIEW_BG, VIDEO_PREVIEW_FG } from '../lib/preview'
 import type { Media } from './types'
-
-// Тёмный кадр для видео-заглушек (превью «стоп-кадра»).
-const VIDEO_BG = '#26241D'
-const VIDEO_FG = 'rgba(255,255,255,.75)'
 
 /**
  * Мок медиатеки (~8 элементов, микс фото/видео). url — data-URI-заглушки,
@@ -26,7 +22,7 @@ export const MEDIA_MOCK: Media[] = [
     name: 'Ролик-бэкстейдж.mp4',
     kind: 'video',
     sizeLabel: '128 МБ',
-    url: makeMockPreviewUrl('Ролик-бэкстейдж.mp4', VIDEO_BG, VIDEO_FG),
+    url: makeMockPreviewUrl('Ролик-бэкстейдж.mp4', VIDEO_PREVIEW_BG, VIDEO_PREVIEW_FG),
     uploadedAt: '2026-06-28T14:40:00',
   },
   {
@@ -42,7 +38,7 @@ export const MEDIA_MOCK: Media[] = [
     name: 'Промо-шортс.mp4',
     kind: 'video',
     sizeLabel: '54 МБ',
-    url: makeMockPreviewUrl('Промо-шортс.mp4', VIDEO_BG, VIDEO_FG),
+    url: makeMockPreviewUrl('Промо-шортс.mp4', VIDEO_PREVIEW_BG, VIDEO_PREVIEW_FG),
     uploadedAt: '2026-06-25T18:30:00',
   },
   {
@@ -65,7 +61,7 @@ export const MEDIA_MOCK: Media[] = [
     name: 'Анонс-вебинара.mp4',
     kind: 'video',
     sizeLabel: '96 МБ',
-    url: makeMockPreviewUrl('Анонс-вебинара.mp4', VIDEO_BG, VIDEO_FG),
+    url: makeMockPreviewUrl('Анонс-вебинара.mp4', VIDEO_PREVIEW_BG, VIDEO_PREVIEW_FG),
     uploadedAt: '2026-06-20T10:45:00',
   },
   {
