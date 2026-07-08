@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   Button,
+  ColorSwatch,
   Group,
   Paper,
   Popover,
@@ -15,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconArchive } from '@tabler/icons-react'
 import { PROJECT_COLORS } from '@/shared/config'
-import { ColorSwatchPicker } from '@/shared/ui'
+import { ColorPickerModal } from '@/shared/ui'
 import { useCurrentProject } from '@/entities/project'
 
 const TIMEZONES = [
@@ -40,6 +41,7 @@ export function SettingsPage() {
   const [telegramReport, setTelegramReport] = useState(true)
   const [failureEmails, setFailureEmails] = useState(false)
   const [archiveConfirmOpened, archiveConfirm] = useDisclosure(false)
+  const [colorModalOpened, colorModal] = useDisclosure(false)
 
   const handleArchive = () => {
     // TODO (Design First): POST архивации проекта, issue #118. Пока заглушка.
@@ -76,7 +78,13 @@ export function SettingsPage() {
             <Text size="sm" fw={600}>
               Цвет проекта
             </Text>
-            <ColorSwatchPicker value={projectColor} onChange={setProjectColor} />
+            {/* Превью выбранного цвета + кнопка, открывающая модалку выбора */}
+            <Group gap={10}>
+              <ColorSwatch color={projectColor} size={32} />
+              <Button variant="default" size="sm" onClick={colorModal.open}>
+                Изменить цвет…
+              </Button>
+            </Group>
           </Stack>
           <Select
             label="Часовой пояс публикаций"
@@ -154,6 +162,14 @@ export function SettingsPage() {
           </Popover>
         </Group>
       </Paper>
+
+      {/* Модалка выбора цвета проекта — применяет цвет в локальном состоянии формы */}
+      <ColorPickerModal
+        opened={colorModalOpened}
+        value={projectColor}
+        onSelect={setProjectColor}
+        onClose={colorModal.close}
+      />
     </Stack>
   )
 }
