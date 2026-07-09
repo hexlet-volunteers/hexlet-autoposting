@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   ColorSwatch,
+  Flex,
   Group,
   Paper,
   Popover,
@@ -153,7 +154,9 @@ export function SettingsPage() {
             backgroundColor: 'var(--mantine-color-red-0)',
           }}
         >
-          <Group justify="space-between" align="flex-start" wrap="nowrap" gap="lg">
+          {/* На мобильном — колонка: кнопка «Архивировать» переносится под текст
+              (align stretch тянет текст на всю ширину, alignSelf держит кнопку слева) */}
+          <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" gap="md">
             <Stack gap={4} style={{ minWidth: 0 }}>
               <Text fw={700} c="red">
                 Архив проекта
@@ -175,7 +178,7 @@ export function SettingsPage() {
                   variant="light"
                   leftSection={<IconArchive size={16} />}
                   onClick={archiveConfirm.open}
-                  style={{ flex: 'none' }}
+                  style={{ flex: 'none', alignSelf: 'flex-start' }}
                 >
                   Архивировать проект
                 </Button>
@@ -194,7 +197,7 @@ export function SettingsPage() {
                 </Group>
               </Popover.Dropdown>
             </Popover>
-          </Group>
+          </Flex>
         </Paper>
       </SimpleGrid>
 

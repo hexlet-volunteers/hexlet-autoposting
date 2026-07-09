@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Box,
   Button,
   Chip,
-  FileButton,
   Group,
   Modal,
   Popover,
@@ -21,6 +20,7 @@ import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { IconChevronDown, IconSparkles } from '@tabler/icons-react'
+import { useMedia } from '@/entities/media'
 import { usePost } from '@/entities/scheduled-post'
 import { incrementAiUsage, useQuota } from '@/entities/subscription'
 import { NETWORKS } from '@/shared/config'
@@ -44,7 +44,9 @@ import {
   makeValuesFromPost,
 } from '../model/composerForm'
 import type { ComposerFormValues, PostKind, RepeatMode } from '../model/composerForm'
+import type { AttachmentKind } from '../model/attachMedia'
 import { AiAssistPanel } from './AiAssistPanel'
+import { AttachMediaModal } from './AttachMediaModal'
 import { RichTextArea } from './RichTextArea'
 
 /**
@@ -82,6 +84,15 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
   const postsQuota = useQuota('posts')
   const postsBlocked = !isEditing && postsQuota.exhausted
   const [timeOpen, setTimeOpen] = useState(false)
+  // Какой тип вложения сейчас прикрепляем: открывает модалку загрузки; null — закрыта.
+  const [attachKind, setAttachKind] = useState<AttachmentKind | null>(null)
+
+  // Медиатека проекта — источник имён/превью прикреплённых вложений (по mediaId).
+  const { data: mediaData } = useMedia()
+  const mediaById = useMemo(
+    () => new Map((mediaData ?? []).map((item) => [item.id, item])),
+    [mediaData],
+  )
 
   const form = useForm<ComposerFormValues>({ initialValues: makeDefaultValues() })
 
@@ -106,6 +117,7 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
     form.reset()
     // Локальное состояние сбрасываем при закрытии, чтобы следующее открытие было чистым
     setTimeOpen(false)
+    setAttachKind(null)
     onClose()
   }
 
@@ -121,9 +133,17 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
     }
   }
 
-  const handleAddPhoto = (file: File | null) => {
-    if (!file || form.values.attachments.length >= 4) return
-    form.insertListItem('attachments', file.name)
+  // Итог модалки загрузки: mediaId прикрепляем в зависимости от типа вложения.
+  const handleAttachSelect = (mediaId: string) => {
+    if (attachKind === 'photo') {
+      if (form.values.attachments.length < 4 && !form.values.attachments.includes(mediaId)) {
+        form.insertListItem('attachments', mediaId)
+      }
+    } else if (attachKind === 'video') {
+      form.setFieldValue('videoFile', mediaId)
+    } else if (attachKind === 'cover') {
+      form.setFieldValue('cover', mediaId)
+    }
   }
 
   const handleAiDescription = () => {
@@ -197,53 +217,59 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
                 onInsert={(text) => form.setFieldValue('text', text)}
               />
 
-              {/* Вложения-фото (мок): плитки с именами файлов, до 4 штук */}
+              {/* Вложения-фото: плитки-превью из медиатеки (по mediaId), до 4 штук */}
               <Box>
                 <Text fz="sm" fw={600} c="dimmed" mb={8}>
                   Фото
                 </Text>
                 <Group gap={8}>
-                  {form.values.attachments.map((name, index) => (
-                    <Tooltip key={`${name}-${index}`} label="Убрать фото">
-                      <UnstyledButton
-                        onClick={() => form.removeListItem('attachments', index)}
-                        style={{
-                          width: 64,
-                          height: 52,
-                          borderRadius: 9,
-                          background: TILE_BG,
-                          border: `1.5px dashed ${MUTED_DASH}`,
-                          fontSize: 10.5,
-                          color: 'var(--mantine-color-dimmed)',
-                          textAlign: 'center',
-                          overflow: 'hidden',
-                          padding: 2,
-                        }}
+                  {form.values.attachments.map((mediaId, index) => {
+                    const media = mediaById.get(mediaId)
+                    return (
+                      <Tooltip
+                        key={`${mediaId}-${index}`}
+                        label={`Убрать: ${media?.name ?? 'фото'}`}
                       >
-                        {name}
-                      </UnstyledButton>
-                    </Tooltip>
-                  ))}
-                  {form.values.attachments.length < 4 && (
-                    <FileButton onChange={handleAddPhoto} accept="image/png,image/jpeg,image/webp">
-                      {(props) => (
                         <UnstyledButton
-                          {...props}
+                          onClick={() => form.removeListItem('attachments', index)}
                           style={{
                             width: 64,
                             height: 52,
                             borderRadius: 9,
-                            border: '1.5px dashed var(--mantine-color-brand-3)',
-                            fontSize: 11,
-                            fontWeight: 600,
-                            color: 'var(--mantine-color-brand-6)',
+                            background: TILE_BG,
+                            border: `1.5px dashed ${MUTED_DASH}`,
+                            fontSize: 10.5,
+                            color: 'var(--mantine-color-dimmed)',
                             textAlign: 'center',
+                            overflow: 'hidden',
+                            padding: media?.url ? 0 : 2,
+                            // Превью медиатеки фоном плитки; без url — имя файла текстом.
+                            backgroundImage: media?.url ? `url("${media.url}")` : undefined,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                           }}
                         >
-                          + Фото
+                          {media?.url ? null : (media?.name ?? mediaId)}
                         </UnstyledButton>
-                      )}
-                    </FileButton>
+                      </Tooltip>
+                    )
+                  })}
+                  {form.values.attachments.length < 4 && (
+                    <UnstyledButton
+                      onClick={() => setAttachKind('photo')}
+                      style={{
+                        width: 64,
+                        height: 52,
+                        borderRadius: 9,
+                        border: '1.5px dashed var(--mantine-color-brand-3)',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: 'var(--mantine-color-brand-6)',
+                        textAlign: 'center',
+                      }}
+                    >
+                      + Фото
+                    </UnstyledButton>
                   )}
                   <Text fz="xs" c="dimmed" style={{ alignSelf: 'center' }}>
                     до 4 фото
@@ -255,36 +281,29 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
 
           {isVideo && (
             <>
-              {/* Зона загрузки видеофайла */}
-              <FileButton
-                onChange={(file) => file && form.setFieldValue('videoFile', file.name)}
-                accept="video/mp4,video/*"
+              {/* Зона загрузки видеофайла — открывает модалку прикрепления медиа */}
+              <UnstyledButton
+                onClick={() => setAttachKind('video')}
+                style={{
+                  width: '100%',
+                  border: `1.5px dashed ${
+                    form.values.videoFile ? 'var(--mantine-color-success-4)' : MUTED_DASH
+                  }`,
+                  borderRadius: 12,
+                  background: TILE_BG,
+                  padding: 18,
+                  textAlign: 'center',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: form.values.videoFile
+                    ? 'var(--mantine-color-success-7)'
+                    : 'var(--mantine-color-dimmed)',
+                }}
               >
-                {(props) => (
-                  <UnstyledButton
-                    {...props}
-                    style={{
-                      width: '100%',
-                      border: `1.5px dashed ${
-                        form.values.videoFile ? 'var(--mantine-color-success-4)' : MUTED_DASH
-                      }`,
-                      borderRadius: 12,
-                      background: TILE_BG,
-                      padding: 18,
-                      textAlign: 'center',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: form.values.videoFile
-                        ? 'var(--mantine-color-success-7)'
-                        : 'var(--mantine-color-dimmed)',
-                    }}
-                  >
-                    {form.values.videoFile
-                      ? `✓ ${form.values.videoFile} — нажмите, чтобы заменить`
-                      : 'Перетащите видео сюда или нажмите, чтобы выбрать · до 2 ГБ, MP4'}
-                  </UnstyledButton>
-                )}
-              </FileButton>
+                {form.values.videoFile
+                  ? `✓ ${mediaById.get(form.values.videoFile)?.name ?? 'видео'} — нажмите, чтобы заменить`
+                  : 'Нажмите, чтобы выбрать видео · до 2 ГБ, MP4'}
+              </UnstyledButton>
 
               <Box style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 132px', gap: 14 }}>
                 <Stack gap="xs">
@@ -326,38 +345,33 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
                   <Text fz="sm" fw={600} c="dimmed" mb={6}>
                     Обложка
                   </Text>
-                  <FileButton
-                    onChange={(file) => file && form.setFieldValue('cover', file.name)}
-                    accept="image/png,image/jpeg,image/webp"
+                  <UnstyledButton
+                    onClick={() => setAttachKind('cover')}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '16/10',
+                      border: `1.5px dashed ${
+                        form.values.cover ? 'var(--mantine-color-success-4)' : MUTED_DASH
+                      }`,
+                      borderRadius: 10,
+                      background: TILE_BG,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      padding: 6,
+                      overflow: 'hidden',
+                      color: form.values.cover
+                        ? 'var(--mantine-color-success-7)'
+                        : 'var(--mantine-color-dimmed)',
+                    }}
                   >
-                    {(props) => (
-                      <UnstyledButton
-                        {...props}
-                        style={{
-                          width: '100%',
-                          aspectRatio: '16/10',
-                          border: `1.5px dashed ${
-                            form.values.cover ? 'var(--mantine-color-success-4)' : MUTED_DASH
-                          }`,
-                          borderRadius: 10,
-                          background: TILE_BG,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          textAlign: 'center',
-                          padding: 6,
-                          overflow: 'hidden',
-                          color: form.values.cover
-                            ? 'var(--mantine-color-success-7)'
-                            : 'var(--mantine-color-dimmed)',
-                        }}
-                      >
-                        {form.values.cover ? `✓ ${form.values.cover}` : '1280 × 720'}
-                      </UnstyledButton>
-                    )}
-                  </FileButton>
+                    {form.values.cover
+                      ? `✓ ${mediaById.get(form.values.cover)?.name ?? 'обложка'}`
+                      : '1280 × 720'}
+                  </UnstyledButton>
                 </Box>
               </Box>
             </>
@@ -560,6 +574,15 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
           </Group>
         </Stack>
       </form>
+
+      {/* Модалка прикрепления медиа (сегмент композера): дроп-зона + выбор из
+          медиатеки; наружу отдаёт mediaId, который прикрепляем по attachKind. */}
+      <AttachMediaModal
+        opened={attachKind !== null}
+        kind={attachKind ?? 'photo'}
+        onClose={() => setAttachKind(null)}
+        onSelect={handleAttachSelect}
+      />
     </Modal>
   )
 }

@@ -3,6 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Content-Security-Policy: базовый хардненинг (#215).
+      - default-src 'self' — по умолчанию только свой origin (покрывает font-src/connect-src);
+      - img-src 'self' data: https: — картинки со своего origin, data-URI (иконки) и https (аватарки/CDN площадок);
+      - style-src 'self' 'unsafe-inline' — Mantine инжектит инлайн-стили, без 'unsafe-inline' тема падает;
+      - script-src 'self' — только собственные скрипты, инлайн-JS запрещён.
+      На проде этот же CSP нужно продублировать HTTP-заголовком на уровне хостинга.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
     <title>Hexlet Autoposting</title>
   </head>
   <body>

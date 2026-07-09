@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom'
 import { AppLayout } from '@/widgets/app-shell'
 import { AuthModal } from '@/features/auth'
+import { ErrorBoundary } from '@/shared/ui'
 import { LandingPage } from '@/pages/landing'
 import { ContentPlanPage } from '@/pages/content-plan'
 import { QueuePage } from '@/pages/queue'
@@ -27,7 +28,11 @@ const router = createBrowserRouter([
     element: (
       <>
         <Outlet />
-        <AuthModal />
+        {/* Локальная граница вокруг AuthModal: её падение не должно ронять
+            корневой маршрут (иначе сработал бы errorElement на весь экран). */}
+        <ErrorBoundary fallback={null}>
+          <AuthModal />
+        </ErrorBoundary>
       </>
     ),
     errorElement: <RouteErrorPage />,

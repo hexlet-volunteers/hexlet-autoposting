@@ -103,9 +103,11 @@ export function AiAssistPanel({ hasPhoto, onInsert }: AiAssistPanelProps) {
         </Group>
       </Chip.Group>
 
-      <Group gap={8} wrap="nowrap">
+      {/* wrap: на мобильном кнопки «Предложить»/«По фото» переносятся под поле ввода;
+          flex-basis поля держит его во всю ширину строки до переноса */}
+      <Group gap={8} wrap="wrap">
         <TextInput
-          style={{ flex: 1 }}
+          style={{ flex: '1 1 200px' }}
           size="sm"
           placeholder="О чём написать? Например: анонс новогодних сетов"
           disabled={inputsDisabled}

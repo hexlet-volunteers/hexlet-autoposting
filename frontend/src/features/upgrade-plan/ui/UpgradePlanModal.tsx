@@ -350,7 +350,7 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
             styles={{ input: { letterSpacing: 1 } }}
           />
 
-          <SimpleGrid cols={2} spacing="sm">
+          <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
             <TextInput label="Срок действия" placeholder="12 / 27" inputMode="numeric" />
             <TextInput label="CVC" placeholder="•••" type="password" inputMode="numeric" />
           </SimpleGrid>

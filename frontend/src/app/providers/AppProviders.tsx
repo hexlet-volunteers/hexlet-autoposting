@@ -6,6 +6,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import type { ReactNode } from 'react'
 import { store } from '@/app/store'
 import { queryClient } from '@/shared/config'
+import { ErrorBoundary } from '@/shared/ui'
 import { theme } from './theme'
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -14,8 +15,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <MantineProvider theme={theme} defaultColorScheme="light">
           <Notifications />
-          {children}
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* Глобальная граница ошибок: ловит падения рендера вне роутера, чтобы
+              вместо белого экрана показать дружелюбный фолбэк с перезагрузкой.
+              Внутри MantineProvider — фолбэку нужны компоненты Mantine. */}
+          <ErrorBoundary>{children}</ErrorBoundary>
+          {/* Devtools только в dev: import.meta.env.DEV в prod-сборке становится
+              false, ветка отсекается и пакет не попадает в production-бандл. */}
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </MantineProvider>
       </QueryClientProvider>
     </ReduxProvider>
