@@ -33,7 +33,7 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
       <form onSubmit={submit}>
         <Stack gap="md">
           <TextInput
-            label="Название проекта"
+            label="Название"
             placeholder="Цветочная «Пион»"
             withAsterisk
             data-autofocus
@@ -47,7 +47,7 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
             <Group gap={10}>
               <ColorSwatch color={color} size={32} />
               <Button variant="default" size="sm" onClick={colorModal.open}>
-                Изменить цвет…
+                Выбрать цвет…
               </Button>
             </Group>
           </div>
