@@ -1,15 +1,24 @@
+import { useState } from 'react'
 import { Box, Button, Card, Divider, Group, Stack, Text, Title } from '@mantine/core'
-import { Link } from 'react-router-dom'
 import { NetworkPill } from '@/shared/ui'
 import { NETWORKS } from '@/shared/config'
 import { Section } from '../Section'
 
-/** Пример поста, сгенерированного ИИ (вариант 1 из демо макета). */
-const AI_SAMPLE_TEXT =
-  'Открываем запись на декабрь! Успейте забронировать любимое время — в прошлом месяце окошки закончились за три дня.'
+/** Заготовленные варианты «сгенерированных» постов — дословно из демо макета. */
+const AI_VARIANTS = [
+  'Открываем запись на декабрь! Успейте забронировать любимое время — в прошлом месяце окошки закончились за три дня.',
+  'Секрет идеального капучино — молоко 3,2% и ровно 55 градусов. Приходите, покажем. И нальём.',
+  'Итоги недели: 4 новых вкуса, 120 довольных гостей и один очень счастливый бариста.',
+  'Совет дня: планируйте посты с вечера — утром голова нужна для важных дел.',
+]
 
 /** Спотлайт ИИ-помощника: панель с примером сгенерированного поста и ценностными тезисами. */
 export function AiAssistantSection() {
+  // Живое демо: перебор заготовленных вариантов по кругу. Сейчас это чисто
+  // клиентская симуляция — позже кнопка может дёргать реальную ручку ИИ.
+  const [variantIndex, setVariantIndex] = useState(0)
+  const nextVariant = () => setVariantIndex((index) => (index + 1) % AI_VARIANTS.length)
+
   return (
     <Section id="ai">
       <Card withBorder radius={20} p={0} style={{ overflow: 'hidden' }}>
@@ -32,11 +41,11 @@ export function AiAssistantSection() {
               Отредактируйте и отправьте в отложку — или сразу во все сети.
             </Text>
             <Group mt={24} gap={14} align="center">
-              <Button component={Link} to="/login" color="brand" radius="md" size="md">
+              <Button color="brand" radius="md" size="md" onClick={nextVariant}>
                 Предложить пост
               </Button>
               <Text fz={12.5} c="dimmed">
-                вариант 1 из 4 · живое демо
+                вариант {variantIndex + 1} из {AI_VARIANTS.length} · живое демо
               </Text>
             </Group>
           </Stack>
@@ -77,7 +86,7 @@ export function AiAssistantSection() {
               </Group>
 
               <Text mt={12} fz={14} style={{ lineHeight: 1.55 }}>
-                {AI_SAMPLE_TEXT}
+                {AI_VARIANTS[variantIndex]}
               </Text>
 
               <Divider mt={14} variant="dashed" />

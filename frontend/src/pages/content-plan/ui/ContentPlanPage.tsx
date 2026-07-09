@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react'
 import {
-  Badge,
   Box,
   Button,
   Group,
-  Paper,
   SegmentedControl,
-  SimpleGrid,
+  Skeleton,
   Stack,
   Text,
   Title,
@@ -14,45 +12,67 @@ import {
 } from '@mantine/core'
 import { IconLink, IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { NETWORKS } from '@/shared/config'
-import { NetworkPill } from '@/shared/ui'
 import { useAppModals } from '@/features/app-modals'
-import { useContentPlan } from '@/entities/scheduled-post'
-import type { Post } from '@/entities/scheduled-post'
+import { useCalendarFilter } from '@/features/filter-by-platform'
+import { isInWeek, startOfWeekMonday, useContentPlan } from '@/entities/scheduled-post'
+import { BORDER_PANEL, BRAND, BRAND_SOFT_BG, INK } from '../lib/palette'
+import { capitalize, postCountLabel } from '../lib/format'
+import { PlatformChips } from './PlatformChips'
+import { WeekView } from './WeekView'
+import { MonthView } from './MonthView'
+import { QuarterView } from './QuarterView'
+import { YearView } from './YearView'
 
-const NETWORK_BY_ID = new Map(NETWORKS.map((n) => [n.id, n]))
-const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+type Scale = 'week' | 'month' | 'quarter' | 'year'
 
-interface DayColumn {
-  key: string
-  name: string
-  date: string
-  isToday: boolean
-  posts: Post[]
-}
+const SCALE_OPTIONS: { label: string; value: Scale }[] = [
+  { label: 'Неделя', value: 'week' },
+  { label: 'Месяц', value: 'month' },
+  { label: 'Квартал', value: 'quarter' },
+  { label: 'Год', value: 'year' },
+]
 
-/** Экран «Контент-план»: недельная сетка запланированных постов. */
+/** Экран «Контент-план»: масштабы Неделя/Месяц/Квартал/Год на общем списке постов. */
 export function ContentPlanPage() {
-  const [scale, setScale] = useState<'week' | 'month'>('week')
+  const [scale, setScale] = useState<Scale>('week')
+  // Смещение отображаемой недели от текущей (стрелки «‹ / ›» двигают на ±1)
+  const [weekOffset, setWeekOffset] = useState(0)
+  const [calYear, setCalYear] = useState(() => dayjs().year())
   const { openComposer, openConnectPlatform } = useAppModals()
-  const { data: posts } = useContentPlan()
+  const { data: posts, isLoading } = useContentPlan()
+  const { activeNetworkIds } = useCalendarFilter()
 
-  const days = useMemo<DayColumn[]>(() => {
-    const weekStart = dayjs().startOf('week').add(1, 'day')
-    const today = dayjs()
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = weekStart.add(i, 'day')
-      return {
-        key: d.format('YYYY-MM-DD'),
-        name: WEEKDAYS[i],
-        date: d.format('D MMM'),
-        isToday: d.isSame(today, 'day'),
-        posts: posts
-          .filter((p) => dayjs(p.scheduledAt).isSame(d, 'day'))
-          .sort((a, b) => dayjs(a.scheduledAt).valueOf() - dayjs(b.scheduledAt).valueOf()),
-      }
-    })
-  }, [posts])
+  // Фильтр площадок действует во всех масштабах:
+  // пост виден, если хотя бы одна из его сетей активна
+  const visiblePosts = useMemo(() => {
+    const activeSet = new Set(activeNetworkIds)
+    return posts.filter((p) => p.networkIds.some((id) => activeSet.has(id)))
+  }, [posts, activeNetworkIds])
+
+  const weekStart = useMemo(() => startOfWeekMonday(dayjs()).add(weekOffset, 'week'), [weekOffset])
+  // Вид «Месяц» всегда показывает текущий месяц (стабильная ссылка для мемоизации)
+  const currentMonth = useMemo(() => dayjs().startOf('month'), [])
+  const weekPosts = useMemo(
+    () => visiblePosts.filter((p) => isInWeek(dayjs(p.scheduledAt), weekStart)),
+    [visiblePosts, weekStart],
+  )
+
+  const weekEnd = weekStart.add(6, 'day')
+  const weekLabel =
+    weekStart.month() === weekEnd.month()
+      ? `${weekStart.format('D')}–${weekEnd.format('D MMMM')}`
+      : `${weekStart.format('D MMMM')} – ${weekEnd.format('D MMMM')}`
+  const periodLabel =
+    scale === 'month'
+      ? capitalize(dayjs().format('MMMM YYYY'))
+      : `${Math.floor(dayjs().month() / 3) + 1}-й квартал ${dayjs().year()}`
+
+  // Клик по дню месяца открывает неделю этого дня
+  const openWeekOf = (dateIso: string) => {
+    const target = startOfWeekMonday(dayjs(dateIso))
+    setWeekOffset(target.diff(startOfWeekMonday(dayjs()), 'week'))
+    setScale('week')
+  }
 
   return (
     <Stack gap="lg">
@@ -62,12 +82,68 @@ export function ContentPlanPage() {
         </Title>
         <SegmentedControl
           value={scale}
-          onChange={(v) => setScale(v as 'week' | 'month')}
-          data={[
-            { label: 'Неделя', value: 'week' },
-            { label: 'Месяц', value: 'month' },
-          ]}
+          onChange={(v) => setScale(v as Scale)}
+          data={SCALE_OPTIONS}
+          // Активный чип — тёмная заливка с белым текстом (макет app-dashboard)
+          color={INK}
+          radius={8}
+          styles={{
+            root: { background: 'var(--mantine-color-white)', border: BORDER_PANEL },
+          }}
         />
+        {scale === 'week' ? (
+          <>
+            <ArrowNav
+              label={weekLabel}
+              minWidth={126}
+              prevTitle="Предыдущая неделя"
+              nextTitle="Следующая неделя"
+              onPrev={() => setWeekOffset((w) => w - 1)}
+              onNext={() => setWeekOffset((w) => w + 1)}
+            />
+            {isLoading ? (
+              <Skeleton height={26} width={78} radius="pill" />
+            ) : (
+              <Box
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: BRAND,
+                  background: BRAND_SOFT_BG,
+                  borderRadius: 'var(--mantine-radius-pill)',
+                  padding: '5px 11px',
+                }}
+              >
+                {postCountLabel(weekPosts.length)}
+              </Box>
+            )}
+          </>
+        ) : null}
+        {scale === 'month' || scale === 'quarter' ? (
+          <Text
+            fz={13.5}
+            fw={700}
+            px={14}
+            py={9}
+            style={{
+              background: 'var(--mantine-color-white)',
+              border: BORDER_PANEL,
+              borderRadius: 11,
+            }}
+          >
+            {periodLabel}
+          </Text>
+        ) : null}
+        {scale === 'year' ? (
+          <ArrowNav
+            label={String(calYear)}
+            minWidth={60}
+            prevTitle="Предыдущий год"
+            nextTitle="Следующий год"
+            onPrev={() => setCalYear((y) => y - 1)}
+            onNext={() => setCalYear((y) => y + 1)}
+          />
+        ) : null}
         <Box style={{ flex: 1 }} />
         <Group gap="sm">
           <Button
@@ -83,113 +159,82 @@ export function ContentPlanPage() {
         </Group>
       </Group>
 
-      <Box style={{ overflowX: 'auto' }}>
-        <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 7 }} spacing="xs" style={{ minWidth: 720 }}>
-          {days.map((day) => (
-            <DayCard
-              key={day.key}
-              day={day}
-              onOpenPost={openComposer}
-              onAdd={() => openComposer()}
-            />
-          ))}
-        </SimpleGrid>
-      </Box>
+      <PlatformChips />
 
-      <Text size="sm" c="dimmed">
-        Клик по посту — настройки и удаление, «+» — новый пост в этот день
-      </Text>
+      {scale === 'week' ? (
+        <WeekView
+          posts={weekPosts}
+          weekStart={weekStart}
+          loading={isLoading}
+          onOpenPost={openComposer}
+          onAdd={() => openComposer()}
+        />
+      ) : null}
+      {scale === 'month' ? (
+        <MonthView
+          posts={visiblePosts}
+          month={currentMonth}
+          loading={isLoading}
+          onOpenWeek={openWeekOf}
+        />
+      ) : null}
+      {scale === 'quarter' ? (
+        <QuarterView
+          posts={visiblePosts}
+          loading={isLoading}
+          onOpenMonth={() => setScale('month')}
+        />
+      ) : null}
+      {scale === 'year' ? (
+        <YearView
+          posts={visiblePosts}
+          year={calYear}
+          loading={isLoading}
+          onOpenMonth={() => setScale('month')}
+        />
+      ) : null}
     </Stack>
   )
 }
 
-interface DayCardProps {
-  day: DayColumn
-  onOpenPost: (id: string) => void
-  onAdd: () => void
+interface ArrowNavProps {
+  label: string
+  minWidth: number
+  prevTitle: string
+  nextTitle: string
+  onPrev: () => void
+  onNext: () => void
 }
 
-function DayCard({ day, onOpenPost, onAdd }: DayCardProps) {
+/** Панель «‹ подпись ›» для навигации по неделям и годам (из макета). */
+function ArrowNav({ label, minWidth, prevTitle, nextTitle, onPrev, onNext }: ArrowNavProps) {
+  const arrowStyle = {
+    padding: '6px 10px',
+    borderRadius: 8,
+    fontSize: 14,
+    lineHeight: 1,
+    color: 'rgba(23, 21, 15, 0.6)',
+  }
   return (
-    <Paper
-      withBorder
-      radius="md"
-      p="xs"
-      style={{ minHeight: 230, display: 'flex', flexDirection: 'column' }}
-    >
-      <Group gap={6} justify="center" mb="xs">
-        <Text size="sm" fw={600} c={day.isToday ? 'brand' : undefined}>
-          {day.name}
-        </Text>
-        <Text size="sm" c="dimmed">
-          {day.date}
-        </Text>
-        {day.isToday ? (
-          <Badge color="brand" size="xs" radius="sm">
-            сегодня
-          </Badge>
-        ) : null}
-      </Group>
-
-      <Stack gap={6} style={{ flex: 1 }}>
-        {day.posts.map((post) => (
-          <PostCard key={post.id} post={post} onClick={() => onOpenPost(post.id)} />
-        ))}
-        <UnstyledButton
-          onClick={onAdd}
-          style={{
-            border: '1.5px dashed var(--mantine-color-gray-4)',
-            borderRadius: 8,
-            padding: 5,
-            textAlign: 'center',
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'var(--mantine-color-dimmed)',
-          }}
-        >
-          +
-        </UnstyledButton>
-      </Stack>
-    </Paper>
-  )
-}
-
-interface PostCardProps {
-  post: Post
-  onClick: () => void
-}
-
-function PostCard({ post, onClick }: PostCardProps) {
-  const network = NETWORK_BY_ID.get(post.networkIds[0])
-  const time = dayjs(post.scheduledAt).format('HH:mm')
-  return (
-    <UnstyledButton
-      onClick={onClick}
-      title="Открыть настройки поста"
+    <Group
+      gap={6}
+      wrap="nowrap"
       style={{
-        border: '1px solid var(--mantine-color-gray-3)',
-        borderRadius: 8,
-        padding: '6px 7px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 3,
-        background: 'var(--mantine-color-gray-0)',
+        background: 'var(--mantine-color-white)',
+        border: BORDER_PANEL,
+        borderRadius: 11,
+        padding: 4,
       }}
     >
-      <Group gap={5} wrap="nowrap">
-        {network ? <NetworkPill network={network} variant="badge" /> : null}
-        <Text size="xs" fw={600} c="dimmed">
-          {time}
-        </Text>
-        {post.status === 'draft' ? (
-          <Badge size="xs" variant="light" color="gray" radius="sm">
-            черновик
-          </Badge>
-        ) : null}
-      </Group>
-      <Text size="xs" fw={600} lineClamp={1} style={{ color: 'var(--mantine-color-text)' }}>
-        {post.title}
+      <UnstyledButton onClick={onPrev} title={prevTitle} aria-label={prevTitle} style={arrowStyle}>
+        ‹
+      </UnstyledButton>
+      <Text fz={13.5} fw={700} ta="center" style={{ minWidth }}>
+        {label}
       </Text>
-    </UnstyledButton>
+      <UnstyledButton onClick={onNext} title={nextTitle} aria-label={nextTitle} style={arrowStyle}>
+        ›
+      </UnstyledButton>
+    </Group>
   )
 }

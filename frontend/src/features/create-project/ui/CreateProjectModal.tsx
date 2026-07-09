@@ -1,8 +1,9 @@
-import { Button, Modal, Stack, Text, TextInput } from '@mantine/core'
+import { Button, ColorSwatch, Group, Modal, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { useDisclosure } from '@mantine/hooks'
 import { useState } from 'react'
 import { PROJECT_COLORS } from '@/shared/config'
-import { ColorSwatchPicker } from '@/shared/ui'
+import { ColorPickerModal } from '@/shared/ui'
 import { useCreateProject } from '../api/useCreateProject'
 
 interface CreateProjectModalProps {
@@ -13,6 +14,7 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps) {
   const createProject = useCreateProject()
   const [color, setColor] = useState(PROJECT_COLORS[0])
+  const [colorModalOpened, colorModal] = useDisclosure(false)
 
   const form = useForm({
     initialValues: { name: '' },
@@ -32,7 +34,7 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
         <Stack gap="md">
           <TextInput
             label="Название проекта"
-            placeholder="Мой бренд"
+            placeholder="Цветочная «Пион»"
             withAsterisk
             data-autofocus
             {...form.getInputProps('name')}
@@ -41,13 +43,28 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
             <Text fw={600} fz="sm" mb={6}>
               Цвет проекта
             </Text>
-            <ColorSwatchPicker value={color} onChange={setColor} />
+            {/* Превью выбранного цвета + кнопка, открывающая модалку выбора */}
+            <Group gap={10}>
+              <ColorSwatch color={color} size={32} />
+              <Button variant="default" size="sm" onClick={colorModal.open}>
+                Изменить цвет…
+              </Button>
+            </Group>
           </div>
-          <Button type="submit" fullWidth mt={4}>
+          <Button type="submit" fullWidth mt={4} disabled={form.values.name.trim().length === 0}>
             Создать проект
           </Button>
+          <Text c="dimmed" fz="xs">
+            Площадки подключите после создания — на вкладке «Календарь».
+          </Text>
         </Stack>
       </form>
+      <ColorPickerModal
+        opened={colorModalOpened}
+        value={color}
+        onSelect={setColor}
+        onClose={colorModal.close}
+      />
     </Modal>
   )
 }

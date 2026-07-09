@@ -92,7 +92,14 @@ const ROWS: CompareRow[] = [
 
 const COMPETITORS = ['SMMplanner', 'PlanerMax', 'LiveDune'] as const
 
-export function ComparisonSection() {
+interface ComparisonSectionProps {
+  /** Показывать ли секцию сравнения с конкурентами; при false секция скрыта целиком. */
+  showCompetitors?: boolean
+}
+
+export function ComparisonSection({ showCompetitors = true }: ComparisonSectionProps) {
+  if (!showCompetitors) return null
+
   return (
     <Section
       id="comparison"

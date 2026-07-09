@@ -17,6 +17,7 @@ import { useDisclosure } from '@mantine/hooks'
 import {
   IconCalendar,
   IconChartBar,
+  IconCheck,
   IconChevronDown,
   IconClockHour4,
   IconPhoto,
@@ -25,11 +26,17 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
+import { useSubscription, useQuota } from '@/entities/subscription'
+import { mediaKeys } from '@/entities/media'
+import { scheduledPostKeys } from '@/entities/scheduled-post'
 import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
-import { CreateProjectModal } from '@/features/create-project'
+import { CreateProjectModal, useRestoreProject } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
 import { AppModals } from './AppModals'
 
@@ -44,6 +51,8 @@ const NAV = [
 
 function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   const dispatch = useDispatch()
+  const queryClient = useQueryClient()
+  const restoreProject = useRestoreProject()
   const { data: projects = [] } = useProjects()
   const current = useCurrentProject()
   const active = projects.filter((p) => !p.archived)
@@ -51,14 +60,22 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   // Порядковый номер текущего проекта среди активных — для подписи «проект N из M»
   const activeIndex = current ? active.findIndex((p) => p.id === current.id) : -1
 
-  const dot = (color: string, letter: string) => (
+  const selectProject = (id: string) => {
+    dispatch(setCurrentProject(id))
+    // Разделы перечитывают мок-данные под новый проект
+    // (ключи с projectId появятся вместе с реальным API — см. #147)
+    queryClient.invalidateQueries({ queryKey: scheduledPostKeys.all })
+    queryClient.invalidateQueries({ queryKey: mediaKeys.all })
+  }
+
+  const dot = (color: string, letter: string, muted = false) => (
     <Box
       style={{
         width: 26,
         height: 26,
         borderRadius: 8,
-        background: color,
-        color: '#fff',
+        background: muted ? 'rgba(23,21,15,0.12)' : color,
+        color: muted ? 'rgba(23,21,15,0.5)' : '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -104,7 +121,12 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
           <Menu.Item
             key={p.id}
             leftSection={dot(p.color, p.letter)}
-            onClick={() => dispatch(setCurrentProject(p.id))}
+            rightSection={
+              p.id === current?.id ? (
+                <IconCheck size={16} color="var(--mantine-color-brand-6)" stroke={2.5} />
+              ) : undefined
+            }
+            onClick={() => selectProject(p.id)}
           >
             {p.name}
           </Menu.Item>
@@ -117,9 +139,21 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
             <Menu.Divider />
             <Menu.Label>Архив</Menu.Label>
             {archived.map((p) => (
-              <Menu.Item key={p.id} leftSection={dot(p.color, p.letter)} disabled>
-                {p.name}
-              </Menu.Item>
+              <Group key={p.id} gap={8} wrap="nowrap" px={10} py={6}>
+                {dot(p.color, p.letter, true)}
+                <Text fz={13} fw={600} c="dimmed" lineClamp={1} style={{ flex: 1 }}>
+                  {p.name}
+                </Text>
+                <Anchor
+                  component="button"
+                  type="button"
+                  fz={11.5}
+                  fw={700}
+                  onClick={() => restoreProject(p.id)}
+                >
+                  Вернуть
+                </Anchor>
+              </Group>
             ))}
           </>
         )}
@@ -130,9 +164,19 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
 
 function PlanWidget() {
   const { openUpgrade } = useAppModals()
-  // Тариф пока из заглушки; на «Старте» предлагаем улучшение, на остальных — смену
-  const plan: string = 'Бесплатный'
-  const upgradeLabel = plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
+  const { data: subscription } = useSubscription()
+  const { used, limit, exhausted } = useQuota('ai')
+
+  // Безлимитный тариф: показываем «безлимит» без счётчика и прогресс-бара
+  const unlimited = !Number.isFinite(limit)
+  const percent = unlimited ? 0 : Math.min(100, Math.round((used / limit) * 100))
+  // Подсветка: с ~80% — предупреждение, при исчерпании — цвет ошибки
+  const nearLimit = !unlimited && !exhausted && percent >= 80
+  const quotaColor = exhausted ? 'red' : nearLimit ? 'orange' : 'brand'
+  // На «Старте» предлагаем улучшение, на остальных тарифах — смену
+  const upgradeLabel = subscription.plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
+  const renewsLabel = `до ${dayjs(subscription.renewsAt).locale('ru').format('D MMM').replace('.', '')}`
+
   return (
     <Box
       p="sm"
@@ -144,17 +188,35 @@ function PlanWidget() {
     >
       <Group justify="space-between" mb={4}>
         <Text fw={700} fz={13}>
-          {plan}
+          {subscription.plan}
         </Text>
         <Text fz={11} c="dimmed">
-          до 12 дек
+          {renewsLabel}
         </Text>
       </Group>
-      <Text fz={11} c="dimmed" mb={4}>
-        ИИ-тексты: 5 / 50
-      </Text>
-      <Progress value={10} size="sm" color="brand" mb="sm" />
-      <Button size="xs" variant="light" fullWidth onClick={openUpgrade}>
+      {unlimited ? (
+        <Text fz={11} c="dimmed" mb="xs">
+          ИИ-тексты: безлимит
+        </Text>
+      ) : (
+        <>
+          <Text fz={11} c={exhausted ? 'red.7' : nearLimit ? 'orange.8' : 'dimmed'} mb={4}>
+            ИИ-тексты: {used} / {limit}
+          </Text>
+          <Progress value={percent} size="sm" color={quotaColor} mb="sm" />
+          {exhausted && (
+            <Text fz={11} c="red.7" mb="xs">
+              Лимит на период исчерпан — поднимите его апгрейдом тарифа
+            </Text>
+          )}
+        </>
+      )}
+      <Button
+        size="xs"
+        variant={exhausted || nearLimit ? 'filled' : 'light'}
+        fullWidth
+        onClick={openUpgrade}
+      >
         {upgradeLabel} →
       </Button>
     </Box>

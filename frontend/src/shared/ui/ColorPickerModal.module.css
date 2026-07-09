@@ -1,0 +1,19 @@
+/* Свотч палитры: заполняет ячейку сетки, круглый за счёт aspect-ratio */
+.swatch {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+/* Увеличение при наведении — по макету app-dashboard.html */
+.swatch:hover {
+  transform: scale(1.1);
+}
+
+/* Выбранный цвет подсвечиваем кольцом-обводкой, не меняя размер свотча */
+.swatch[data-selected] {
+  outline: 2.5px solid var(--app-text);
+  outline-offset: 3px;
+}

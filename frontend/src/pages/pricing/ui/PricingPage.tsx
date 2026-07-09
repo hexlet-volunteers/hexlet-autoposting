@@ -159,7 +159,7 @@ export function PricingPage() {
 
   return (
     <Box style={{ background: '#F6F4EF', color: INK }}>
-      <MarketingHeader />
+      <MarketingHeader active="pricing" />
 
       {/* Hero: заголовок, подзаголовок и переключатель периода */}
       <Box component="section">
@@ -368,7 +368,8 @@ export function PricingPage() {
           </Title>
 
           <Box maw={760} mt={16}>
-            <Accordion defaultValue="0" variant="default" chevronPosition="right">
+            {/* Без defaultValue: по макету все вопросы свёрнуты, пока пользователь не кликнет */}
+            <Accordion variant="default" chevronPosition="right">
               {FAQ.map((item, index) => (
                 <Accordion.Item key={item.q} value={String(index)}>
                   <Accordion.Control>
@@ -415,7 +416,13 @@ export function PricingPage() {
                 size="md"
                 radius="md"
                 onClick={() => open('register')}
-                styles={{ root: { background: 'var(--mantine-color-accent-5)', color: INK, fontWeight: 700 } }}
+                styles={{
+                  root: {
+                    background: 'var(--mantine-color-accent-5)',
+                    color: INK,
+                    fontWeight: 700,
+                  },
+                }}
               >
                 Создать аккаунт
               </Button>

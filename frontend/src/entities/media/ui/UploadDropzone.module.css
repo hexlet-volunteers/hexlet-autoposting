@@ -1,0 +1,21 @@
+/* Дроп-зона по макету app-dashboard.html: синяя пунктирная рамка, лёгкая подложка бренда. */
+.root {
+  border: 1.5px dashed rgba(43, 80, 236, 0.45);
+  border-radius: 12px;
+  background: rgba(43, 80, 236, 0.04);
+  padding: 30px 16px;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+}
+
+.root:hover,
+.root[data-accept] {
+  background: rgba(43, 80, 236, 0.08);
+}
+
+/* Файл не проходит по типу/размеру — зона подсвечивается красным ещё до дропа. */
+.root[data-reject] {
+  border-color: var(--mantine-color-red-5);
+  background: var(--mantine-color-red-0);
+}

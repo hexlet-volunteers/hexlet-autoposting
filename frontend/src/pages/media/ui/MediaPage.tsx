@@ -1,188 +1,114 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import {
-  Badge,
   Box,
   Button,
   Card,
   Container,
   Group,
+  Image,
   Modal,
-  SimpleGrid,
   Stack,
   Text,
-  ThemeIcon,
   Title,
-  UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { IconPhoto, IconUpload, IconVideo } from '@tabler/icons-react'
-import { useMedia } from '@/entities/media'
+import { IconUpload } from '@tabler/icons-react'
+import {
+  useMedia,
+  useDeleteMediaMutation,
+  PlayOverlay,
+  formatDateShort,
+  getMediaTypeLabel,
+  MEDIA_PREVIEW_FALLBACK,
+} from '@/entities/media'
 import type { Media } from '@/entities/media'
-import { EmptyState, QueryState, ConfirmDeleteButton } from '@/shared/ui'
-import { formatDateTime } from '@/shared/lib'
+import { MediaUploadModal } from '@/features/media-upload'
+import { MediaGallery, MediaGallerySkeleton } from '@/widgets/media-gallery'
+import { EmptyState, QueryState } from '@/shared/ui'
+import classes from './MediaPage.module.css'
 
 const PLACEHOLDER_BG = '#F6F4EF'
 const DASHED_BORDER = '1.5px dashed rgba(23,21,15,.2)'
-
-/** Иконка-заглушка миниатюры по типу медиа. */
-function MediaThumb({ kind, size = 34 }: { kind: Media['kind']; size?: number }) {
-  const Icon = kind === 'video' ? IconVideo : IconPhoto
-  return (
-    <ThemeIcon variant="light" color="brand" size={size + 22} radius="md">
-      <Icon size={size} stroke={1.6} />
-    </ThemeIcon>
-  )
-}
+// Красный удаления из макета (кнопка «Удалить» в предпросмотре).
+const DANGER_COLOR = '#C4352D'
 
 export function MediaPage() {
-  const { data: media, isLoading, error } = useMedia()
+  const { data, isLoading, error } = useMedia()
+  const media = data ?? []
 
   const [uploadOpened, upload] = useDisclosure(false)
   const [selected, setSelected] = useState<Media | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  // Подтверждение удаления (действие необратимо) — отдельная маленькая модалка.
+  const [confirmOpened, confirm] = useDisclosure(false)
 
-  // Загрузка — заглушка: реальная отправка появится с Design First.
-  const handleUpload = () => {
-    // TODO (Design First, backlog): POST /media (multipart) + инвалидация mediaKeys.all.
-    notifications.show({ color: 'green', message: 'Файлы загружены в медиатеку (демо)' })
-    upload.close()
+  const deleteMedia = useDeleteMediaMutation()
+
+  // Удаление после подтверждения: мок-мутация правит кэш, плитка исчезает из сетки сразу.
+  const handleConfirmDelete = () => {
+    if (!selected) return
+    deleteMedia.mutate(selected.id, {
+      onSuccess: () => {
+        notifications.show({ color: 'green', message: 'Медиа удалено (демо)' })
+        confirm.close()
+        setSelected(null)
+      },
+    })
   }
 
-  // Удаление — заглушка.
-  const handleDelete = () => {
-    // TODO (Design First, backlog): DELETE /media/{id} + инвалидация mediaKeys.all.
-    notifications.show({ color: 'green', message: 'Медиа удалено (демо)' })
-    setSelected(null)
-  }
+  // Строка метаданных по макету: «ТИП · РАЗМЕР · загружено ДАТА».
+  const mediaMeta = selected
+    ? `${getMediaTypeLabel(selected)} · ${selected.sizeLabel} · загружено ${formatDateShort(
+        selected.uploadedAt,
+      )}`
+    : ''
 
   return (
     <Container size="lg" px={0}>
-      <Group align="center" gap={14} wrap="wrap" mb="lg">
-        <Title order={1} fz={{ base: 22, sm: 24 }} fw={800} style={{ letterSpacing: '-.4px' }}>
-          Медиатека
-        </Title>
-        <Box style={{ flex: 1 }} />
-        <Button
-          color="brand"
-          radius="md"
-          leftSection={<IconUpload size={17} />}
-          onClick={upload.open}
-        >
-          Загрузить
-        </Button>
-      </Group>
+      {/* Карточка медиатеки по макету: белый фон, бордер, radius 16, padding 18 */}
+      <Card withBorder radius={16} p={18} style={{ borderColor: 'rgba(23,21,15,.1)' }}>
+        <Group align="center" gap={10} wrap="wrap" mb="md">
+          <Title order={1} fz={14.5} fw={700}>
+            Фото и видео проекта
+          </Title>
+          <Box style={{ flex: 1 }} />
+          <Button
+            color="brand"
+            radius="md"
+            leftSection={<IconUpload size={17} />}
+            onClick={upload.open}
+          >
+            Загрузить
+          </Button>
+        </Group>
 
-      <QueryState isLoading={isLoading} error={error}>
-        {media.length === 0 ? (
-          <EmptyState
-            title="В медиатеке пусто"
-            description="Загрузите фото и видео, чтобы прикреплять их к постам."
-            action={
-              <Button
-                color="brand"
-                radius="md"
-                leftSection={<IconUpload size={17} />}
-                onClick={upload.open}
-              >
-                Загрузить
-              </Button>
-            }
-          />
-        ) : (
-          <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
-            {media.map((item) => (
-              <Card
-                key={item.id}
-                withBorder
-                radius="lg"
-                p="sm"
-                role="button"
-                tabIndex={0}
-                onClick={() => setSelected(item)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    setSelected(item)
-                  }
-                }}
-                style={{ borderColor: 'rgba(23,21,15,.1)', cursor: 'pointer' }}
-              >
-                <Box
-                  mb="sm"
-                  style={{
-                    aspectRatio: '4 / 3',
-                    borderRadius: 10,
-                    background: PLACEHOLDER_BG,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+        {/* Скелетоны сетки показываем сами, поэтому isLoading в QueryState не передаём */}
+        <QueryState isLoading={false} error={error}>
+          {isLoading ? (
+            <MediaGallerySkeleton />
+          ) : media.length === 0 ? (
+            <EmptyState
+              title="В медиатеке пусто"
+              description="Загрузите фото и видео, чтобы прикреплять их к постам."
+              action={
+                <Button
+                  color="brand"
+                  radius="md"
+                  leftSection={<IconUpload size={17} />}
+                  onClick={upload.open}
                 >
-                  <MediaThumb kind={item.kind} />
-                </Box>
-                <Text fz={13.5} fw={600} lineClamp={1} title={item.name}>
-                  {item.name}
-                </Text>
-                <Group gap={6} mt={4} justify="space-between" wrap="nowrap">
-                  <Text fz={12} c="dimmed">
-                    {item.sizeLabel}
-                  </Text>
-                  <Badge
-                    size="sm"
-                    variant="light"
-                    color={item.kind === 'video' ? 'grape' : 'brand'}
-                    styles={{ root: { textTransform: 'none', fontWeight: 600 } }}
-                  >
-                    {item.kind === 'video' ? 'Видео' : 'Фото'}
-                  </Badge>
-                </Group>
-              </Card>
-            ))}
-          </SimpleGrid>
-        )}
-      </QueryState>
+                  Загрузить
+                </Button>
+              }
+            />
+          ) : (
+            <MediaGallery media={media} onSelect={setSelected} onAdd={upload.open} />
+          )}
+        </QueryState>
+      </Card>
 
-      {/* ===== Загрузка в медиатеку ===== */}
-      <Modal
-        opened={uploadOpened}
-        onClose={upload.close}
-        title="Загрузка в медиатеку"
-        radius="lg"
-        centered
-        styles={{ title: { fontWeight: 800, fontSize: 17, letterSpacing: '-.2px' } }}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,video/mp4"
-          hidden
-          onChange={handleUpload}
-        />
-        <UnstyledButton
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            display: 'block',
-            width: '100%',
-            border: '1.5px dashed rgba(43,80,236,.45)',
-            borderRadius: 12,
-            background: 'rgba(43,80,236,.04)',
-            padding: '30px 16px',
-            textAlign: 'center',
-          }}
-        >
-          <Text fz={13.5} fw={700} c="brand">
-            Перетащите файлы сюда
-          </Text>
-          <Text mt={4} fz={12} c="dimmed">
-            или нажмите, чтобы выбрать · JPG, PNG, MP4 до 2 ГБ
-          </Text>
-        </UnstyledButton>
-        <Button fullWidth mt="md" color="brand" radius="md" onClick={handleUpload}>
-          Готово
-        </Button>
-      </Modal>
+      {/* ===== Загрузка в медиатеку (features/media-upload) ===== */}
+      <MediaUploadModal opened={uploadOpened} onClose={upload.close} />
 
       {/* ===== Предпросмотр медиа ===== */}
       <Modal
@@ -191,7 +117,7 @@ export function MediaPage() {
         title={selected?.name}
         radius="lg"
         centered
-        size="lg"
+        size={520}
         styles={{
           title: {
             fontWeight: 800,
@@ -203,73 +129,71 @@ export function MediaPage() {
         }}
       >
         {selected ? (
-          <Stack gap="md">
+          <Stack gap={12}>
+            {/* Метаданные одной строкой по макету: «ТИП · РАЗМЕР · загружено ДАТА» */}
+            <Text fz={12} c="dimmed">
+              {mediaMeta}
+            </Text>
+
             <Box
               style={{
+                position: 'relative',
                 aspectRatio: '16 / 10',
                 border: DASHED_BORDER,
                 borderRadius: 12,
                 background: PLACEHOLDER_BG,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 9,
-                alignItems: 'center',
-                justifyContent: 'center',
+                overflow: 'hidden',
               }}
             >
-              <MediaThumb kind={selected.kind} size={30} />
-              <Text fz={12.5} c="dimmed">
-                предпросмотр · {selected.name}
-              </Text>
+              {/* Реальное превью по url; при пустом/битом url — аккуратный fallback */}
+              <Image
+                src={selected.url}
+                fallbackSrc={MEDIA_PREVIEW_FALLBACK}
+                fit="contain"
+                w="100%"
+                h="100%"
+                alt={selected.name}
+              />
+              {/* Для видео — круглая иконка play по центру превью, у фото её нет */}
+              {selected.kind === 'video' ? <PlayOverlay /> : null}
             </Box>
 
-            <Stack gap={6}>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Имя
-                </Text>
-                <Text fz={13} fw={600} lineClamp={1}>
-                  {selected.name}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Тип
-                </Text>
-                <Text fz={13} fw={600}>
-                  {selected.kind === 'video' ? 'Видео' : 'Фото'}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Размер
-                </Text>
-                <Text fz={13} fw={600}>
-                  {selected.sizeLabel}
-                </Text>
-              </Group>
-              <Group gap={8} wrap="nowrap">
-                <Text fz={13} c="dimmed" style={{ minWidth: 64 }}>
-                  Дата
-                </Text>
-                <Text fz={13} fw={600}>
-                  {formatDateTime(selected.uploadedAt)}
-                </Text>
-              </Group>
-            </Stack>
-
-            <Group justify="space-between" mt="xs">
-              <ConfirmDeleteButton
-                onConfirm={handleDelete}
-                tooltip="Удалить медиа"
-                confirmText="Удалить медиа безвозвратно?"
-              />
-              <Button variant="default" radius="md" onClick={() => setSelected(null)}>
+            <Group justify="space-between" mt={4}>
+              <Button variant="outline" color={DANGER_COLOR} radius="md" onClick={confirm.open}>
+                Удалить
+              </Button>
+              <Button radius="md" className={classes.closeButton} onClick={() => setSelected(null)}>
                 Закрыть
               </Button>
             </Group>
           </Stack>
         ) : null}
+      </Modal>
+
+      {/* ===== Подтверждение удаления ===== */}
+      <Modal
+        opened={confirmOpened}
+        onClose={confirm.close}
+        title="Удалить медиа?"
+        radius="lg"
+        centered
+        size="sm"
+        styles={{ title: { fontWeight: 800, fontSize: 15 } }}
+      >
+        <Text fz={13.5}>Файл «{selected?.name}» будет удалён из медиатеки безвозвратно.</Text>
+        <Group justify="flex-end" mt="md">
+          <Button variant="default" radius="md" onClick={confirm.close}>
+            Отмена
+          </Button>
+          <Button
+            color={DANGER_COLOR}
+            radius="md"
+            loading={deleteMedia.isPending}
+            onClick={handleConfirmDelete}
+          >
+            Удалить
+          </Button>
+        </Group>
       </Modal>
     </Container>
   )
