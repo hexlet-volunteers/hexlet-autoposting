@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Badge, Card, Group, Stack, Text, UnstyledButton } from '@mantine/core'
 import { NETWORKS } from '@/shared/config'
 import { plural } from '../lib/plural'
+import styles from './QueueDemo.module.css'
 
 const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
@@ -119,16 +120,7 @@ export function QueueDemo() {
               onClick={() => removeItem(item.id)}
               px={14}
               py={10}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 11,
-                width: '100%',
-                background: '#F6F4EF',
-                border: '1px solid rgba(23,21,15,.07)',
-                borderRadius: 10,
-                cursor: 'pointer',
-              }}
+              className={styles.postBtn}
             >
               <Text
                 fz={9.5}
@@ -169,19 +161,8 @@ export function QueueDemo() {
           )
         })}
 
-        <UnstyledButton
-          onClick={addItem}
-          px={11}
-          py={11}
-          ta="center"
-          style={{
-            border: '1.5px dashed rgba(23,21,15,.2)',
-            borderRadius: 10,
-          }}
-        >
-          <Text fz={13.5} fw={600} c="rgba(23,21,15,.5)">
-            + Добавить в очередь
-          </Text>
+        <UnstyledButton onClick={addItem} px={11} py={11} className={styles.addBtn}>
+          + Добавить в очередь
         </UnstyledButton>
       </Stack>
     </Card>
