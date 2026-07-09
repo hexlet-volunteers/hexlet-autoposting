@@ -1,13 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
-import type { MouseEvent, ReactNode } from 'react'
-import { Box, Button, Group, Text } from '@mantine/core'
+import { useEffect } from 'react'
+import { Box, Text } from '@mantine/core'
+import { RichTextEditor } from '@mantine/tiptap'
+import { useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import '@mantine/tiptap/styles.css'
 
 /**
- * RichText-заглушка композера (Design First): contentEditable + document.execCommand,
- * как в макете app-dashboard.html — форматирование настоящее (жирный/курсив/зачёркнутый/
- * ссылка дают чистый HTML), без markdown-маркеров в тексте.
- * TODO (Design First, #195): заменить на @mantine/tiptap (RichTextEditor.Bold/Italic/
- * Strikethrough/Link), когда пакет появится в зависимостях.
+ * RichText-редактор композера на @mantine/tiptap (следствие #195: заменяет
+ * прежнюю заглушку contentEditable + execCommand). Тулбар — Жирный/Курсив/
+ * Зачёркнутый/Ссылка (StarterKit покрывает первые три марки, Link — отдельно).
+ * Контракт с формой прежний: value(html) / onChange(html) / placeholder,
+ * поэтому model/composerForm.ts (htmlToPlainText) и мок-мутации не меняются.
  */
 
 interface RichTextAreaProps {
@@ -17,130 +21,60 @@ interface RichTextAreaProps {
   placeholder?: string
 }
 
-/** Пусто ли содержимое с точки зрения пользователя (одни теги — тоже пусто). */
-const isEmptyHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim().length === 0
-
 export function RichTextArea({ value, onChange, placeholder }: RichTextAreaProps) {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const [focused, setFocused] = useState(false)
+  const editor = useEditor({
+    extensions: [StarterKit, Link],
+    content: value,
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
+  })
 
   // Синхронизация извне: префилл при редактировании и вставка ИИ-варианта.
-  // При обычном вводе innerHTML уже совпадает с value — курсор не сбрасывается.
+  // При обычном вводе getHTML() уже совпадает с value — контент не пересобираем,
+  // поэтому курсор не сбрасывается. emitUpdate=false: setContent не должен
+  // порождать обратный onChange.
   useEffect(() => {
-    const el = editorRef.current
-    if (el && el.innerHTML !== value) el.innerHTML = value
+    if (!editor) return
+    if (value !== editor.getHTML()) {
+      editor.commands.setContent(value, false)
+    }
+    // editor стабилен между рендерами — реагируем только на смену value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
-
-  /** Команда форматирования; mousedown + preventDefault не снимает выделение. */
-  const applyFormat = (event: MouseEvent, command: string, arg?: string) => {
-    event.preventDefault()
-    // execCommand устарел, но для мок-редактора достаточно; уйдёт вместе с заглушкой
-    document.execCommand(command, false, arg)
-    const editor = editorRef.current
-    if (editor) onChange(editor.innerHTML)
-  }
 
   return (
     <Box>
-      <Group gap={5} mb={8}>
-        <Text fz="sm" fw={600} c="dimmed" mr={5}>
-          Текст
-        </Text>
-        <FormatButton title="Жирный" onMouseDown={(event) => applyFormat(event, 'bold')} fw={800}>
-          Ж
-        </FormatButton>
-        <FormatButton
-          title="Курсив"
-          onMouseDown={(event) => applyFormat(event, 'italic')}
-          fs="italic"
-        >
-          К
-        </FormatButton>
-        <FormatButton
-          title="Зачёркнутый"
-          onMouseDown={(event) => applyFormat(event, 'strikeThrough')}
-          td="line-through"
-        >
-          S
-        </FormatButton>
-        {/* Демо-ссылка как в макете; в проде тут будет ввод адреса */}
-        <FormatButton
-          title="Ссылка"
-          onMouseDown={(event) => applyFormat(event, 'createLink', 'https://otlozhka.ru')}
-          c="brand.6"
-        >
-          Ссылка
-        </FormatButton>
-      </Group>
-      <Box style={{ position: 'relative' }}>
-        <Box
-          ref={editorRef}
-          contentEditable
-          role="textbox"
-          aria-multiline="true"
-          aria-label="Текст поста"
-          onInput={() => editorRef.current && onChange(editorRef.current.innerHTML)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          style={{
-            minHeight: 96,
-            padding: '12px 14px',
-            border: `1.5px solid ${
-              focused ? 'var(--mantine-color-brand-6)' : 'rgba(23,21,15,.15)'
-            }`,
-            borderRadius: 10,
-            fontSize: 14.5,
-            lineHeight: 1.55,
-            outline: 'none',
-            background: 'var(--mantine-color-white)',
-          }}
-        />
-        {placeholder && isEmptyHtml(value) && (
-          <Text
-            fz={14.5}
-            c="dimmed"
-            style={{ position: 'absolute', top: 12, left: 14, pointerEvents: 'none' }}
-          >
-            {placeholder}
-          </Text>
-        )}
-      </Box>
+      <Text fz="sm" fw={600} c="dimmed" mb={8}>
+        Текст
+      </Text>
+      <RichTextEditor editor={editor}>
+        <RichTextEditor.Toolbar>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Bold />
+            <RichTextEditor.Italic />
+            <RichTextEditor.Strikethrough />
+            <RichTextEditor.Link />
+          </RichTextEditor.ControlsGroup>
+        </RichTextEditor.Toolbar>
+        {/* Плейсхолдер-оверлей: расширение @tiptap/extension-placeholder не в зоне
+            зависимостей, поэтому показываем подсказку сами, пока редактор пуст.
+            Отступ совпадает с padding контента (--mantine-spacing-md). */}
+        <Box style={{ position: 'relative' }}>
+          <RichTextEditor.Content />
+          {placeholder && editor?.isEmpty && (
+            <Text
+              c="dimmed"
+              style={{
+                position: 'absolute',
+                top: 'var(--mantine-spacing-md)',
+                left: 'var(--mantine-spacing-md)',
+                pointerEvents: 'none',
+              }}
+            >
+              {placeholder}
+            </Text>
+          )}
+        </Box>
+      </RichTextEditor>
     </Box>
-  )
-}
-
-interface FormatButtonProps {
-  title: string
-  onMouseDown: (event: MouseEvent) => void
-  children: ReactNode
-  fw?: number
-  fs?: string
-  td?: string
-  c?: string
-}
-
-/** Кнопка панели форматирования: Ж / К / S / Ссылка (стили — по макету). */
-function FormatButton({ title, onMouseDown, children, fw = 600, fs, td, c }: FormatButtonProps) {
-  return (
-    <Button
-      variant="default"
-      size="compact-sm"
-      radius={7}
-      title={title}
-      aria-label={title}
-      onMouseDown={onMouseDown}
-      styles={{
-        root: { height: 28, minWidth: 30, paddingInline: 8 },
-        label: {
-          fontWeight: fw,
-          fontStyle: fs,
-          textDecoration: td,
-          fontSize: 13,
-          color: c ? `var(--mantine-color-${c.replace('.', '-')})` : undefined,
-        },
-      }}
-    >
-      {children}
-    </Button>
   )
 }
