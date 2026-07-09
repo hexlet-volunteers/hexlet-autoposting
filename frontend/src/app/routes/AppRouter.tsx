@@ -9,6 +9,7 @@ import { ReportsPage } from '@/pages/reports'
 import { TeamPage } from '@/pages/team'
 import { SettingsPage } from '@/pages/settings'
 import { LoginPage } from '@/pages/login'
+import { AuthCallbackPage } from '@/pages/auth-callback'
 import { LegalPage } from '@/pages/legal'
 import { PricingPage } from '@/pages/pricing'
 import { NotFoundPage } from '@/pages/not-found'
@@ -34,6 +35,8 @@ const router = createBrowserRouter([
       // Публичный маркетинг-сайт
       { path: '/', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
+      // Возврат с OAuth-провайдера: разбор query, мок-сохранение сессии, редирект
+      { path: '/auth/callback', element: <AuthCallbackPage /> },
       { path: '/pricing', element: <PricingPage /> },
       { path: '/features/autoposting', element: <AutopostingPage /> },
       { path: '/features/crossposting', element: <CrosspostingPage /> },

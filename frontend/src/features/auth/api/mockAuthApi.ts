@@ -57,6 +57,14 @@ export async function mockRequestPasswordReset(email: string): Promise<void> {
   }
 }
 
+/**
+ * Мок обмена OAuth-кода на сессию (возврат провайдера на /auth/callback).
+ * Реальные проверка code/state и httpOnly-кука — backend-задачи (#111, #147).
+ */
+export async function mockExchangeOauthCode(): Promise<void> {
+  await wait()
+}
+
 /** Достаём текст ошибки из мок-запроса (на будущее — из ответа API) */
 export function getAuthErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Что-то пошло не так. Попробуйте ещё раз.'

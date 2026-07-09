@@ -1,0 +1,9 @@
+/* Лёгкое затемнение бренд-кнопки при наведении (login.html: brightness .92, T-ID — .95).
+   Сила затемнения приходит CSS-переменной из объекта провайдера. */
+.provider {
+  transition: filter 120ms ease;
+}
+
+.provider:hover {
+  filter: brightness(var(--oauth-hover-brightness, 0.92));
+}

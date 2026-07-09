@@ -1,4 +1,5 @@
-import { Anchor, Divider, Modal, SegmentedControl, Stack, Text, Title } from '@mantine/core'
+import { Alert, Anchor, Divider, Modal, SegmentedControl, Stack, Text, Title } from '@mantine/core'
+import { IconAlertCircle } from '@tabler/icons-react'
 import { useAuthModal } from '../model/hooks'
 import type { AuthMode } from '../model/authModalSlice'
 import { OAuthButtons } from './OAuthButtons'
@@ -26,7 +27,7 @@ const COPY: Record<AuthMode, { title: string; subtitle: string }> = {
  * (как в макете docs/design/mockups/login.html). Открывается через Redux (useAuthModal).
  */
 export function AuthModal() {
-  const { opened, mode, close, setMode } = useAuthModal()
+  const { opened, mode, close, setMode, oauthError, clearOauthError } = useAuthModal()
   const isAuth = mode !== 'reset'
 
   return (
@@ -66,6 +67,17 @@ export function AuthModal() {
 
         {isAuth && (
           <>
+            {/* Ошибка возврата с OAuth-callback (?error=…) — над блоком быстрого входа */}
+            {oauthError && (
+              <Alert
+                color="red"
+                icon={<IconAlertCircle size={18} />}
+                withCloseButton
+                onClose={clearOauthError}
+              >
+                {oauthError}
+              </Alert>
+            )}
             <OAuthButtons />
             <Divider label="или по почте" labelPosition="center" />
           </>
