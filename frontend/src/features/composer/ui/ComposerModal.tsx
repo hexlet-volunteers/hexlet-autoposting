@@ -28,6 +28,7 @@ import { useCreatePost } from '../api/useCreatePost'
 import { useDeletePost } from '../api/useDeletePost'
 import { useUpdatePost } from '../api/useUpdatePost'
 import { plural } from '../lib/plural'
+import { AI_ACCENT, buildAiVideoDescription } from '../model/aiAssist'
 import {
   DAY_LABELS,
   HOUR_OPTIONS,
@@ -43,6 +44,7 @@ import {
   makeValuesFromPost,
 } from '../model/composerForm'
 import type { ComposerFormValues, PostKind, RepeatMode } from '../model/composerForm'
+import { AiAssistPanel } from './AiAssistPanel'
 import { RichTextArea } from './RichTextArea'
 
 /**
@@ -50,35 +52,14 @@ import { RichTextArea } from './RichTextArea'
  * Состояние открытия приходит пропсами от хоста модалок (widgets/app-shell);
  * экраны открывают композер через useAppModals().openComposer(postId?).
  * Мутации — мок-хуки ../api поверх кэша ['scheduled-posts'] (Design First).
+ * Панель ИИ-помощника — отдельный сегмент ./AiAssistPanel + ../model/aiAssist.
  */
 
-// Модели ИИ-помощника — из макета «Композер».
-const AI_MODELS = ['YandexGPT 5 Pro', 'GigaChat Max', 'Claude Haiku', 'DeepSeek V3']
-
-// Цвета из макета app-dashboard: фиолетовый акцент ИИ, красная ссылка удаления,
+// Цвета из макета app-dashboard: красная ссылка удаления,
 // приглушённые рамки-пунктиры и фон плиток вложений.
-const AI_ACCENT = '#6E5BFF'
 const DANGER_TEXT = '#C4352D'
 const MUTED_DASH = 'rgba(23,21,15,.25)'
 const TILE_BG = '#F6F4EF'
-
-// Клиентская заглушка генерации текста (в проде — вызов POST /api/ai/suggest).
-function buildMockSuggestion(topic: string): string {
-  const subject = topic.trim() || 'вашем продукте'
-  return (
-    `Рассказываем про ${subject}! ` +
-    'Мы подготовили кое-что особенное и хотим поделиться этим с вами первыми. ' +
-    'Подробности — в комментариях, а пока ставьте огонёк, если ждёте. 🔥'
-  )
-}
-
-// Клиентская заглушка «ИИ-описания» видео (в проде — POST /api/ai/describe).
-function buildMockVideoDescription(): string {
-  return (
-    'В этом ролике — закулисье проекта: как всё устроено, кто за этим стоит ' +
-    'и что попробовать в первую очередь. Подписывайтесь, чтобы не пропустить новые видео.'
-  )
-}
 
 interface ComposerModalProps {
   opened: boolean
@@ -96,8 +77,6 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
 
   const queryClient = useQueryClient()
   const aiQuota = useQuota('ai')
-  const [aiTopic, setAiTopic] = useState('')
-  const [aiModel, setAiModel] = useState(AI_MODELS[0])
   const [timeOpen, setTimeOpen] = useState(false)
 
   const form = useForm<ComposerFormValues>({ initialValues: makeDefaultValues() })
@@ -122,7 +101,6 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
   const handleClose = () => {
     form.reset()
     // Локальное состояние сбрасываем при закрытии, чтобы следующее открытие было чистым
-    setAiTopic('')
     setTimeOpen(false)
     onClose()
   }
@@ -144,16 +122,9 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
     form.insertListItem('attachments', file.name)
   }
 
-  const handleGenerate = () => {
-    if (aiQuota.exhausted) return
-    form.setFieldValue('text', buildMockSuggestion(aiTopic))
-    incrementAiUsage(queryClient)
-    notifications.show({ color: 'grape', message: 'Текст сгенерирован (демо)' })
-  }
-
   const handleAiDescription = () => {
     if (aiQuota.exhausted) return
-    form.setFieldValue('videoDescription', buildMockVideoDescription())
+    form.setFieldValue('videoDescription', buildAiVideoDescription())
     incrementAiUsage(queryClient)
     notifications.show({ color: 'grape', message: 'Описание сгенерировано (демо)' })
   }
@@ -181,10 +152,6 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
     }
     handleClose()
   })
-
-  const aiCounterLabel = Number.isFinite(aiQuota.limit)
-    ? `ИИ-тексты · ${aiQuota.used} из ${aiQuota.limit} · осталось ${Math.max(0, aiQuota.limit - aiQuota.used)}`
-    : 'ИИ-тексты · безлимит'
 
   return (
     <Modal
@@ -220,49 +187,11 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
                 placeholder="О чём расскажем подписчикам?"
               />
 
-              {/* Панель ИИ-помощника (макет: блок с aiModel/aiSuggest) */}
-              <Box
-                style={{
-                  background: 'rgba(110,91,255,.06)',
-                  border: '1px solid rgba(110,91,255,.25)',
-                  borderRadius: 12,
-                  padding: 12,
-                }}
-              >
-                <Group gap={8} mb={10}>
-                  <IconSparkles size={15} color={AI_ACCENT} />
-                  <Text fw={700} fz="sm" c={AI_ACCENT}>
-                    ИИ-помощник
-                  </Text>
-                  <Select
-                    ml="auto"
-                    size="xs"
-                    data={AI_MODELS}
-                    allowDeselect={false}
-                    value={aiModel}
-                    onChange={(value) => setAiModel(value ?? AI_MODELS[0])}
-                  />
-                </Group>
-                <Group gap={8} align="flex-end" wrap="nowrap">
-                  <TextInput
-                    style={{ flex: 1 }}
-                    placeholder="О чём написать? Например: анонс новогодних сетов"
-                    value={aiTopic}
-                    onChange={(event) => setAiTopic(event.currentTarget.value)}
-                  />
-                  <Button color={AI_ACCENT} disabled={aiQuota.exhausted} onClick={handleGenerate}>
-                    Предложить
-                  </Button>
-                </Group>
-                <Group gap={10} mt={8} wrap="nowrap">
-                  <Text fz="xs" c="dimmed">
-                    Текст появится в поле выше — правьте как угодно
-                  </Text>
-                  <Text fz="xs" fw={600} ml="auto" style={{ color: AI_ACCENT }}>
-                    {aiCounterLabel}
-                  </Text>
-                </Group>
-              </Box>
+              {/* Панель ИИ-помощника: асинхронная мок-генерация, тон, варианты, «по фото» */}
+              <AiAssistPanel
+                hasPhoto={form.values.attachments.length > 0}
+                onInsert={(text) => form.setFieldValue('text', text)}
+              />
 
               {/* Вложения-фото (мок): плитки с именами файлов, до 4 штук */}
               <Box>

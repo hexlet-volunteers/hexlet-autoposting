@@ -17,6 +17,7 @@ import type { Icon } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
+import { QueueDemo } from './QueueDemo'
 
 const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
@@ -45,64 +46,6 @@ const FEATURES: FeatureCard[] = [
   },
 ]
 
-interface QueueItem {
-  short: string
-  color: string
-  label: string
-  when: string
-  status: string
-  statusColor: string
-  statusBg: string
-}
-
-const QUEUE: QueueItem[] = [
-  {
-    short: 'ВК',
-    color: '#0077FF',
-    label: 'Анонс акции',
-    when: 'вт, 09:00',
-    status: 'опубликован',
-    statusColor: '#1E7F4F',
-    statusBg: 'rgba(34,160,107,.12)',
-  },
-  {
-    short: 'TG',
-    color: '#27A6E5',
-    label: 'Утренний дайджест',
-    when: 'вт, 09:05',
-    status: 'опубликован',
-    statusColor: '#1E7F4F',
-    statusBg: 'rgba(34,160,107,.12)',
-  },
-  {
-    short: 'Дз',
-    color: '#1E1E20',
-    label: 'Лонгрид про тренды',
-    when: 'ср, 12:00',
-    status: 'в очереди',
-    statusColor: 'rgba(23,21,15,.55)',
-    statusBg: 'rgba(23,21,15,.07)',
-  },
-  {
-    short: 'ОК',
-    color: '#F7931E',
-    label: 'Опрос для подписчиков',
-    when: 'чт, 19:00',
-    status: 'в очереди',
-    statusColor: 'rgba(23,21,15,.55)',
-    statusBg: 'rgba(23,21,15,.07)',
-  },
-  {
-    short: 'YT',
-    color: '#FF0000',
-    label: 'Шортс: бэкстейдж',
-    when: 'пт, 18:00',
-    status: 'в очереди',
-    statusColor: 'rgba(23,21,15,.55)',
-    statusBg: 'rgba(23,21,15,.07)',
-  },
-]
-
 export function AutopostingPage() {
   const { open } = useAuthModal()
 
@@ -110,9 +53,18 @@ export function AutopostingPage() {
     <Box style={{ background: '#F6F4EF', color: '#17150F' }}>
       <MarketingHeader active="features" />
 
-      {/* Хлебные крошки */}
+      {/* Хлебные крошки: Главная / Возможности / Автопостинг */}
       <Container size="lg" pt={{ base: 20, sm: 28 }}>
         <Text fz={13} c="rgba(23,21,15,.5)">
+          <Text
+            component={Link}
+            to="/"
+            inherit
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            Главная
+          </Text>{' '}
+          /{' '}
           <Text
             component={Link}
             to="/#features"
@@ -173,7 +125,7 @@ export function AutopostingPage() {
                 </Button>
                 <Button
                   component={Link}
-                  to="/#features"
+                  to="/features/crossposting"
                   size="md"
                   radius="md"
                   variant="outline"
@@ -184,110 +136,8 @@ export function AutopostingPage() {
               </Group>
             </Stack>
 
-            {/* Живое демо: очередь публикаций (статичное представление) */}
-            <Card
-              withBorder
-              radius="lg"
-              p={0}
-              style={{
-                borderColor: BORDER,
-                background: '#fff',
-                boxShadow: '0 12px 32px rgba(23,21,15,.08)',
-                overflow: 'hidden',
-              }}
-            >
-              <Group
-                gap={12}
-                align="center"
-                px={18}
-                py={14}
-                wrap="wrap"
-                style={{ borderBottom: `1px solid ${SOFT_BORDER}` }}
-              >
-                <Text fz={15} fw={700}>
-                  Очередь публикаций
-                </Text>
-                <Badge
-                  radius="xl"
-                  variant="light"
-                  color="brand"
-                  styles={{ root: { textTransform: 'none', fontWeight: 600 } }}
-                >
-                  3 поста в очереди
-                </Badge>
-                <Text ml="auto" fz={12} c="rgba(23,21,15,.48)">
-                  живое демо
-                </Text>
-              </Group>
-
-              <Stack gap={8} px={18} py={14}>
-                {QUEUE.map((item) => (
-                  <Group
-                    key={`${item.short}-${item.label}`}
-                    gap={11}
-                    wrap="nowrap"
-                    align="center"
-                    px={14}
-                    py={10}
-                    style={{
-                      background: '#F6F4EF',
-                      border: `1px solid rgba(23,21,15,.07)`,
-                      borderRadius: 10,
-                    }}
-                  >
-                    <Text
-                      fz={9.5}
-                      fw={700}
-                      c="#fff"
-                      ta="center"
-                      style={{
-                        background: item.color,
-                        borderRadius: 5,
-                        padding: '3px 6px',
-                        minWidth: 22,
-                        flex: 'none',
-                      }}
-                    >
-                      {item.short}
-                    </Text>
-                    <Text fz={14} fw={600}>
-                      {item.label}
-                    </Text>
-                    <Text ml="auto" fz={12.5} c="rgba(23,21,15,.55)" style={{ flex: 'none' }}>
-                      {item.when}
-                    </Text>
-                    <Text
-                      fz={11}
-                      fw={700}
-                      style={{
-                        color: item.statusColor,
-                        background: item.statusBg,
-                        borderRadius: 'var(--mantine-radius-pill)',
-                        padding: '4px 10px',
-                        flex: 'none',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {item.status}
-                    </Text>
-                  </Group>
-                ))}
-
-                <Box
-                  px={11}
-                  py={11}
-                  ta="center"
-                  style={{
-                    border: '1.5px dashed rgba(23,21,15,.2)',
-                    borderRadius: 10,
-                  }}
-                >
-                  <Text fz={13.5} fw={600} c="rgba(23,21,15,.5)">
-                    + Добавить в очередь
-                  </Text>
-                </Box>
-              </Stack>
-            </Card>
+            {/* Живое демо: интерактивная очередь публикаций на локальном состоянии */}
+            <QueueDemo />
           </SimpleGrid>
         </Container>
       </Box>
