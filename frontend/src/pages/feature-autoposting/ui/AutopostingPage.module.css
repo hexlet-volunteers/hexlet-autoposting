@@ -1,0 +1,14 @@
+/* Hero-сетка: на мобильном один столбец, на md+ — асимметрия узкий текст + широкое демо (макет feature-autoposting). */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 62em) {
+  .hero {
+    grid-template-columns: minmax(340px, 460px) minmax(0, 1fr);
+    gap: 48px;
+  }
+}
