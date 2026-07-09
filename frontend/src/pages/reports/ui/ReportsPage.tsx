@@ -1,5 +1,16 @@
 import { useState } from 'react'
-import { Box, Button, Group, Select, Stack, Table, Text, Title } from '@mantine/core'
+import {
+  Box,
+  Button,
+  Group,
+  Paper,
+  SegmentedControl,
+  Select,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core'
 import { IconDownload } from '@tabler/icons-react'
 import { NETWORKS } from '@/shared/config'
 import type { Network } from '@/shared/config'
@@ -17,7 +28,16 @@ const PERIOD_OPTIONS = [
 const YEAR_OPTIONS = [
   { value: '2026', label: '2026' },
   { value: '2025', label: '2025' },
+  { value: '2024', label: '2024' },
 ]
+
+/** Название периода для шапки карточки (repLabel из макета). */
+const PERIOD_LABELS: Record<string, string> = {
+  week: 'Неделя',
+  month: 'Месяц',
+  quarter: 'Квартал',
+  year: 'Год',
+}
 
 /** Форматирование чисел с пробелом-разделителем разрядов (как fmtNum в макете). */
 function formatNumber(value: number): string {
@@ -38,28 +58,29 @@ export function ReportsPage() {
     (acc, row) => ({
       publications: acc.publications + row.publications,
       views: acc.views + row.views,
-      likes: acc.likes + row.likes,
-      reposts: acc.reposts + row.reposts,
+      clicks: acc.clicks + row.clicks,
     }),
-    { publications: 0, views: 0, likes: 0, reposts: 0 } satisfies Omit<ReportRow, 'networkId'>,
+    { publications: 0, views: 0, clicks: 0 } satisfies Omit<ReportRow, 'networkId'>,
   )
+
+  // Максимум просмотров — база для длины прогресс-бара «Просмотры» (как r.bar в макете).
+  const maxViews = data.reduce((max, row) => Math.max(max, row.views), 0)
 
   const handleDownload = () => {
     // TODO (Design First): заменить на GET /projects/{id}/reports/export?period=&year=
     // (эндпоинт появится в бэкенде). Пока собираем CSV из текущих мок-данных таблицы.
-    const header = ['Площадка', 'Публикации', 'Просмотры', 'Лайки', 'Репосты']
+    const header = ['Площадка', 'Публикации', 'Просмотры', 'Переходы']
     const rows = data.map((row) => [
       findNetwork(row.networkId)?.name ?? row.networkId,
       row.publications,
       row.views,
-      row.likes,
-      row.reposts,
+      row.clicks,
     ])
-    const totalsRow = ['Итого', totals.publications, totals.views, totals.likes, totals.reposts]
+    const totalsRow = ['Итого', totals.publications, totals.views, totals.clicks]
     const csv = [header, ...rows, totalsRow].map((cells) => cells.join(';')).join('\n')
 
     // BOM в начале — чтобы Excel корректно распознал кириллицу в UTF-8.
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -85,12 +106,11 @@ export function ReportsPage() {
       </Group>
 
       <Group gap="sm" wrap="wrap">
-        <Select
+        <SegmentedControl
           data={PERIOD_OPTIONS}
           value={period}
-          onChange={(value) => value && setPeriod(value)}
-          allowDeselect={false}
-          w={160}
+          onChange={setPeriod}
+          radius="md"
           aria-label="Период"
         />
         <Select
@@ -110,48 +130,92 @@ export function ReportsPage() {
             description="Подключите площадки и опубликуйте посты — статистика появится здесь."
           />
         ) : (
-          <Box style={{ overflowX: 'auto' }}>
-            <Table miw={640} verticalSpacing="sm" highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Площадка</Table.Th>
-                  <Table.Th ta="right">Публикации</Table.Th>
-                  <Table.Th ta="right">Просмотры</Table.Th>
-                  <Table.Th ta="right">Лайки</Table.Th>
-                  <Table.Th ta="right">Репосты</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {data.map((row) => {
-                  const network = findNetwork(row.networkId)
-                  return (
-                    <Table.Tr key={row.networkId}>
-                      <Table.Td>
-                        {network ? (
-                          <NetworkPill network={network} />
-                        ) : (
-                          <Text size="sm">{row.networkId}</Text>
-                        )}
-                      </Table.Td>
-                      <Table.Td ta="right">{formatNumber(row.publications)}</Table.Td>
-                      <Table.Td ta="right">{formatNumber(row.views)}</Table.Td>
-                      <Table.Td ta="right">{formatNumber(row.likes)}</Table.Td>
-                      <Table.Td ta="right">{formatNumber(row.reposts)}</Table.Td>
-                    </Table.Tr>
-                  )
-                })}
-              </Table.Tbody>
-              <Table.Tfoot>
-                <Table.Tr>
-                  <Table.Th>Итого</Table.Th>
-                  <Table.Th ta="right">{formatNumber(totals.publications)}</Table.Th>
-                  <Table.Th ta="right">{formatNumber(totals.views)}</Table.Th>
-                  <Table.Th ta="right">{formatNumber(totals.likes)}</Table.Th>
-                  <Table.Th ta="right">{formatNumber(totals.reposts)}</Table.Th>
-                </Table.Tr>
-              </Table.Tfoot>
-            </Table>
-          </Box>
+          <Paper withBorder radius="lg" style={{ overflow: 'hidden' }}>
+            <Group
+              gap="sm"
+              px="lg"
+              py="sm"
+              style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}
+            >
+              <Text fw={700} fz={14.5}>
+                {PERIOD_LABELS[period]} · {year}
+              </Text>
+              <Text ml="auto" fz={12} c="dimmed">
+                демо-данные
+              </Text>
+            </Group>
+            <Box style={{ overflowX: 'auto' }}>
+              <Table miw={640} verticalSpacing="sm" horizontalSpacing="lg" highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ width: '30%' }}>Площадка</Table.Th>
+                    <Table.Th style={{ width: '15%' }}>Публикации</Table.Th>
+                    <Table.Th style={{ width: '40%' }}>Просмотры</Table.Th>
+                    <Table.Th ta="right" style={{ width: '15%' }}>
+                      Переходы
+                    </Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {data.map((row) => {
+                    const network = findNetwork(row.networkId)
+                    const barColor = network?.color ?? 'var(--mantine-color-gray-5)'
+                    const barWidth = maxViews > 0 ? `${(row.views / maxViews) * 100}%` : '0%'
+                    return (
+                      <Table.Tr key={row.networkId}>
+                        <Table.Td>
+                          {network ? (
+                            <Group gap={9} wrap="nowrap">
+                              <NetworkPill network={network} variant="badge" />
+                              <Text size="sm" fw={600}>
+                                {network.name}
+                              </Text>
+                            </Group>
+                          ) : (
+                            <Text size="sm">{row.networkId}</Text>
+                          )}
+                        </Table.Td>
+                        <Table.Td>{formatNumber(row.publications)}</Table.Td>
+                        <Table.Td>
+                          <Group gap={10} wrap="nowrap">
+                            <Text size="sm" fw={600} style={{ minWidth: 64 }}>
+                              {formatNumber(row.views)}
+                            </Text>
+                            <Box
+                              style={{
+                                flex: 1,
+                                height: 7,
+                                borderRadius: 'var(--mantine-radius-pill)',
+                                background: 'rgba(23,21,15,.07)',
+                              }}
+                            >
+                              <Box
+                                style={{
+                                  width: barWidth,
+                                  height: 7,
+                                  borderRadius: 'var(--mantine-radius-pill)',
+                                  background: barColor,
+                                }}
+                              />
+                            </Box>
+                          </Group>
+                        </Table.Td>
+                        <Table.Td ta="right">{formatNumber(row.clicks)}</Table.Td>
+                      </Table.Tr>
+                    )
+                  })}
+                </Table.Tbody>
+                <Table.Tfoot>
+                  <Table.Tr>
+                    <Table.Th>Итого</Table.Th>
+                    <Table.Th>{formatNumber(totals.publications)}</Table.Th>
+                    <Table.Th>{formatNumber(totals.views)}</Table.Th>
+                    <Table.Th ta="right">{formatNumber(totals.clicks)}</Table.Th>
+                  </Table.Tr>
+                </Table.Tfoot>
+              </Table>
+            </Box>
+          </Paper>
         )}
       </QueryState>
 

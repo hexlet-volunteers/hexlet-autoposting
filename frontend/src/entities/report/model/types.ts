@@ -4,12 +4,12 @@ export interface ReportRow {
   networkId: string
   publications: number
   views: number
-  likes: number
-  reposts: number
+  /** Переходы по ссылкам (клики). */
+  clicks: number
 }
 
 /** Масштаб отчёта (кнопки-фильтры из макета «Отчёты»). */
 export type ReportPeriod = 'week' | 'month' | 'quarter' | 'year'
 
 /** Год отчёта (селектор из макета). */
-export type ReportYear = '2026' | '2025'
+export type ReportYear = '2026' | '2025' | '2024'
