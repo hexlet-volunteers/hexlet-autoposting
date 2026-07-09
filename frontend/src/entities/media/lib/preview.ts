@@ -17,3 +17,7 @@ export function makeMockPreviewUrl(
 
 /** Fallback предпросмотра на случай пустого или битого url (Image fallbackSrc). */
 export const MEDIA_PREVIEW_FALLBACK = makeMockPreviewUrl('превью недоступно')
+
+/** Тёмный кадр для видео-заглушек (превью «стоп-кадра») — и в моках, и у загруженных. */
+export const VIDEO_PREVIEW_BG = '#26241D'
+export const VIDEO_PREVIEW_FG = 'rgba(255,255,255,.75)'

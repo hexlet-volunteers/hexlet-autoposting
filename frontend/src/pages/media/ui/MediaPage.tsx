@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Button,
@@ -10,7 +10,6 @@ import {
   Stack,
   Text,
   Title,
-  UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -24,6 +23,7 @@ import {
   MEDIA_PREVIEW_FALLBACK,
 } from '@/entities/media'
 import type { Media } from '@/entities/media'
+import { MediaUploadModal } from '@/features/media-upload'
 import { MediaGallery, MediaGallerySkeleton } from '@/widgets/media-gallery'
 import { EmptyState, QueryState } from '@/shared/ui'
 import classes from './MediaPage.module.css'
@@ -41,16 +41,8 @@ export function MediaPage() {
   const [selected, setSelected] = useState<Media | null>(null)
   // Подтверждение удаления (действие необратимо) — отдельная маленькая модалка.
   const [confirmOpened, confirm] = useDisclosure(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const deleteMedia = useDeleteMediaMutation()
-
-  // Загрузка — заглушка: реальная отправка появится с Design First.
-  const handleUpload = () => {
-    // TODO (Design First, backlog): POST /media (multipart) + инвалидация mediaKeys.all.
-    notifications.show({ color: 'green', message: 'Файлы загружены в медиатеку (демо)' })
-    upload.close()
-  }
 
   // Удаление после подтверждения: мок-мутация правит кэш, плитка исчезает из сетки сразу.
   const handleConfirmDelete = () => {
@@ -115,46 +107,8 @@ export function MediaPage() {
         </QueryState>
       </Card>
 
-      {/* ===== Загрузка в медиатеку ===== */}
-      <Modal
-        opened={uploadOpened}
-        onClose={upload.close}
-        title="Загрузка в медиатеку"
-        radius="lg"
-        centered
-        styles={{ title: { fontWeight: 800, fontSize: 17, letterSpacing: '-.2px' } }}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,video/mp4"
-          hidden
-          onChange={handleUpload}
-        />
-        <UnstyledButton
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            display: 'block',
-            width: '100%',
-            border: '1.5px dashed rgba(43,80,236,.45)',
-            borderRadius: 12,
-            background: 'rgba(43,80,236,.04)',
-            padding: '30px 16px',
-            textAlign: 'center',
-          }}
-        >
-          <Text fz={13.5} fw={700} c="brand">
-            Перетащите файлы сюда
-          </Text>
-          <Text mt={4} fz={12} c="dimmed">
-            или нажмите, чтобы выбрать · JPG, PNG, MP4 до 2 ГБ
-          </Text>
-        </UnstyledButton>
-        <Button fullWidth mt="md" color="brand" radius="md" onClick={handleUpload}>
-          Готово
-        </Button>
-      </Modal>
+      {/* ===== Загрузка в медиатеку (features/media-upload) ===== */}
+      <MediaUploadModal opened={uploadOpened} onClose={upload.close} />
 
       {/* ===== Предпросмотр медиа ===== */}
       <Modal
