@@ -14,23 +14,37 @@ const ER_BG = 'rgba(34, 160, 107, 0.1)'
 const ER_COLOR = '#1E7F4F'
 
 /**
- * Переходы и ER отправленных постов (#196). Поля clicks/er должны жить
- * в PostMetrics — сущность entities/scheduled-post дорабатывается отдельно,
- * поэтому до её обновления значения замоканы локально; одноимённые поля
- * из сущности имеют приоритет, как только появятся (см. getExtendedMetrics).
+ * Переходы отправленных постов (#196). Поля clicks в доменной модели PostMetrics
+ * пока нет (добавляется отдельной backend-задачей #147): для «витринных» постов
+ * значения заданы здесь, а для сгенерированных — выводятся детерминированно из
+ * просмотров, чтобы плитка «переходы» была заполнена у КАЖДОГО поста, как в макете.
+ * ER не мокаем — считаем из метрик, как в макете: (likes+reposts+comments)/views.
  */
-const EXTRA_METRICS: Record<string, { clicks: number; er: string }> = {
-  'sp-sent-1': { clicks: 342, er: '3.5%' },
-  'sp-sent-2': { clicks: 261, er: '5.8%' },
-  'sp-sent-3': { clicks: 148, er: '3.6%' },
-  'sp-sent-4': { clicks: 517, er: '5.6%' },
+const CLICKS_BY_ID: Record<string, number> = {
+  'sp-sent-1': 342,
+  'sp-sent-2': 261,
+  'sp-sent-3': 148,
+  'sp-sent-4': 517,
 }
 
-/** clicks/er: из сущности, если поля уже добавлены в PostMetrics; иначе — локальный мок. */
-function getExtendedMetrics(post: Post): { clicks?: number; er?: string } {
-  const entity = post.metrics as (PostMetrics & { clicks?: number; er?: string }) | undefined
-  const fallback = EXTRA_METRICS[post.id]
-  return { clicks: entity?.clicks ?? fallback?.clicks, er: entity?.er ?? fallback?.er }
+/** Переходы: поле сущности (когда появится) → «витринный» мок → детерминированно ~2–6% просмотров. */
+function clicksFor(post: Post, metrics: PostMetrics): number {
+  const entityClicks = (metrics as PostMetrics & { clicks?: number }).clicks
+  if (entityClicks != null) return entityClicks
+  const override = CLICKS_BY_ID[post.id]
+  if (override != null) return override
+  // Стабильный хэш id даёт разброс доли переходов по постам без Math.random.
+  let hash = 0
+  for (let i = 0; i < post.id.length; i += 1) hash = (hash * 31 + post.id.charCodeAt(i)) >>> 0
+  const ratio = 0.02 + (hash % 41) / 1000
+  return Math.round(metrics.views * ratio)
+}
+
+/** ER = ((лайки+репосты+комментарии)/просмотры)*100, одна цифра после запятой (как в макете). */
+function erFor(metrics: PostMetrics): string {
+  const { views, likes, reposts, comments } = metrics
+  if (views <= 0) return '—'
+  return (((likes + reposts + comments) / views) * 100).toFixed(1) + '%'
 }
 
 interface PostStatsModalProps {
@@ -63,7 +77,6 @@ function MetricCell({ value, label, accent = false }: MetricCellProps) {
 export function PostStatsModal({ post, opened, onClose }: PostStatsModalProps) {
   const network = post ? NETWORK_BY_ID.get(post.networkIds[0]) : undefined
   const metrics = post?.metrics
-  const extended = post ? getExtendedMetrics(post) : undefined
 
   // Имитация загрузки статистики (~600 мс, как в остальных моках): реальный
   // GET /posts/{id}/stats подключается отдельной backend-задачей (#147).
@@ -124,11 +137,10 @@ export function PostStatsModal({ post, opened, onClose }: PostStatsModalProps) {
               <MetricCell value={metrics.reposts.toLocaleString('ru-RU')} label="репосты" />
               <MetricCell value={metrics.comments.toLocaleString('ru-RU')} label="комментарии" />
               <MetricCell
-                value={extended?.clicks != null ? extended.clicks.toLocaleString('ru-RU') : '—'}
+                value={clicksFor(post, metrics).toLocaleString('ru-RU')}
                 label="переходы"
               />
-              {/* ER выводим строкой как есть — на фронте не пересчитываем. */}
-              <MetricCell value={extended?.er ?? '—'} label="ER" accent />
+              <MetricCell value={erFor(metrics)} label="ER" accent />
             </SimpleGrid>
           ) : (
             <Text size="sm" c="dimmed" ta="center" py="md">
