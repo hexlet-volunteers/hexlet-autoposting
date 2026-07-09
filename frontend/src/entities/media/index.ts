@@ -11,8 +11,7 @@ export {
   MEDIA_VIDEO_FORMATS_LABEL,
 } from './model/uploadConfig'
 export { MediaTile } from './ui/MediaTile'
-export { MediaThumb } from './ui/MediaThumb'
-export { PlayOverlay } from './ui/PlayOverlay'
+export { PlayBadge } from './ui/PlayBadge'
 export { UploadDropzone } from './ui/UploadDropzone'
 export { formatDateShort } from './lib/date'
 export { getMediaTypeLabel } from './lib/format'

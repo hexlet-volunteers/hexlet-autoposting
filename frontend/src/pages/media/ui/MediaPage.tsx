@@ -17,7 +17,7 @@ import { IconUpload } from '@tabler/icons-react'
 import {
   useMedia,
   useDeleteMediaMutation,
-  PlayOverlay,
+  PlayBadge,
   formatDateShort,
   getMediaTypeLabel,
   MEDIA_PREVIEW_FALLBACK,
@@ -145,17 +145,25 @@ export function MediaPage() {
                 overflow: 'hidden',
               }}
             >
-              {/* Реальное превью по url; при пустом/битом url — аккуратный fallback */}
-              <Image
-                src={selected.url}
-                fallbackSrc={MEDIA_PREVIEW_FALLBACK}
-                fit="contain"
-                w="100%"
-                h="100%"
-                alt={selected.name}
-              />
-              {/* Для видео — круглая иконка play по центру превью, у фото её нет */}
-              {selected.kind === 'video' ? <PlayOverlay /> : null}
+              {selected.kind === 'video' ? (
+                // Видео: крупный play-круг НАД подписью (flex-column, без наложения) — по макету
+                <Stack align="center" justify="center" gap={9} h="100%">
+                  <PlayBadge size={46} fontSize={15} />
+                  <Text fz={12.5} style={{ color: 'rgba(23,21,15,.45)' }}>
+                    предпросмотр · {selected.name}
+                  </Text>
+                </Stack>
+              ) : (
+                // Фото: реальное превью по url; при пустом/битом url — аккуратный fallback
+                <Image
+                  src={selected.url}
+                  fallbackSrc={MEDIA_PREVIEW_FALLBACK}
+                  fit="contain"
+                  w="100%"
+                  h="100%"
+                  alt={selected.name}
+                />
+              )}
             </Box>
 
             <Group justify="space-between" mt={4}>
