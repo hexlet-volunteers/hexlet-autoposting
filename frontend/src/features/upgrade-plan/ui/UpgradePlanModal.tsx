@@ -4,19 +4,20 @@ import {
   Badge,
   Button,
   Card,
+  Checkbox,
+  CloseButton,
   Group,
   Modal,
   SegmentedControl,
   SimpleGrid,
   Stack,
-  Stepper,
   Text,
   TextInput,
   ThemeIcon,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { IconAlertTriangle, IconCheck, IconFileInvoice } from '@tabler/icons-react'
+import { IconAlertTriangle, IconCheck } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { applyPlan, useSubscription } from '@/entities/subscription'
 
@@ -24,7 +25,7 @@ import { applyPlan, useSubscription } from '@/entities/subscription'
  * Глобальная модалка апгрейда тарифа. Состояние открытия приходит пропсами
  * от хоста модалок (widgets/app-shell), монтируется один раз интегратором.
  *
- * Трёхшаговый флоу (Mantine Stepper): выбор тарифа → оплата → готово. Всё локальное и
+ * Трёхшаговый флоу: выбор тарифа → оплата → готово. Всё локальное и
  * демо: тарифы захардкожены (страницу /pricing НЕ импортируем), данные карты не сохраняем.
  * После успешной «оплаты» тариф и лимиты применяются к мок-подписке (entities/subscription).
  */
@@ -43,42 +44,50 @@ interface Plan {
   name: string
   /** Базовая цена в месяц (₽); 0 — бесплатный тариф. */
   monthly: number
-  /** Короткая подпись под ценой. */
-  note: string
   /** Список включённых возможностей. */
   feats: string[]
-  /** Лимиты тарифа для мок-подписки; Infinity — безлимит постов на платных тарифах. */
+  /** Лимиты тарифа для мок-подписки; Infinity — безлимит на платных тарифах. */
   limits: { aiRequests: number; scheduledPosts: number }
-  /** Рекомендуемый тариф (выделяется рамкой и бейджем). */
-  featured?: boolean
 }
 
 // Локальный мок тарифов — не импортируем страницу тарифов, слайс самодостаточен.
+// Состав и формулировки — из макета (app-dashboard.html: UP_PLANS/LIMITS).
 const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Бесплатный',
     monthly: 0,
-    note: 'навсегда',
-    feats: ['3 соцсети', '10 постов в месяц', '1 проект', '5 ИИ-текстов в месяц'],
+    feats: ['3 соцсети', '10 постов в месяц', '5 ИИ-текстов в месяц'],
     limits: { aiRequests: 5, scheduledPosts: 10 },
   },
   {
     id: 'start',
     name: 'Старт',
     monthly: 490,
-    note: '7 дней бесплатно',
-    featured: true,
-    feats: ['7 соцсетей', 'Посты без лимита', '1 проект', '50 ИИ-текстов в месяц'],
+    feats: ['7 соцсетей', 'Посты без лимита', '50 ИИ-текстов в месяц'],
     limits: { aiRequests: 50, scheduledPosts: Infinity },
   },
   {
     id: 'pro',
     name: 'Про',
     monthly: 990,
-    note: '7 дней бесплатно',
-    feats: ['Всё из «Старта»', '5 проектов', 'Команда из 3 человек', 'Согласование постов'],
-    limits: { aiRequests: 50, scheduledPosts: Infinity },
+    feats: [
+      '5 проектов и команда из 3 человек',
+      '200 ИИ-текстов в месяц',
+      'Согласование постов и автоповторы',
+    ],
+    limits: { aiRequests: 200, scheduledPosts: Infinity },
+  },
+  {
+    id: 'agency',
+    name: 'Агентство',
+    monthly: 2490,
+    feats: [
+      '20 проектов и 10 пользователей',
+      'ИИ-тексты без лимита',
+      'Отчёты для клиентов и личный менеджер',
+    ],
+    limits: { aiRequests: Infinity, scheduledPosts: Infinity },
   },
 ]
 
@@ -103,15 +112,27 @@ function formatRub(value: number): string {
   return `${value.toLocaleString('ru-RU')} ₽`
 }
 
+/** Итоговая сумма с подписью периода (upTotal из макета). */
+function totalLabel(plan: Plan, period: BillingPeriod): string {
+  return period === 'yearly'
+    ? `${formatRub(totalPrice(plan, period))} за год`
+    : formatRub(totalPrice(plan, period))
+}
+
+/** Подпись под ценой карточки (note из макета). */
+function planNote(plan: Plan, period: BillingPeriod): string {
+  if (plan.monthly === 0) return 'без карты и срока'
+  return period === 'yearly'
+    ? 'при оплате за год'
+    : `${formatRub(Math.round(plan.monthly * 0.8))}/мес при оплате за год`
+}
+
 interface UpgradePlanModalProps {
   opened: boolean
   onClose: () => void
 }
 
 export function UpgradePlanModal({ opened, onClose }: UpgradePlanModalProps) {
-  // Текущий тариф — из мок-подписки: после успешной «оплаты» бейдж обновится сам
-  const { data: subscription } = useSubscription()
-
   return (
     <Modal
       opened={opened}
@@ -119,16 +140,8 @@ export function UpgradePlanModal({ opened, onClose }: UpgradePlanModalProps) {
       centered
       radius="lg"
       size="lg"
-      title={
-        <Group gap={10} wrap="nowrap">
-          <Text fw={800} fz={18} style={{ letterSpacing: '-.2px' }}>
-            Апгрейд тарифа
-          </Text>
-          <Badge color="gray" variant="light" radius="xl" tt="none" fw={600}>
-            сейчас: {subscription.plan}
-          </Badge>
-        </Group>
-      }
+      padding="lg"
+      withCloseButton={false}
     >
       <UpgradeFlow onClose={onClose} />
     </Modal>
@@ -151,7 +164,8 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
   const queryClient = useQueryClient()
   const { data: subscription } = useSubscription()
   const [step, setStep] = useState(0)
-  const [period, setPeriod] = useState<BillingPeriod>('monthly')
+  // По умолчанию — годовой период (в макете upYearly:true).
+  const [period, setPeriod] = useState<BillingPeriod>('yearly')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   // Номер карты держим только в локальном состоянии ради демо-правила «...0000 = ошибка»;
   // никуда не сохраняем и не логируем.
@@ -167,20 +181,39 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
     [],
   )
 
+  // Текущий тариф исключаем из предлагаемых карточек (в макете UP_PLANS.filter).
+  const availablePlans = PLANS.filter((plan) => plan.name !== subscription.plan)
   const selectedPlan = PLANS.find((p) => p.id === selectedId) ?? null
 
-  const periodNote = period === 'yearly' ? 'на год' : 'на месяц'
-  const totalLabel = selectedPlan ? formatRub(totalPrice(selectedPlan, period)) : ''
+  const periodNote = period === 'yearly' ? 'оплата за год со скидкой 20%' : 'оплата помесячно'
+
+  const applySelected = (plan: Plan) => {
+    applyPlan(queryClient, {
+      plan: plan.name,
+      limits: plan.limits,
+      renewsAt: dayjs()
+        .add(1, period === 'yearly' ? 'year' : 'month')
+        .format('YYYY-MM-DD'),
+    })
+  }
 
   const pickPlan = (id: string) => {
+    const plan = PLANS.find((p) => p.id === id)
+    if (!plan) return
     setSelectedId(id)
+    // Бесплатный тариф не требует оплаты — сразу применяем и показываем «Готово».
+    if (plan.monthly === 0) {
+      applySelected(plan)
+      setStep(2)
+      return
+    }
     setStep(1)
   }
 
-  // Навигация между шагами сбрасывает результат прошлой попытки оплаты
-  const goToStep = (next: number) => {
+  // Возврат к выбору тарифа сбрасывает результат прошлой попытки оплаты
+  const backToPlans = () => {
     setPayStatus('idle')
-    setStep(next)
+    setStep(0)
   }
 
   const pay = () => {
@@ -195,13 +228,7 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
         return
       }
       // Успех: применяем тариф к мок-подписке — сайдбар и квоты обновляются сразу
-      applyPlan(queryClient, {
-        plan: selectedPlan.name,
-        limits: selectedPlan.limits,
-        renewsAt: dayjs()
-          .add(1, period === 'yearly' ? 'year' : 'month')
-          .format('YYYY-MM-DD'),
-      })
+      applySelected(selectedPlan)
       notifications.show({ color: 'green', message: 'Тариф изменён (демо)' })
       setPayStatus('idle')
       setStep(2)
@@ -210,18 +237,19 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
 
   return (
     <>
-      <Stepper active={step} onStepClick={goToStep} size="sm" allowNextStepsSelect={false} mb="lg">
-        <Stepper.Step
-          label="Выбор тарифа"
-          allowStepSelect={step === 1 && payStatus !== 'loading'}
-        />
-        <Stepper.Step label="Оплата" allowStepSelect={false} />
-        <Stepper.Step label="Готово" allowStepSelect={false} />
-      </Stepper>
-
       {/* ШАГ 1 — Выбор тарифа */}
       {step === 0 && (
         <Stack gap="md">
+          <Group gap={10} wrap="nowrap">
+            <Text fw={800} fz={18} style={{ letterSpacing: '-.2px' }}>
+              Апгрейд тарифа
+            </Text>
+            <Badge color="gray" variant="light" radius="xl" tt="none" fw={600}>
+              сейчас: {subscription.plan}
+            </Badge>
+            <CloseButton ml="auto" onClick={onClose} aria-label="Закрыть" />
+          </Group>
+
           <Group>
             <SegmentedControl
               radius="md"
@@ -245,7 +273,7 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
           </Group>
 
           <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
-            {PLANS.map((plan) => {
+            {availablePlans.map((plan) => {
               const selected = plan.id === selectedId
               return (
                 <Card
@@ -254,24 +282,11 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
                   radius="md"
                   p="md"
                   style={{
-                    position: 'relative',
-                    borderColor: selected || plan.featured ? BRAND : BORDER,
-                    borderWidth: selected || plan.featured ? 2 : 1.5,
+                    borderColor: selected ? BRAND : BORDER,
+                    borderWidth: selected ? 2 : 1.5,
                   }}
                 >
                   <Stack gap={4} h="100%">
-                    {plan.featured && (
-                      <Badge
-                        color="brand"
-                        radius="xl"
-                        tt="none"
-                        fw={700}
-                        style={{ position: 'absolute', top: -10, left: 14 }}
-                      >
-                        Популярный
-                      </Badge>
-                    )}
-
                     <Text fz={14.5} fw={700}>
                       {plan.name}
                     </Text>
@@ -280,12 +295,12 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
                       {formatRub(monthlyPrice(plan, period))}
                       <Text component="span" fz={12} fw={600} c="rgba(23,21,15,.5)">
                         {' '}
-                        /мес
+                        {plan.monthly === 0 ? 'навсегда' : '/мес'}
                       </Text>
                     </Text>
 
                     <Text fz={11.5} c="rgba(23,21,15,.5)">
-                      {plan.note}
+                      {planNote(plan, period)}
                     </Text>
 
                     <Stack gap={7} mt={10} mb={14}>
@@ -309,10 +324,10 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
                       fullWidth
                       radius="md"
                       color="brand"
-                      variant={plan.featured ? 'filled' : 'outline'}
+                      variant="filled"
                       onClick={() => pickPlan(plan.id)}
                     >
-                      Выбрать {plan.name}
+                      {plan.name}
                     </Button>
                   </Stack>
                 </Card>
@@ -325,6 +340,16 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
       {/* ШАГ 2 — Оплата */}
       {step === 1 && selectedPlan && (
         <Stack gap="md">
+          <Group gap={12} wrap="nowrap">
+            <Button variant="subtle" color="gray" size="compact-sm" px={0} onClick={backToPlans}>
+              ← Назад
+            </Button>
+            <Text fw={800} fz={18} style={{ letterSpacing: '-.2px' }}>
+              Оплата
+            </Text>
+            <CloseButton ml="auto" onClick={onClose} aria-label="Закрыть" />
+          </Group>
+
           <Group
             gap={10}
             wrap="nowrap"
@@ -337,7 +362,7 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
               {periodNote}
             </Text>
             <Text ml="auto" fz={15} fw={800}>
-              {totalLabel}
+              {totalLabel(selectedPlan, period)}
             </Text>
           </Group>
 
@@ -355,15 +380,7 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
             <TextInput label="CVC" placeholder="•••" type="password" inputMode="numeric" />
           </SimpleGrid>
 
-          <Alert
-            variant="light"
-            color="gray"
-            radius="md"
-            icon={<IconFileInvoice size={18} />}
-            styles={{ message: { fontSize: 13 } }}
-          >
-            Или оплата по счёту для юрлиц — пришлём счёт и закрывающие документы.
-          </Alert>
+          <Checkbox defaultChecked color="brand" label="Сохранить карту для автопродления" />
 
           {/* Ошибка мок-оплаты: остаёмся на шаге 2, данные можно поправить и повторить */}
           {payStatus === 'error' && (
@@ -378,19 +395,9 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
             </Alert>
           )}
 
-          <Group justify="space-between" mt="xs">
-            <Button
-              variant="subtle"
-              color="gray"
-              disabled={payStatus === 'loading'}
-              onClick={() => goToStep(0)}
-            >
-              ← Назад
-            </Button>
-            <Button color="brand" loading={payStatus === 'loading'} onClick={pay}>
-              Оплатить {totalLabel}
-            </Button>
-          </Group>
+          <Button fullWidth mt="xs" color="brand" loading={payStatus === 'loading'} onClick={pay}>
+            Привязать карту и оплатить {totalLabel(selectedPlan, period)}
+          </Button>
 
           <Text ta="center" fz={11.5} c="rgba(23,21,15,.45)">
             Это демо — ничего не спишется, данные карты мы не храним. Номер на ...
@@ -407,16 +414,17 @@ function UpgradeFlow({ onClose }: UpgradeFlowProps) {
           </ThemeIcon>
 
           <Text fz={20} fw={800} ta="center" style={{ letterSpacing: '-.3px' }}>
-            Тариф изменён (демо)
+            Тариф «{subscription.plan}» активен
           </Text>
 
           <Text maw={380} ta="center" fz={13.5} lh={1.55} c="rgba(23,21,15,.6)">
-            Тариф «{subscription.plan}» активен. Новые лимиты уже применены к проекту — можно
-            подключать площадки и планировать посты без ограничений.
+            {subscription.plan === 'Бесплатный'
+              ? 'Вы перешли на бесплатный тариф. Изменения вступили в силу сразу — вернуться на платный можно в любой момент.'
+              : 'Чек отправили на почту, карта привязана — продление автоматическое. Новые лимиты уже применены к проекту.'}
           </Text>
 
           <Button mt="sm" color="brand" onClick={onClose}>
-            Готово
+            Отлично
           </Button>
         </Stack>
       )}
