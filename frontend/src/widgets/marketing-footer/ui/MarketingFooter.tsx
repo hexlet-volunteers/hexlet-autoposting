@@ -56,7 +56,13 @@ export function MarketingFooter() {
           </Stack>
           {COLUMNS.map((col) => (
             <Stack key={col.title} gap="xs">
-              <Text fw={700} fz={14}>
+              <Text
+                fw={700}
+                fz={12}
+                tt="uppercase"
+                c="rgba(23,21,15,0.45)"
+                style={{ letterSpacing: '1px' }}
+              >
                 {col.title}
               </Text>
               {col.links?.map((l) =>
