@@ -4,6 +4,7 @@ import {
   AppShell,
   Avatar,
   Box,
+  Burger,
   Button,
   Group,
   Menu,
@@ -14,7 +15,7 @@ import {
   Text,
   UnstyledButton,
 } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import {
   IconAlertTriangle,
   IconCalendar,
@@ -290,6 +291,10 @@ export function AppLayout() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [newProjectOpened, newProject] = useDisclosure(false)
+  // Состояние мобильного навбара: открывается/закрывается бургером
+  const [navOpened, navbar] = useDisclosure(false)
+  // Мобильный брейкпоинт sm (768px): на десктопе header схлопнут и не занимает место
+  const isMobile = useMediaQuery('(max-width: 48em)', false, { getInitialValueInEffect: false })
 
   const handleLogout = () => {
     // Мок-сессия: сбрасываем признак входа, чтобы /app/* снова требовал входа.
@@ -298,7 +303,20 @@ export function AppLayout() {
   }
 
   return (
-    <AppShell navbar={{ width: 236, breakpoint: 'sm' }} padding="md">
+    <AppShell
+      header={{ height: 56, collapsed: !isMobile }}
+      navbar={{ width: 236, breakpoint: 'sm', collapsed: { mobile: !navOpened } }}
+      padding="md"
+    >
+      <AppShell.Header hiddenFrom="sm" px="md">
+        <Group h="100%" justify="space-between" wrap="nowrap">
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Logo />
+          </Link>
+          <Burger opened={navOpened} onClick={navbar.toggle} hiddenFrom="sm" aria-label="Меню" />
+        </Group>
+      </AppShell.Header>
+
       <AppShell.Navbar p="sm" bg="white">
         <AppShell.Section>
           <Box px={6} py={4}>
@@ -323,6 +341,8 @@ export function AppLayout() {
                 leftSection={<item.icon size={18} stroke={1.8} />}
                 active={pathname.startsWith(item.to)}
                 variant="light"
+                // На мобильном клик по разделу закрывает выехавший навбар
+                onClick={navbar.close}
               />
             ))}
           </Stack>
