@@ -16,7 +16,6 @@ import {
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { IconArchive } from '@tabler/icons-react'
 import { PROJECT_COLORS } from '@/shared/config'
 import { ColorPickerModal } from '@/shared/ui'
 import { useCurrentProject } from '@/entities/project'
@@ -66,7 +65,7 @@ export function SettingsPage() {
       {/* Две колонки: «Профиль» слева, «Проект» справа; danger-зона — на всю ширину */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" style={{ alignItems: 'start' }}>
         {/* ===== Профиль ===== */}
-        <Paper withBorder radius="md" p="lg">
+        <Paper withBorder radius="lg" p="lg">
           <Stack gap="md">
             <Title order={4}>Профиль</Title>
             <TextInput label="Имя" defaultValue="Мария" />
@@ -98,7 +97,7 @@ export function SettingsPage() {
         </Paper>
 
         {/* ===== Проект ===== */}
-        <Paper withBorder radius="md" p="lg">
+        <Paper withBorder radius="lg" p="lg">
           <Stack gap="md">
             <Title order={4}>Проект</Title>
             <TextInput
@@ -146,7 +145,7 @@ export function SettingsPage() {
         {/* ===== Архив проекта (danger zone) — на всю ширину грида ===== */}
         <Paper
           withBorder
-          radius="md"
+          radius="lg"
           p="lg"
           style={{
             gridColumn: '1 / -1',
@@ -175,8 +174,6 @@ export function SettingsPage() {
               <Popover.Target>
                 <Button
                   color="red"
-                  variant="light"
-                  leftSection={<IconArchive size={16} />}
                   onClick={archiveConfirm.open}
                   style={{ flex: 'none', alignSelf: 'flex-start' }}
                 >
