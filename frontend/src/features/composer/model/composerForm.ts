@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { MEDIA_MOCK } from '@/entities/media'
 import type { Post } from '@/entities/scheduled-post'
 
 /**
@@ -16,13 +17,15 @@ export type RepeatMode = 'none' | 'day' | 'week' | 'month'
 /** Значения формы композера. */
 export interface ComposerFormValues {
   kind: PostKind
-  /** HTML из RichText-заглушки (тип «Пост»). */
+  /** HTML из RichText-редактора (тип «Пост»). */
   text: string
-  /** Имена прикреплённых фото (мок, до 4). */
+  /** id прикреплённых фото из медиатеки (entities/media), до 4. */
   attachments: string[]
+  /** id видеофайла из медиатеки (тип «Видео»); пусто — не выбран. */
   videoFile: string
   videoTitle: string
   videoDescription: string
+  /** id обложки из медиатеки (тип «Видео»); пусто — не выбрана. */
   cover: string
   /** id выбранных площадок из NETWORKS. */
   networks: string[]
@@ -38,6 +41,12 @@ export const DAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс
 
 /** Видеоплощадки: для типа «Пост» заблокированы (доступны только для «Видео»). */
 export const VIDEO_NETWORK_IDS: readonly string[] = ['rutube', 'youtube']
+
+// id медиатеки по типам — для префилла формы существующего поста (у мок-поста
+// хранится только mediaCount, поэтому вложения восстанавливаем реальными id
+// библиотеки, чтобы плитки показывали имена/превью через useMedia).
+const PHOTO_LIBRARY_IDS = MEDIA_MOCK.filter((item) => item.kind === 'photo').map((item) => item.id)
+const VIDEO_LIBRARY_IDS = MEDIA_MOCK.filter((item) => item.kind === 'video').map((item) => item.id)
 
 export const REPEAT_OPTIONS: { value: RepeatMode; label: string }[] = [
   { value: 'none', label: 'Не повторять' },
@@ -102,10 +111,8 @@ export function makeValuesFromPost(post: Post): ComposerFormValues {
   return {
     kind: isVideo ? 'video' : 'post',
     text: isVideo ? '' : post.text,
-    attachments: isVideo
-      ? []
-      : Array.from({ length: post.mediaCount ?? 0 }, (_, i) => `фото ${i + 1}.jpg`),
-    videoFile: isVideo ? 'видео.mp4' : '',
+    attachments: isVideo ? [] : PHOTO_LIBRARY_IDS.slice(0, post.mediaCount ?? 0),
+    videoFile: isVideo ? (VIDEO_LIBRARY_IDS[0] ?? '') : '',
     videoTitle: isVideo ? post.title.replace(/^▶ /, '') : '',
     videoDescription: isVideo ? post.text : '',
     cover: '',
