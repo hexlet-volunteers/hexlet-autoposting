@@ -77,6 +77,10 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
 
   const queryClient = useQueryClient()
   const aiQuota = useQuota('ai')
+  // Мягкий enforcement квоты постов (#211): блокируем только СОЗДАНИЕ —
+  // редактирование существующего поста лимит не расходует.
+  const postsQuota = useQuota('posts')
+  const postsBlocked = !isEditing && postsQuota.exhausted
   const [timeOpen, setTimeOpen] = useState(false)
 
   const form = useForm<ComposerFormValues>({ initialValues: makeDefaultValues() })
@@ -136,7 +140,7 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
   }
 
   const handleSubmit = form.onSubmit((values) => {
-    if (selectedCount === 0) return
+    if (selectedCount === 0 || postsBlocked) return
     const mediaCount = values.kind === 'video' ? 0 : values.attachments.length
     const draft = {
       title: buildPostTitle(values),
@@ -536,19 +540,21 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
                 Удалить пост
               </UnstyledButton>
             )}
-            <Text fz="sm" c="dimmed" ml="auto">
-              {selectedCount === 0
-                ? 'Выберите хотя бы одну площадку'
-                : `Выйдет ${selectedCount} ${plural(selectedCount, [
-                    'публикация',
-                    'публикации',
-                    'публикаций',
-                  ])}`}
+            <Text fz="sm" c={postsBlocked ? 'red.7' : 'dimmed'} ml="auto">
+              {postsBlocked
+                ? 'Достигнут лимит постов тарифа — улучшите тариф'
+                : selectedCount === 0
+                  ? 'Выберите хотя бы одну площадку'
+                  : `Выйдет ${selectedCount} ${plural(selectedCount, [
+                      'публикация',
+                      'публикации',
+                      'публикаций',
+                    ])}`}
             </Text>
             <Button variant="default" onClick={handleClose}>
               Отмена
             </Button>
-            <Button type="submit" disabled={selectedCount === 0}>
+            <Button type="submit" disabled={selectedCount === 0 || postsBlocked}>
               {isEditing ? 'Сохранить' : 'В отложку'}
             </Button>
           </Group>
