@@ -19,7 +19,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
               вместо белого экрана показать дружелюбный фолбэк с перезагрузкой.
               Внутри MantineProvider — фолбэку нужны компоненты Mantine. */}
           <ErrorBoundary>{children}</ErrorBoundary>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* Devtools только в dev: import.meta.env.DEV в prod-сборке становится
+              false, ветка отсекается и пакет не попадает в production-бандл. */}
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </MantineProvider>
       </QueryClientProvider>
     </ReduxProvider>
