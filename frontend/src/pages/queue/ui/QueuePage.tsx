@@ -77,6 +77,20 @@ function formatWeekLabel(iso: string): string {
   return `${monday.date()} ${MONTHS_SHORT[monday.month()]} – ${sunday.date()} ${MONTHS_SHORT[sunday.month()]}`
 }
 
+/** Сокращённые дни недели строчными — формат даты архива «чт, 31 окт · 12:00». */
+const WEEKDAYS_SHORT_LOWER = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
+
+/**
+ * Дата строки архива по макету: «чт, 31 окт · 12:00»; год добавляется только
+ * для прошлых лет, чтобы посты разных лет не были неоднозначными: «вт, 31 дек 2025 · 12:00».
+ */
+function formatSentDate(iso: string): string {
+  const date = dayjs(iso)
+  const weekday = WEEKDAYS_SHORT_LOWER[date.day()]
+  const year = date.year() === dayjs().year() ? '' : ` ${date.year()}`
+  return `${weekday}, ${date.date()} ${MONTHS_SHORT[date.month()]}${year} · ${date.format('HH:mm')}`
+}
+
 /** Общий стиль строки списка по макету: кремовая подложка, скругление 10. */
 const ROW_STYLE: CSSProperties = {
   display: 'flex',
@@ -290,7 +304,7 @@ function SentRow({ post, onClick }: RowProps) {
         {post.title}
       </Text>
       <Text size="sm" c="dimmed" style={{ flexShrink: 0 }}>
-        {dayjs(post.scheduledAt).format('D MMM, HH:mm')}
+        {formatSentDate(post.scheduledAt)}
       </Text>
       {post.metrics ? (
         <Text size="sm" fw={600} c="dimmed" style={{ flexShrink: 0 }}>
