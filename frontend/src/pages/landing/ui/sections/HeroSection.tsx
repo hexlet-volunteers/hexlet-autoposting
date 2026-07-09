@@ -1,87 +1,108 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Badge,
   Box,
   Button,
-  Card,
   Container,
   Group,
   SimpleGrid,
   Stack,
   Text,
   Title,
+  UnstyledButton,
 } from '@mantine/core'
 import { IconPlus } from '@tabler/icons-react'
 import { NetworkPill } from '@/shared/ui'
 import { NETWORKS } from '@/shared/config'
-import type { Network } from '@/shared/config'
-
-const networkById = (id: string): Network => {
-  const found = NETWORKS.find((n) => n.id === id)
-  if (!found) throw new Error(`Unknown network: ${id}`)
-  return found
-}
+import { useAuthModal } from '@/features/auth'
 
 interface CalendarPost {
-  network: Network
+  networkIdx: number
   time: string
   label: string
 }
 
-interface CalendarDay {
-  name: string
-  date: string
-  posts: CalendarPost[]
-}
+const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+const START_DATE = 17
+const TIMES = ['09:00', '12:00', '15:00', '19:00']
+const LABELS = [
+  'Анонс акции',
+  'Пост-знакомство',
+  'Отзыв клиента',
+  'Подборка советов',
+  'Бэкстейдж',
+  'Розыгрыш',
+  'Дайджест недели',
+  'Новинка',
+]
 
-const WEEK: CalendarDay[] = [
-  {
-    name: 'Пн',
-    date: '17',
-    posts: [{ network: networkById('tg'), time: '10:00', label: 'Анонс недели' }],
-  },
-  {
-    name: 'Вт',
-    date: '18',
-    posts: [{ network: networkById('vk'), time: '12:30', label: 'Полезный совет' }],
-  },
-  {
-    name: 'Ср',
-    date: '19',
-    posts: [
-      { network: networkById('dzen'), time: '09:00', label: 'Статья дня' },
-      { network: networkById('ok'), time: '18:00', label: 'Опрос' },
-    ],
-  },
-  {
-    name: 'Чт',
-    date: '20',
-    posts: [{ network: networkById('max'), time: '11:15', label: 'Кейс клиента' }],
-  },
-  {
-    name: 'Пт',
-    date: '21',
-    posts: [
-      { network: networkById('youtube'), time: '15:00', label: 'Новое видео' },
-      { network: networkById('tg'), time: '20:00', label: 'Итоги недели' },
-    ],
-  },
-  {
-    name: 'Сб',
-    date: '22',
-    posts: [{ network: networkById('rutube'), time: '13:00', label: 'Обзор' }],
-  },
-  {
-    name: 'Вс',
-    date: '23',
-    posts: [],
-  },
+/** Каноничный стартовый контент-план (совпадает с state.a из макета landing-home). */
+const INITIAL_WEEK: CalendarPost[][] = [
+  [
+    { networkIdx: 0, time: '09:00', label: 'Анонс акции' },
+    { networkIdx: 1, time: '09:00', label: 'Утренний дайджест' },
+  ],
+  [{ networkIdx: 4, time: '12:00', label: 'Лонгрид про тренды' }],
+  [
+    { networkIdx: 0, time: '12:00', label: 'Отзыв клиента' },
+    { networkIdx: 2, time: '19:00', label: 'Опрос' },
+  ],
+  [],
+  [
+    { networkIdx: 1, time: '15:00', label: 'Подборка советов' },
+    { networkIdx: 6, time: '18:00', label: 'Шортс' },
+  ],
+  [{ networkIdx: 5, time: '11:00', label: 'Влог: бэкстейдж' }],
+  [],
 ]
 
 const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
+const WEEKEND_COLOR = '#C4552D'
+
+/** Плюрализация русских существительных: [1, 2-4, 5+]. */
+function plural(n: number, forms: [string, string, string]): string {
+  const a = Math.abs(n) % 100
+  const b = a % 10
+  if (a > 10 && a < 20) return forms[2]
+  if (b > 1 && b < 5) return forms[1]
+  if (b === 1) return forms[0]
+  return forms[2]
+}
 
 export function HeroSection() {
+  const { open } = useAuthModal()
+  const [week, setWeek] = useState<CalendarPost[][]>(INITIAL_WEEK)
+  const [nextSeed, setNextSeed] = useState(3)
+
+  const addPost = (dayIdx: number) => {
+    const seed = nextSeed
+    setWeek((prev) => {
+      const next = prev.map((day) => day.slice())
+      next[dayIdx] = [
+        ...next[dayIdx],
+        {
+          networkIdx: seed % NETWORKS.length,
+          time: TIMES[(seed + dayIdx) % TIMES.length],
+          label: LABELS[(seed * 3 + dayIdx) % LABELS.length],
+        },
+      ]
+      return next
+    })
+    setNextSeed((s) => s + 1)
+  }
+
+  const removePost = (dayIdx: number, postIdx: number) => {
+    setWeek((prev) => {
+      const next = prev.map((day) => day.slice())
+      next[dayIdx] = next[dayIdx].filter((_, i) => i !== postIdx)
+      return next
+    })
+  }
+
+  const total = week.reduce((sum, day) => sum + day.length, 0)
+
   return (
     <Box component="section">
       <Container size="lg" py={{ base: 48, sm: 72 }}>
@@ -131,7 +152,7 @@ export function HeroSection() {
             </Text>
 
             <Group gap={12} mt={26} justify="center">
-              <Button component={Link} to="/login" size="md" radius="md" color="brand">
+              <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
                 Попробовать бесплатно
               </Button>
               <Button
@@ -151,13 +172,12 @@ export function HeroSection() {
             </Text>
           </Stack>
 
-          {/* Карточка контент-плана на неделю */}
-          <Card
-            withBorder
-            radius="lg"
-            p={0}
+          {/* Карточка контент-плана на неделю — живое демо */}
+          <Box
             style={{
-              borderColor: BORDER,
+              background: '#fff',
+              border: `1px solid ${BORDER}`,
+              borderRadius: 16,
               boxShadow: '0 12px 32px rgba(23,21,15,.08)',
               overflow: 'hidden',
             }}
@@ -172,7 +192,7 @@ export function HeroSection() {
                 color="brand"
                 styles={{ root: { textTransform: 'none', fontWeight: 600 } }}
               >
-                9 постов
+                {total} {plural(total, ['пост', 'поста', 'постов'])}
               </Badge>
               <Group
                 gap={4}
@@ -203,45 +223,67 @@ export function HeroSection() {
               verticalSpacing={1}
               style={{ background: SOFT_BORDER, borderTop: `1px solid ${SOFT_BORDER}` }}
             >
-              {WEEK.map((day) => (
+              {week.map((posts, dayIdx) => (
                 <Stack
-                  key={day.date}
+                  key={DAYS[dayIdx]}
                   gap={0}
                   style={{ background: '#fff', minHeight: 170, minWidth: 0 }}
                 >
-                  <Text ta="center" pt={9} pb={7} px={4} fz={12} fw={600}>
-                    {day.name}{' '}
-                    <Text component="span" fw={500} c="rgba(23,21,15,.55)">
-                      {day.date}
+                  <Text
+                    ta="center"
+                    pt={9}
+                    pb={7}
+                    px={4}
+                    fz={12}
+                    fw={600}
+                    c={dayIdx >= 5 ? WEEKEND_COLOR : 'rgba(23,21,15,.55)'}
+                  >
+                    {DAYS[dayIdx]}{' '}
+                    <Text component="span" fw={500} style={{ opacity: 0.55 }}>
+                      {START_DATE + dayIdx}
                     </Text>
                   </Text>
 
                   <Stack gap={6} px={6} pb={8} style={{ flex: 1 }}>
-                    {day.posts.map((post) => (
-                      <Card
-                        key={`${post.network.id}-${post.time}`}
-                        p={7}
-                        radius="md"
-                        withBorder
-                        style={{ borderColor: BORDER }}
-                      >
-                        <Group gap={5} wrap="nowrap" mb={3}>
-                          <NetworkPill network={post.network} variant="badge" />
-                          <Text fz={10} fw={600} c="rgba(23,21,15,.5)">
-                            {post.time}
+                    {posts.map((post, postIdx) => {
+                      const network = NETWORKS[post.networkIdx]
+                      return (
+                        <UnstyledButton
+                          key={`${network.id}-${post.time}-${postIdx}`}
+                          onClick={() => removePost(dayIdx, postIdx)}
+                          title="Нажмите, чтобы удалить"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3,
+                            width: '100%',
+                            textAlign: 'left',
+                            padding: 7,
+                            borderRadius: 8,
+                            border: `1px solid ${network.color}59`,
+                            background: `${network.color}14`,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Group gap={5} wrap="nowrap">
+                            <NetworkPill network={network} variant="badge" />
+                            <Text fz={10} fw={600} c="rgba(23,21,15,.5)">
+                              {post.time}
+                            </Text>
+                          </Group>
+                          <Text fz={11} fw={600} lh={1.25} c="rgba(23,21,15,.85)" truncate>
+                            {post.label}
                           </Text>
-                        </Group>
-                        <Text fz={11} fw={600} lh={1.25} c="rgba(23,21,15,.85)" truncate>
-                          {post.label}
-                        </Text>
-                      </Card>
-                    ))}
+                        </UnstyledButton>
+                      )
+                    })}
 
                     <Button
                       variant="default"
                       radius="md"
                       size="compact-sm"
                       c="rgba(23,21,15,.4)"
+                      onClick={() => addPost(dayIdx)}
                       style={{
                         border: '1.5px dashed rgba(23,21,15,.18)',
                         background: 'transparent',
@@ -253,7 +295,13 @@ export function HeroSection() {
                 </Stack>
               ))}
             </SimpleGrid>
-          </Card>
+
+            <Box px={18} py={9} style={{ borderTop: `1px solid ${SOFT_BORDER}` }}>
+              <Text fz={12} c="rgba(23,21,15,.48)">
+                Живое демо: «+» добавляет пост, клик по посту — удаляет
+              </Text>
+            </Box>
+          </Box>
         </Stack>
       </Container>
     </Box>
