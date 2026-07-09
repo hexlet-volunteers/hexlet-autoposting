@@ -5,6 +5,7 @@ import type { Dayjs } from 'dayjs'
 import type { Post } from '@/entities/scheduled-post'
 import { BORDER_SOFT, GRID_GAP_BG, HINT_COLOR, WEEKEND } from '../lib/palette'
 import { PostCard } from './PostCard'
+import classes from './WeekView.module.css'
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -96,6 +97,8 @@ interface DayCellProps {
 }
 
 function DayCell({ day, onOpenPost, onAdd }: DayCellProps) {
+  // Число даты наследует цвет названия дня (выходные — оранжевый WEEKEND) с opacity .55 (макет).
+  const nameColor = day.isWeekend ? WEEKEND : 'rgba(23, 21, 15, 0.55)'
   return (
     <Box
       style={{
@@ -107,14 +110,10 @@ function DayCell({ day, onOpenPost, onAdd }: DayCellProps) {
       }}
     >
       <Group gap={6} justify="center" px={4} pt={10} pb={8} wrap="nowrap">
-        <Text
-          size="sm"
-          fw={600}
-          style={{ color: day.isWeekend ? WEEKEND : 'rgba(23, 21, 15, 0.55)' }}
-        >
+        <Text size="sm" fw={600} style={{ color: nameColor }}>
           {day.name}
         </Text>
-        <Text size="sm" c="dimmed">
+        <Text size="sm" fw={500} style={{ color: nameColor, opacity: 0.55 }}>
           {day.date}
         </Text>
         {day.isToday ? (
@@ -128,23 +127,10 @@ function DayCell({ day, onOpenPost, onAdd }: DayCellProps) {
         {day.posts.map((post) => (
           <PostCard key={post.id} post={post} onClick={() => onOpenPost(post.id)} />
         ))}
-        {day.posts.length === 0 ? (
-          <Text fz={11} ta="center" c="dimmed">
-            нет постов
-          </Text>
-        ) : null}
         <UnstyledButton
+          className={classes.addButton}
           onClick={onAdd}
           title="Новый пост в этот день"
-          style={{
-            border: '1.5px dashed rgba(23, 21, 15, 0.18)',
-            borderRadius: 8,
-            padding: 5,
-            textAlign: 'center',
-            fontSize: 13,
-            fontWeight: 600,
-            color: 'rgba(23, 21, 15, 0.4)',
-          }}
         >
           +
         </UnstyledButton>

@@ -1,10 +1,8 @@
-import { Box, Group, Skeleton, Text, UnstyledButton } from '@mantine/core'
-import { IconEye, IconEyeOff } from '@tabler/icons-react'
+import { Group, Skeleton, Text, UnstyledButton } from '@mantine/core'
 import { NETWORKS } from '@/shared/config'
 import type { Network } from '@/shared/config'
 import { NetworkPill } from '@/shared/ui'
 import { useAppModals } from '@/features/app-modals'
-import { useCalendarFilter } from '@/features/filter-by-platform'
 import { useConnections } from '@/entities/platform-account'
 
 // Приглушённые тона неподключённой площадки — из макета app-dashboard (блок netChips)
@@ -15,13 +13,11 @@ const BORDER_DISCONNECTED = 'rgba(23,21,15,.25)'
 
 /**
  * Ряд из 7 чипсов-площадок над календарём: показывает статус подключения,
- * по клику открывает модалку подключения кликнутой площадки, а иконка-глаз
- * в чипсе включает/выключает площадку в фильтре постов календаря.
+ * по клику открывает модалку подключения кликнутой площадки.
  */
 export function PlatformChips() {
   const { data: connections, isLoading, isError } = useConnections()
   const { openConnectPlatform } = useAppModals()
-  const { isNetworkActive, toggleNetwork } = useCalendarFilter()
 
   // Скелетоны на время «загрузки» подключений (мок отдаёт мгновенно, но форма готова к API)
   if (isLoading) {
@@ -51,9 +47,7 @@ export function PlatformChips() {
           key={network.id}
           network={network}
           connected={connectedById.get(network.id) ?? false}
-          filterActive={isNetworkActive(network.id)}
           onOpen={() => openConnectPlatform(network.id)}
-          onToggleFilter={() => toggleNetwork(network.id)}
         />
       ))}
     </Group>
@@ -63,70 +57,40 @@ export function PlatformChips() {
 interface PlatformChipProps {
   network: Network
   connected: boolean
-  filterActive: boolean
   onOpen: () => void
-  onToggleFilter: () => void
 }
 
 /**
- * Чипс площадки. Основная кнопка (бейдж + подпись) открывает модалку подключения,
- * отдельная иконка-глаз переключает фильтр — клики не конфликтуют (кнопки не вложены).
+ * Чипс площадки — единая кнопка (бейдж + подпись), по клику открывает модалку
+ * подключения/отключения. Форма и подписи — из макета app-dashboard (netChips).
  */
-function PlatformChip({
-  network,
-  connected,
-  filterActive,
-  onOpen,
-  onToggleFilter,
-}: PlatformChipProps) {
+function PlatformChip({ network, connected, onOpen }: PlatformChipProps) {
   return (
-    <Box
+    <UnstyledButton
+      onClick={onOpen}
+      title={connected ? 'Нажмите, чтобы отключить' : 'Нажмите, чтобы подключить'}
       style={{
         display: 'flex',
         alignItems: 'center',
+        gap: 7,
         border: connected
           ? `1.5px solid ${BORDER_CONNECTED}`
           : `1.5px dashed ${BORDER_DISCONNECTED}`,
         borderRadius: 'var(--mantine-radius-pill)',
         background: connected ? 'var(--mantine-color-white)' : 'transparent',
-        paddingRight: 6,
+        padding: '6px 12px 6px 7px',
+        fontSize: 12.5,
+        fontWeight: 600,
+        color: connected ? 'var(--mantine-color-text)' : MUTED_TEXT,
       }}
     >
-      <UnstyledButton
-        onClick={onOpen}
-        title={connected ? 'Нажмите, чтобы отключить' : 'Нажмите, чтобы подключить'}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 7,
-          padding: '5px 5px 5px 6px',
-          fontSize: 12.5,
-          fontWeight: 600,
-          color: connected ? 'var(--mantine-color-text)' : MUTED_TEXT,
-        }}
-      >
-        {/* Серый бейдж неподключённой площадки — подменяем цвет сети на приглушённый */}
-        <NetworkPill
-          network={connected ? network : { ...network, color: MUTED_BADGE }}
-          variant="badge"
-        />
-        {connected ? network.name : `${network.name} — подключить`}
-      </UnstyledButton>
-      <UnstyledButton
-        onClick={onToggleFilter}
-        title={
-          filterActive ? 'Скрыть посты площадки в календаре' : 'Показать посты площадки в календаре'
-        }
-        aria-pressed={filterActive}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: 3,
-          color: filterActive ? 'var(--mantine-color-brand-6)' : MUTED_BADGE,
-        }}
-      >
-        {filterActive ? <IconEye size={16} /> : <IconEyeOff size={16} />}
-      </UnstyledButton>
-    </Box>
+      {/* Серый бейдж неподключённой площадки — подменяем цвет сети на приглушённый */}
+      <NetworkPill
+        network={connected ? network : { ...network, color: MUTED_BADGE }}
+        variant="badge"
+        size="chipSm"
+      />
+      {connected ? network.name : `${network.name} — подключить`}
+    </UnstyledButton>
   )
 }

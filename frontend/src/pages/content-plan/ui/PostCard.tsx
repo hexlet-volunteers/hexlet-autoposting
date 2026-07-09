@@ -1,9 +1,11 @@
-import { Badge, Box, Group, Text, UnstyledButton } from '@mantine/core'
+import type { CSSProperties } from 'react'
+import { Box, Group, Text, UnstyledButton } from '@mantine/core'
 import dayjs from 'dayjs'
 import { NETWORKS } from '@/shared/config'
 import { NetworkPill } from '@/shared/ui'
 import type { Post } from '@/entities/scheduled-post'
 import { BRAND } from '../lib/palette'
+import classes from './PostCard.module.css'
 
 const NETWORK_BY_ID = new Map(NETWORKS.map((n) => [n.id, n]))
 
@@ -22,20 +24,18 @@ export function PostCard({ post, onClick }: PostCardProps) {
   const time = dayjs(post.scheduledAt).format('HH:mm')
   return (
     <UnstyledButton
+      className={classes.card}
       onClick={onClick}
       title="Открыть настройки поста"
-      style={{
-        border: `1px solid ${network ? `${network.color}59` : 'var(--mantine-color-gray-3)'}`,
-        borderRadius: 8,
-        padding: '6px 7px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 3,
-        background: network ? `${network.color}14` : 'var(--mantine-color-gray-0)',
-      }}
+      style={
+        {
+          '--card-line': network ? `${network.color}59` : 'var(--mantine-color-gray-3)',
+          '--card-soft': network ? `${network.color}14` : 'var(--mantine-color-gray-0)',
+        } as CSSProperties
+      }
     >
       <Group gap={5} wrap="nowrap">
-        {network ? <NetworkPill network={network} variant="badge" /> : null}
+        {network ? <NetworkPill network={network} variant="badge" size="cardSm" /> : null}
         <Text size="xs" fw={600} c="dimmed">
           {time}
         </Text>
@@ -49,11 +49,6 @@ export function PostCard({ post, onClick }: PostCardProps) {
           >
             ↻
           </Text>
-        ) : null}
-        {post.status === 'draft' ? (
-          <Badge size="xs" variant="light" color="gray" radius="sm">
-            черновик
-          </Badge>
         ) : null}
       </Group>
       <Text size="xs" fw={600} lineClamp={1} style={{ color: 'var(--mantine-color-text)' }}>
