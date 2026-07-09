@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -15,7 +15,10 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { IconCheck, IconFileInvoice } from '@tabler/icons-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { IconAlertTriangle, IconCheck, IconFileInvoice } from '@tabler/icons-react'
+import dayjs from 'dayjs'
+import { applyPlan, useSubscription } from '@/entities/subscription'
 
 /**
  * Глобальная модалка апгрейда тарифа. Состояние открытия приходит пропсами
@@ -23,15 +26,13 @@ import { IconCheck, IconFileInvoice } from '@tabler/icons-react'
  *
  * Трёхшаговый флоу (Mantine Stepper): выбор тарифа → оплата → готово. Всё локальное и
  * демо: тарифы захардкожены (страницу /pricing НЕ импортируем), данные карты не сохраняем.
+ * После успешной «оплаты» тариф и лимиты применяются к мок-подписке (entities/subscription).
  */
 
 const BRAND = '#2B50EC'
 const GREEN = '#1E7F4F'
 const BORDER = 'rgba(23,21,15,.13)'
 const PANEL = '#F6F4EF'
-
-/** Текущий тариф пользователя (демо). TODO (Design First, backlog #204): GET /billing/subscription. */
-const CURRENT_TARIFF = 'Бесплатный'
 
 type BillingPeriod = 'monthly' | 'yearly'
 
@@ -46,6 +47,8 @@ interface Plan {
   note: string
   /** Список включённых возможностей. */
   feats: string[]
+  /** Лимиты тарифа для мок-подписки; Infinity — безлимит постов на платных тарифах. */
+  limits: { aiRequests: number; scheduledPosts: number }
   /** Рекомендуемый тариф (выделяется рамкой и бейджем). */
   featured?: boolean
 }
@@ -58,6 +61,7 @@ const PLANS: Plan[] = [
     monthly: 0,
     note: 'навсегда',
     feats: ['3 соцсети', '10 постов в месяц', '1 проект', '5 ИИ-текстов в месяц'],
+    limits: { aiRequests: 5, scheduledPosts: 10 },
   },
   {
     id: 'start',
@@ -66,6 +70,7 @@ const PLANS: Plan[] = [
     note: '7 дней бесплатно',
     featured: true,
     feats: ['7 соцсетей', 'Посты без лимита', '1 проект', '50 ИИ-текстов в месяц'],
+    limits: { aiRequests: 50, scheduledPosts: Infinity },
   },
   {
     id: 'pro',
@@ -73,8 +78,15 @@ const PLANS: Plan[] = [
     monthly: 990,
     note: '7 дней бесплатно',
     feats: ['Всё из «Старта»', '5 проектов', 'Команда из 3 человек', 'Согласование постов'],
+    limits: { aiRequests: 50, scheduledPosts: Infinity },
   },
 ]
+
+// Мок платёжного шлюза: карта с номером, оканчивающимся на «0000», всегда даёт
+// ошибку оплаты (детерминированно для демо и ревью), любой другой номер — успех.
+const FAIL_CARD_SUFFIX = '0000'
+/** Задержка мок-«оплаты», мс — имитация запроса к шлюзу. */
+const PAY_DELAY = 700
 
 /** Цена за месяц с учётом периода (годовой — со скидкой 20%). */
 function monthlyPrice(plan: Plan, period: BillingPeriod): number {
@@ -97,7 +109,8 @@ interface UpgradePlanModalProps {
 }
 
 export function UpgradePlanModal({ opened, onClose }: UpgradePlanModalProps) {
-  const [activeTariff, setActiveTariff] = useState(CURRENT_TARIFF)
+  // Текущий тариф — из мок-подписки: после успешной «оплаты» бейдж обновится сам
+  const { data: subscription } = useSubscription()
 
   return (
     <Modal
@@ -112,30 +125,47 @@ export function UpgradePlanModal({ opened, onClose }: UpgradePlanModalProps) {
             Апгрейд тарифа
           </Text>
           <Badge color="gray" variant="light" radius="xl" tt="none" fw={600}>
-            сейчас: {activeTariff}
+            сейчас: {subscription.plan}
           </Badge>
         </Group>
       }
     >
-      <UpgradeFlow activeTariff={activeTariff} onPaid={setActiveTariff} onClose={onClose} />
+      <UpgradeFlow onClose={onClose} />
     </Modal>
   )
 }
 
 interface UpgradeFlowProps {
-  activeTariff: string
-  onPaid: (tariff: string) => void
   onClose: () => void
 }
 
+/** Статус мок-оплаты на шаге 2. */
+type PayStatus = 'idle' | 'loading' | 'error'
+
 /**
  * Трёхшаговый флоу апгрейда. Живёт в детях модалки: Mantine размонтирует их при
- * закрытии, поэтому каждое открытие начинается с шага 0 без ручного сброса.
+ * закрытии, поэтому каждое открытие начинается с шага 0 (и без «залипшей» ошибки
+ * оплаты) без ручного сброса.
  */
-function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
+function UpgradeFlow({ onClose }: UpgradeFlowProps) {
+  const queryClient = useQueryClient()
+  const { data: subscription } = useSubscription()
   const [step, setStep] = useState(0)
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // Номер карты держим только в локальном состоянии ради демо-правила «...0000 = ошибка»;
+  // никуда не сохраняем и не логируем.
+  const [cardNumber, setCardNumber] = useState('')
+  const [payStatus, setPayStatus] = useState<PayStatus>('idle')
+  const payTimer = useRef<number | null>(null)
+
+  // Модалка может закрыться во время «оплаты» — гасим таймер, чтобы результат не применился
+  useEffect(
+    () => () => {
+      if (payTimer.current != null) window.clearTimeout(payTimer.current)
+    },
+    [],
+  )
 
   const selectedPlan = PLANS.find((p) => p.id === selectedId) ?? null
 
@@ -147,19 +177,45 @@ function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
     setStep(1)
   }
 
+  // Навигация между шагами сбрасывает результат прошлой попытки оплаты
+  const goToStep = (next: number) => {
+    setPayStatus('idle')
+    setStep(next)
+  }
+
   const pay = () => {
+    if (!selectedPlan || payStatus === 'loading') return
+    setPayStatus('loading')
     // TODO (Design First, backlog #204): POST /billing/subscription { plan, period, paymentMethod }.
     // Данные карты на фронте НЕ храним — они уходят напрямую в платёжный шлюз.
-    if (selectedPlan) onPaid(selectedPlan.name)
-    notifications.show({ color: 'green', message: 'Тариф изменён (демо)' })
-    setStep(2)
+    payTimer.current = window.setTimeout(() => {
+      // Демо-правило: номер карты, оканчивающийся на «0000», — ошибка оплаты, иначе успех
+      if (cardNumber.replace(/\D/g, '').endsWith(FAIL_CARD_SUFFIX)) {
+        setPayStatus('error')
+        return
+      }
+      // Успех: применяем тариф к мок-подписке — сайдбар и квоты обновляются сразу
+      applyPlan(queryClient, {
+        plan: selectedPlan.name,
+        limits: selectedPlan.limits,
+        renewsAt: dayjs()
+          .add(1, period === 'yearly' ? 'year' : 'month')
+          .format('YYYY-MM-DD'),
+      })
+      notifications.show({ color: 'green', message: 'Тариф изменён (демо)' })
+      setPayStatus('idle')
+      setStep(2)
+    }, PAY_DELAY)
   }
 
   return (
     <>
-      <Stepper active={step} onStepClick={setStep} size="sm" allowNextStepsSelect={false} mb="lg">
-        <Stepper.Step label="Выбор тарифа" allowStepSelect={step === 2 ? false : true} />
-        <Stepper.Step label="Оплата" allowStepSelect={step > 0 && step < 2} />
+      <Stepper active={step} onStepClick={goToStep} size="sm" allowNextStepsSelect={false} mb="lg">
+        <Stepper.Step
+          label="Выбор тарифа"
+          allowStepSelect={step === 1 && payStatus !== 'loading'}
+        />
+        <Stepper.Step label="Оплата" allowStepSelect={false} />
         <Stepper.Step label="Готово" allowStepSelect={false} />
       </Stepper>
 
@@ -289,6 +345,8 @@ function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
             label="Номер карты"
             placeholder="2200 1234 5678 9012"
             inputMode="numeric"
+            value={cardNumber}
+            onChange={(event) => setCardNumber(event.currentTarget.value)}
             styles={{ input: { letterSpacing: 1 } }}
           />
 
@@ -307,17 +365,36 @@ function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
             Или оплата по счёту для юрлиц — пришлём счёт и закрывающие документы.
           </Alert>
 
+          {/* Ошибка мок-оплаты: остаёмся на шаге 2, данные можно поправить и повторить */}
+          {payStatus === 'error' && (
+            <Alert
+              color="red"
+              variant="light"
+              radius="md"
+              icon={<IconAlertTriangle size={18} />}
+              styles={{ message: { fontSize: 13 } }}
+            >
+              Не удалось провести оплату. Проверьте данные карты и попробуйте снова.
+            </Alert>
+          )}
+
           <Group justify="space-between" mt="xs">
-            <Button variant="subtle" color="gray" onClick={() => setStep(0)}>
+            <Button
+              variant="subtle"
+              color="gray"
+              disabled={payStatus === 'loading'}
+              onClick={() => goToStep(0)}
+            >
               ← Назад
             </Button>
-            <Button color="brand" onClick={pay}>
+            <Button color="brand" loading={payStatus === 'loading'} onClick={pay}>
               Оплатить {totalLabel}
             </Button>
           </Group>
 
           <Text ta="center" fz={11.5} c="rgba(23,21,15,.45)">
-            Это демо — ничего не спишется. Данные карты мы не храним.
+            Это демо — ничего не спишется, данные карты мы не храним. Номер на ...
+            {FAIL_CARD_SUFFIX} покажет ошибку оплаты.
           </Text>
         </Stack>
       )}
@@ -334,8 +411,8 @@ function UpgradeFlow({ activeTariff, onPaid, onClose }: UpgradeFlowProps) {
           </Text>
 
           <Text maw={380} ta="center" fz={13.5} lh={1.55} c="rgba(23,21,15,.6)">
-            Тариф «{activeTariff}» активен. Новые лимиты уже применены к проекту — можно подключать
-            площадки и планировать посты без ограничений.
+            Тариф «{subscription.plan}» активен. Новые лимиты уже применены к проекту — можно
+            подключать площадки и планировать посты без ограничений.
           </Text>
 
           <Button mt="sm" color="brand" onClick={onClose}>
