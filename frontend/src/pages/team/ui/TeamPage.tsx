@@ -17,7 +17,7 @@ import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { IconUserPlus } from '@tabler/icons-react'
 import { ConfirmDeleteButton, EmptyState } from '@/shared/ui'
-import { ROLE_LABELS, useMembers } from '@/entities/member'
+import { ROLE_LABELS, useCurrentMemberRole, useMembers } from '@/entities/member'
 import type { Member, MemberRole } from '@/entities/member'
 
 /** Данные для Mantine Select: value = роль, label = русское название. */
@@ -44,6 +44,12 @@ interface InviteFormValues {
 export function TeamPage() {
   const { data } = useMembers()
   const [members, setMembers] = useState<Member[]>(data)
+
+  // Гейтинг по роли ЗРИТЕЛЯ страницы (не по роли строки): менять роли,
+  // отзывать доступ и приглашать может только владелец проекта. Скрытие на
+  // фронте — только UX, реальную проверку прав делает бэкенд (#147).
+  const currentRole = useCurrentMemberRole()
+  const canManageTeam = currentRole === 'owner'
 
   const form = useForm<InviteFormValues>({
     initialValues: { email: '', role: 'author' },
@@ -134,27 +140,40 @@ export function TeamPage() {
                     </Badge>
                   )}
 
-                  <Select
-                    data={ROLE_OPTIONS}
-                    value={member.role}
-                    onChange={(value) => value && handleRoleChange(member.id, value as MemberRole)}
-                    disabled={member.role === 'owner'}
-                    allowDeselect={false}
-                    aria-label={`Роль участника ${member.name}`}
-                    w={130}
-                    style={{ flex: 'none' }}
-                  />
+                  {canManageTeam ? (
+                    <Select
+                      data={ROLE_OPTIONS}
+                      value={member.role}
+                      onChange={(value) =>
+                        value && handleRoleChange(member.id, value as MemberRole)
+                      }
+                      disabled={member.role === 'owner'}
+                      allowDeselect={false}
+                      aria-label={`Роль участника ${member.name}`}
+                      w={130}
+                      style={{ flex: 'none' }}
+                    />
+                  ) : (
+                    // Режим «только чтение»: роль — бейджем (владельца показывает бейдж ниже)
+                    member.role !== 'owner' && (
+                      <Badge color="gray" variant="light" style={{ flex: 'none' }}>
+                        {ROLE_LABELS[member.role]}
+                      </Badge>
+                    )
+                  )}
 
                   {member.role === 'owner' ? (
                     <Badge color="dark" variant="filled" style={{ flex: 'none' }}>
                       Владелец
                     </Badge>
                   ) : (
-                    <ConfirmDeleteButton
-                      onConfirm={() => handleRemove(member)}
-                      tooltip="Отозвать доступ к проекту"
-                      confirmText={`Отозвать доступ для ${member.name}?`}
-                    />
+                    canManageTeam && (
+                      <ConfirmDeleteButton
+                        onConfirm={() => handleRemove(member)}
+                        tooltip="Отозвать доступ к проекту"
+                        confirmText={`Отозвать доступ для ${member.name}?`}
+                      />
+                    )
                   )}
                 </Group>
               ))}
@@ -164,30 +183,39 @@ export function TeamPage() {
 
         {/* ===== Пригласить в команду ===== */}
         <Paper withBorder radius="md" p="lg">
-          <form onSubmit={handleInvite}>
+          {canManageTeam ? (
+            <form onSubmit={handleInvite}>
+              <Stack gap="md">
+                <Title order={4}>Пригласить в команду</Title>
+                <TextInput
+                  label="Почта"
+                  placeholder="kollega@example.ru"
+                  type="email"
+                  {...form.getInputProps('email')}
+                />
+                <Select
+                  label="Роль"
+                  data={ROLE_OPTIONS}
+                  allowDeselect={false}
+                  {...form.getInputProps('role')}
+                />
+                <Button type="submit" fullWidth leftSection={<IconUserPlus size={16} />}>
+                  Пригласить
+                </Button>
+                <Text size="xs" c="dimmed">
+                  Автор пишет черновики, редактор утверждает и публикует. Отозвать доступ можно в
+                  любой момент.
+                </Text>
+              </Stack>
+            </form>
+          ) : (
             <Stack gap="md">
               <Title order={4}>Пригласить в команду</Title>
-              <TextInput
-                label="Почта"
-                placeholder="kollega@example.ru"
-                type="email"
-                {...form.getInputProps('email')}
-              />
-              <Select
-                label="Роль"
-                data={ROLE_OPTIONS}
-                allowDeselect={false}
-                {...form.getInputProps('role')}
-              />
-              <Button type="submit" fullWidth leftSection={<IconUserPlus size={16} />}>
-                Пригласить
-              </Button>
-              <Text size="xs" c="dimmed">
-                Автор пишет черновики, редактор утверждает и публикует. Отозвать доступ можно в
-                любой момент.
+              <Text size="sm" c="dimmed">
+                Приглашать участников, менять роли и отзывать доступ может только владелец проекта.
               </Text>
             </Stack>
-          </form>
+          )}
         </Paper>
       </SimpleGrid>
     </Stack>
