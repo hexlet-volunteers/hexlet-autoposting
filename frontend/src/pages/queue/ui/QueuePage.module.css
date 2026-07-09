@@ -1,0 +1,26 @@
+/* Переключатель вкладок очереди по макету app-dashboard:
+   белая подложка с рамкой, активная вкладка — тёмная заливка с белым текстом. */
+
+.tabsList {
+  /* Переменные Mantine variant="pills": заливка и текст активной вкладки. */
+  --tabs-color: #17150f;
+  --tabs-text-color: #fff;
+
+  gap: 4px;
+  width: fit-content;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid rgba(23, 21, 15, 0.12);
+  border-radius: 11px;
+}
+
+.tab {
+  /* Неактивная вкладка: прозрачный фон, приглушённый тёмный текст. */
+  --tab-color: rgba(23, 21, 15, 0.7);
+  --tab-hover-color: rgba(23, 21, 15, 0.05);
+
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 8px;
+}

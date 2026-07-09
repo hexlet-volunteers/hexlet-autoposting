@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import {
   Anchor,
+  Badge,
   Box,
   Button,
   Card,
@@ -16,6 +17,7 @@ import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
 import type { Icon } from '@tabler/icons-react'
+import { PostPreviewDemo } from './PostPreviewDemo'
 
 interface Capability {
   icon: Icon
@@ -53,9 +55,13 @@ export function CrosspostingPage() {
       <MarketingHeader active="features" />
 
       <Box component="main">
-        {/* Хлебные крошки */}
+        {/* Хлебные крошки: Главная / Возможности / Кросспостинг */}
         <Container size="lg" pt={{ base: 20, sm: 24 }}>
           <Text fz={13} c="dimmed">
+            <Anchor component={Link} to="/" c="dimmed" underline="never" inherit>
+              Главная
+            </Anchor>{' '}
+            /{' '}
             <Anchor component={Link} to="/#features" c="dimmed" underline="never" inherit>
               Возможности
             </Anchor>{' '}
@@ -66,62 +72,70 @@ export function CrosspostingPage() {
           </Text>
         </Container>
 
-        {/* Hero */}
+        {/* Hero: слева текстовый блок, справа демо-превью поста (на мобильном — друг под другом) */}
         <Box component="section" py={{ base: 40, sm: 56 }}>
           <Container size="lg">
-            <Stack gap={0} maw={640}>
-              <Box
-                style={{
-                  display: 'inline-block',
-                  alignSelf: 'flex-start',
-                  background: 'rgba(43,80,236,.08)',
-                  color: '#2B50EC',
-                  borderRadius: 'var(--mantine-radius-pill)',
-                  padding: '6px 12px',
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                Кросспостинг
-              </Box>
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing={48} verticalSpacing={40}>
+              <Stack gap={0} justify="center">
+                <Box>
+                  <Badge
+                    radius="xl"
+                    variant="light"
+                    color="brand"
+                    styles={{ root: { textTransform: 'none', fontWeight: 700 } }}
+                  >
+                    Кросспостинг
+                  </Badge>
+                </Box>
 
-              <Text
-                component="h1"
-                mt={16}
-                fz={{ base: 32, sm: 42 }}
-                fw={800}
-                lh={1.1}
-                style={{ letterSpacing: '-.7px' }}
-              >
-                Один пост —{' '}
                 <Text
-                  component="span"
-                  inherit
-                  style={{
-                    background: 'var(--mantine-color-accent-5)',
-                    padding: '0 8px',
-                    borderRadius: 8,
-                  }}
+                  component="h1"
+                  mt={16}
+                  fz={{ base: 32, sm: 42 }}
+                  fw={800}
+                  lh={1.1}
+                  style={{ letterSpacing: '-.7px' }}
                 >
-                  все площадки
-                </Text>{' '}
-                сразу
-              </Text>
+                  Один пост —{' '}
+                  <Text
+                    component="span"
+                    inherit
+                    style={{
+                      background: 'var(--mantine-color-accent-5)',
+                      padding: '0 8px',
+                      borderRadius: 8,
+                    }}
+                  >
+                    все площадки
+                  </Text>{' '}
+                  сразу
+                </Text>
 
-              <Text mt={16} fz={16} lh={1.55} c="rgba(23,21,15,.7)">
-                Напишите текст один раз. Отложка сама адаптирует его под каждую сеть: лимиты
-                символов, форматы, заголовки, кнопки и UTM-метки.
-              </Text>
+                <Text mt={16} fz={16} lh={1.55} c="rgba(23,21,15,.7)">
+                  Напишите текст один раз. Отложка сама адаптирует его под каждую сеть: лимиты
+                  символов, форматы, заголовки, кнопки и UTM-метки.
+                </Text>
 
-              <Group mt={24} gap={12}>
-                <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
-                  Попробовать бесплатно
-                </Button>
-                <Button component={Link} to="/#features" size="md" radius="md" variant="default">
-                  Все возможности
-                </Button>
-              </Group>
-            </Stack>
+                <Group mt={24} gap={12}>
+                  <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
+                    Попробовать бесплатно
+                  </Button>
+                  <Button
+                    component={Link}
+                    to="/features/autoposting"
+                    size="md"
+                    radius="md"
+                    variant="outline"
+                    color="dark"
+                  >
+                    А автопостинг?
+                  </Button>
+                </Group>
+              </Stack>
+
+              {/* Живое демо: превью поста под выбранную площадку */}
+              <PostPreviewDemo />
+            </SimpleGrid>
           </Container>
         </Box>
 
