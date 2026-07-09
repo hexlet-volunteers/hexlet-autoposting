@@ -18,6 +18,15 @@ export const REPORT_ROWS_WEEK: ReportRow[] = [
   { networkId: 'rutube', publications: 2, views: 950, likes: 70, reposts: 12 },
 ]
 
+/** Имитация сетевой задержки мок-загрузки отчёта, мс. */
+export const REPORT_DELAY_MS = 500
+
+/**
+ * Флаг для проверки состояния ошибки: поставьте true — и вместо таблицы
+ * страница покажет сообщение об ошибке (QueryState). В демо всегда false.
+ */
+export const SIMULATE_REPORT_ERROR = false
+
 /** Множитель длины периода относительно недели (из макета: REP_MULT). */
 export const PERIOD_MULTIPLIER: Record<string, number> = {
   week: 1,
