@@ -1,0 +1,17 @@
+/* Узкий тёмный футер — как в макете legal: мелкий шрифт, приглушённые ссылки. */
+.footer {
+  background: #17150f;
+  color: rgba(246, 244, 239, 0.45);
+  font-size: 12.5px;
+}
+
+.link {
+  font-size: 12.5px;
+  color: rgba(246, 244, 239, 0.65);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: #f6f4ef;
+}

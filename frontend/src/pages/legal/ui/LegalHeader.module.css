@@ -1,0 +1,25 @@
+/* Липкая полупрозрачная шапка с блюром — как в макете legal. */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(246, 244, 239, 0.93);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(23, 21, 15, 0.08);
+}
+
+.logoLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.backLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(23, 21, 15, 0.6);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: #17150f;
+}

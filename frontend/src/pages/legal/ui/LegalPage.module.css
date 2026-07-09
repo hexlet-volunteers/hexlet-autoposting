@@ -1,0 +1,42 @@
+/* Двухколоночная раскладка: оглавление 230px + колонка разделов (макет legal). */
+.layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+  margin-top: 28px;
+}
+
+/* Залипающее оглавление: остаётся видимым при скролле разделов. */
+.toc {
+  position: sticky;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tocLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(23, 21, 15, 0.7);
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: 9px;
+}
+
+.tocLink:hover {
+  background: #fff;
+  color: var(--mantine-color-brand-6);
+}
+
+/* На узком экране колонки складываются в один столбец, оглавление не липнет. */
+@media (max-width: 48em) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toc {
+    position: static;
+  }
+}
