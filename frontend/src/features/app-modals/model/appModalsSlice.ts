@@ -8,13 +8,13 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 export interface AppModalsState {
   composer: { opened: boolean; postId: string | null }
   upgrade: { opened: boolean }
-  connectPlatform: { opened: boolean }
+  connectPlatform: { opened: boolean; networkId: string | null }
 }
 
 const initialState: AppModalsState = {
   composer: { opened: false, postId: null },
   upgrade: { opened: false },
-  connectPlatform: { opened: false },
+  connectPlatform: { opened: false, networkId: null },
 }
 
 export const appModalsSlice = createSlice({
@@ -33,8 +33,9 @@ export const appModalsSlice = createSlice({
     closeUpgrade(state) {
       state.upgrade.opened = false
     },
-    openConnectPlatform(state) {
-      state.connectPlatform.opened = true
+    // С networkId — модалка конкретной площадки, без — общий список (как postId у composer)
+    openConnectPlatform(state, action: PayloadAction<string | undefined>) {
+      state.connectPlatform = { opened: true, networkId: action.payload ?? null }
     },
     closeConnectPlatform(state) {
       state.connectPlatform.opened = false

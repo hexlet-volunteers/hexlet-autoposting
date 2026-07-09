@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Box, Button, Group, Select, Stack, Table, Text, Title } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
 import { IconDownload } from '@tabler/icons-react'
 import { NETWORKS } from '@/shared/config'
 import type { Network } from '@/shared/config'
-import { EmptyState, NetworkPill } from '@/shared/ui'
+import { EmptyState, NetworkPill, QueryState } from '@/shared/ui'
 import { useReport } from '@/entities/report'
 import type { ReportRow } from '@/entities/report'
 
@@ -33,12 +32,7 @@ export function ReportsPage() {
   const [period, setPeriod] = useState<string>('week')
   const [year, setYear] = useState<string>('2026')
 
-  const { data } = useReport(period, year)
-
-  const handleDownload = () => {
-    // TODO (Design First): GET /projects/{id}/reports/export?period=&year= (эндпоинт появится в бэкенде).
-    notifications.show({ color: 'green', message: 'Отчёт готовится к скачиванию (демо)' })
-  }
+  const { data, isLoading, error } = useReport(period, year)
 
   const totals = data.reduce(
     (acc, row) => ({
@@ -50,11 +44,42 @@ export function ReportsPage() {
     { publications: 0, views: 0, likes: 0, reposts: 0 } satisfies Omit<ReportRow, 'networkId'>,
   )
 
+  const handleDownload = () => {
+    // TODO (Design First): заменить на GET /projects/{id}/reports/export?period=&year=
+    // (эндпоинт появится в бэкенде). Пока собираем CSV из текущих мок-данных таблицы.
+    const header = ['Площадка', 'Публикации', 'Просмотры', 'Лайки', 'Репосты']
+    const rows = data.map((row) => [
+      findNetwork(row.networkId)?.name ?? row.networkId,
+      row.publications,
+      row.views,
+      row.likes,
+      row.reposts,
+    ])
+    const totalsRow = ['Итого', totals.publications, totals.views, totals.likes, totals.reposts]
+    const csv = [header, ...rows, totalsRow].map((cells) => cells.join(';')).join('\n')
+
+    // BOM в начале — чтобы Excel корректно распознал кириллицу в UTF-8.
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `report-${period}-${year}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
         <Title order={2}>Отчёты</Title>
-        <Button variant="default" leftSection={<IconDownload size={16} />} onClick={handleDownload}>
+        <Button
+          variant="default"
+          leftSection={<IconDownload size={16} />}
+          onClick={handleDownload}
+          disabled={isLoading || Boolean(error) || data.length === 0}
+        >
           Скачать отчёт
         </Button>
       </Group>
@@ -78,55 +103,57 @@ export function ReportsPage() {
         />
       </Group>
 
-      {data.length === 0 ? (
-        <EmptyState
-          title="Пока нет данных для отчёта"
-          description="Подключите площадки и опубликуйте посты — статистика появится здесь."
-        />
-      ) : (
-        <Box style={{ overflowX: 'auto' }}>
-          <Table miw={640} verticalSpacing="sm" highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Площадка</Table.Th>
-                <Table.Th ta="right">Публикации</Table.Th>
-                <Table.Th ta="right">Просмотры</Table.Th>
-                <Table.Th ta="right">Лайки</Table.Th>
-                <Table.Th ta="right">Репосты</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {data.map((row) => {
-                const network = findNetwork(row.networkId)
-                return (
-                  <Table.Tr key={row.networkId}>
-                    <Table.Td>
-                      {network ? (
-                        <NetworkPill network={network} />
-                      ) : (
-                        <Text size="sm">{row.networkId}</Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td ta="right">{formatNumber(row.publications)}</Table.Td>
-                    <Table.Td ta="right">{formatNumber(row.views)}</Table.Td>
-                    <Table.Td ta="right">{formatNumber(row.likes)}</Table.Td>
-                    <Table.Td ta="right">{formatNumber(row.reposts)}</Table.Td>
-                  </Table.Tr>
-                )
-              })}
-            </Table.Tbody>
-            <Table.Tfoot>
-              <Table.Tr>
-                <Table.Th>Итого</Table.Th>
-                <Table.Th ta="right">{formatNumber(totals.publications)}</Table.Th>
-                <Table.Th ta="right">{formatNumber(totals.views)}</Table.Th>
-                <Table.Th ta="right">{formatNumber(totals.likes)}</Table.Th>
-                <Table.Th ta="right">{formatNumber(totals.reposts)}</Table.Th>
-              </Table.Tr>
-            </Table.Tfoot>
-          </Table>
-        </Box>
-      )}
+      <QueryState isLoading={isLoading} error={error}>
+        {data.length === 0 ? (
+          <EmptyState
+            title="Пока нет данных для отчёта"
+            description="Подключите площадки и опубликуйте посты — статистика появится здесь."
+          />
+        ) : (
+          <Box style={{ overflowX: 'auto' }}>
+            <Table miw={640} verticalSpacing="sm" highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Площадка</Table.Th>
+                  <Table.Th ta="right">Публикации</Table.Th>
+                  <Table.Th ta="right">Просмотры</Table.Th>
+                  <Table.Th ta="right">Лайки</Table.Th>
+                  <Table.Th ta="right">Репосты</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {data.map((row) => {
+                  const network = findNetwork(row.networkId)
+                  return (
+                    <Table.Tr key={row.networkId}>
+                      <Table.Td>
+                        {network ? (
+                          <NetworkPill network={network} />
+                        ) : (
+                          <Text size="sm">{row.networkId}</Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td ta="right">{formatNumber(row.publications)}</Table.Td>
+                      <Table.Td ta="right">{formatNumber(row.views)}</Table.Td>
+                      <Table.Td ta="right">{formatNumber(row.likes)}</Table.Td>
+                      <Table.Td ta="right">{formatNumber(row.reposts)}</Table.Td>
+                    </Table.Tr>
+                  )
+                })}
+              </Table.Tbody>
+              <Table.Tfoot>
+                <Table.Tr>
+                  <Table.Th>Итого</Table.Th>
+                  <Table.Th ta="right">{formatNumber(totals.publications)}</Table.Th>
+                  <Table.Th ta="right">{formatNumber(totals.views)}</Table.Th>
+                  <Table.Th ta="right">{formatNumber(totals.likes)}</Table.Th>
+                  <Table.Th ta="right">{formatNumber(totals.reposts)}</Table.Th>
+                </Table.Tr>
+              </Table.Tfoot>
+            </Table>
+          </Box>
+        )}
+      </QueryState>
 
       <Text size="sm" c="dimmed">
         Отчёт уходит в Telegram каждое воскресенье в 20:00 — настроить можно в разделе «Настройки».

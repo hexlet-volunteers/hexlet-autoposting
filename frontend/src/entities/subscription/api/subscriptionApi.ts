@@ -43,3 +43,20 @@ export function setUsage(queryClient: QueryClient, patch: Partial<Subscription['
     usage: { ...old.usage, ...patch },
   }))
 }
+
+/**
+ * Демо-мутатор: применить новый тариф после «оплаты» в модалке апгрейда —
+ * название, лимиты (Infinity = безлимит) и дату продления; расход периода сохраняем,
+ * чтобы счётчики «N из M» не обнулялись при смене тарифа.
+ */
+export function applyPlan(
+  queryClient: QueryClient,
+  patch: { plan: string; limits: Subscription['limits']; renewsAt?: string },
+) {
+  queryClient.setQueryData<Subscription>(subscriptionKeys.all, (old = SEED) => ({
+    ...old,
+    plan: patch.plan,
+    limits: patch.limits,
+    renewsAt: patch.renewsAt ?? old.renewsAt,
+  }))
+}

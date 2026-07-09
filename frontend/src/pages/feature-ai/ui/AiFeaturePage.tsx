@@ -17,6 +17,7 @@ import type { Icon } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
+import { PostGeneratorDemo } from './PostGeneratorDemo'
 
 interface FeatureItem {
   icon: Icon
@@ -58,6 +59,10 @@ export function AiFeaturePage() {
       {/* Хлебные крошки */}
       <Container size="lg" pt={24} pb={0}>
         <Text fz={13} c="rgba(23,21,15,.5)">
+          <Anchor component={Link} to="/" fz={13} c="rgba(23,21,15,.5)" underline="never">
+            Главная
+          </Anchor>{' '}
+          /{' '}
           <Anchor component={Link} to="/#features" fz={13} c="rgba(23,21,15,.5)" underline="never">
             Возможности
           </Anchor>{' '}
@@ -68,63 +73,72 @@ export function AiFeaturePage() {
         </Text>
       </Container>
 
-      {/* Hero */}
+      {/* Hero: слева тексты и кнопки, справа демо-генератор постов */}
       <Box component="section">
         <Container size="lg" py={{ base: 48, sm: 64 }}>
-          <Stack gap={0} maw={620}>
-            <Box
-              style={{
-                alignSelf: 'flex-start',
-                background: 'rgba(43,80,236,.08)',
-                borderRadius: 'var(--mantine-radius-pill)',
-                padding: '6px 12px',
-              }}
-            >
-              <Text fz={12} fw={700} c="brand.6">
-                ИИ-помощник
-              </Text>
-            </Box>
-
-            <Title
-              order={1}
-              mt={16}
-              fz={{ base: 32, sm: 42 }}
-              fw={800}
-              lh={1.1}
-              style={{ letterSpacing: '-0.5px', textWrap: 'balance' }}
-            >
-              ИИ{' '}
+          <SimpleGrid
+            cols={{ base: 1, md: 2 }}
+            spacing={{ base: 32, md: 48 }}
+            verticalSpacing={32}
+            style={{ alignItems: 'start' }}
+          >
+            <Stack gap={0} maw={620} pt={{ base: 0, md: 20 }}>
               <Box
-                component="span"
-                px={8}
-                style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}
+                style={{
+                  alignSelf: 'flex-start',
+                  background: 'rgba(43,80,236,.08)',
+                  borderRadius: 'var(--mantine-radius-pill)',
+                  padding: '6px 12px',
+                }}
               >
-                пишет
-              </Box>{' '}
-              — вы публикуете
-            </Title>
+                <Text fz={12} fw={700} c="brand.6">
+                  ИИ-помощник
+                </Text>
+              </Box>
 
-            <Text mt={16} fz={{ base: 15.5, sm: 16 }} lh={1.55} c="rgba(23,21,15,.7)">
-              Пост по теме, по фото или по прошлым публикациям — в вашем тоне. Отредактируйте пару
-              слов и отправьте в отложку. Идеи больше не заканчиваются.
-            </Text>
-
-            <Group gap={12} mt={26} wrap="wrap">
-              <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
-                Попробовать бесплатно
-              </Button>
-              <Button
-                component={Link}
-                to="/#features"
-                size="md"
-                radius="md"
-                variant="outline"
-                color="dark"
+              <Title
+                order={1}
+                mt={16}
+                fz={{ base: 32, sm: 42 }}
+                fw={800}
+                lh={1.1}
+                style={{ letterSpacing: '-0.5px', textWrap: 'balance' }}
               >
-                Все возможности
-              </Button>
-            </Group>
-          </Stack>
+                ИИ{' '}
+                <Box
+                  component="span"
+                  px={8}
+                  style={{ background: 'var(--mantine-color-accent-5)', borderRadius: 8 }}
+                >
+                  пишет
+                </Box>{' '}
+                — вы публикуете
+              </Title>
+
+              <Text mt={16} fz={{ base: 15.5, sm: 16 }} lh={1.55} c="rgba(23,21,15,.7)">
+                Пост по теме, по фото или по прошлым публикациям — в вашем тоне. Отредактируйте пару
+                слов и отправьте в отложку. Идеи больше не заканчиваются.
+              </Text>
+
+              <Group gap={12} mt={26} wrap="wrap">
+                <Button size="md" radius="md" color="brand" onClick={() => open('register')}>
+                  Попробовать бесплатно
+                </Button>
+                <Button
+                  component={Link}
+                  to="/features/crossposting"
+                  size="md"
+                  radius="md"
+                  variant="outline"
+                  color="dark"
+                >
+                  А кросспостинг?
+                </Button>
+              </Group>
+            </Stack>
+
+            <PostGeneratorDemo />
+          </SimpleGrid>
         </Container>
       </Box>
 

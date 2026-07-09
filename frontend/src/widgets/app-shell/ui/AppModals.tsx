@@ -18,7 +18,11 @@ export function AppModals() {
   return (
     <>
       <ComposerModal opened={composer.opened} postId={composer.postId} onClose={closeComposer} />
-      <ConnectPlatformModal opened={connectPlatform.opened} onClose={closeConnectPlatform} />
+      <ConnectPlatformModal
+        opened={connectPlatform.opened}
+        networkId={connectPlatform.networkId}
+        onClose={closeConnectPlatform}
+      />
       <UpgradePlanModal opened={upgrade.opened} onClose={closeUpgrade} />
     </>
   )

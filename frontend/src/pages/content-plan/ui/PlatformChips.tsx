@@ -15,8 +15,8 @@ const BORDER_DISCONNECTED = 'rgba(23,21,15,.25)'
 
 /**
  * Ряд из 7 чипсов-площадок над календарём: показывает статус подключения,
- * по клику открывает модалку «Подключение площадок», а иконка-глаз в чипсе
- * включает/выключает площадку в фильтре постов календаря.
+ * по клику открывает модалку подключения кликнутой площадки, а иконка-глаз
+ * в чипсе включает/выключает площадку в фильтре постов календаря.
  */
 export function PlatformChips() {
   const { data: connections, isLoading, isError } = useConnections()
@@ -52,7 +52,7 @@ export function PlatformChips() {
           network={network}
           connected={connectedById.get(network.id) ?? false}
           filterActive={isNetworkActive(network.id)}
-          onOpen={() => openConnectPlatform()}
+          onOpen={() => openConnectPlatform(network.id)}
           onToggleFilter={() => toggleNetwork(network.id)}
         />
       ))}

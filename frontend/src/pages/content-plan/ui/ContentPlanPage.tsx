@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Title,
+  Tooltip,
   UnstyledButton,
 } from '@mantine/core'
 import { IconLink, IconPlus } from '@tabler/icons-react'
@@ -15,6 +16,7 @@ import dayjs from 'dayjs'
 import { useAppModals } from '@/features/app-modals'
 import { useCalendarFilter } from '@/features/filter-by-platform'
 import { isInWeek, startOfWeekMonday, useContentPlan } from '@/entities/scheduled-post'
+import { useQuota } from '@/entities/subscription'
 import { BORDER_PANEL, BRAND, BRAND_SOFT_BG, INK } from '../lib/palette'
 import { capitalize, postCountLabel } from '../lib/format'
 import { PlatformChips } from './PlatformChips'
@@ -39,6 +41,7 @@ export function ContentPlanPage() {
   const [weekOffset, setWeekOffset] = useState(0)
   const [calYear, setCalYear] = useState(() => dayjs().year())
   const { openComposer, openConnectPlatform } = useAppModals()
+  const postsQuota = useQuota('posts')
   const { data: posts, isLoading } = useContentPlan()
   const { activeNetworkIds } = useCalendarFilter()
 
@@ -153,9 +156,27 @@ export function ContentPlanPage() {
           >
             Подключить площадку
           </Button>
-          <Button leftSection={<IconPlus size={16} />} onClick={() => openComposer()}>
-            Новый пост
-          </Button>
+          {/* Мягкий enforcement квоты постов (#211): при исчерпании кнопка
+              неактивна, тултип объясняет причину. data-disabled вместо disabled,
+              чтобы Tooltip продолжал работать. */}
+          <Tooltip
+            label="Достигнут лимит постов тарифа — улучшите тариф, чтобы планировать больше"
+            disabled={!postsQuota.exhausted}
+          >
+            <Button
+              leftSection={<IconPlus size={16} />}
+              data-disabled={postsQuota.exhausted || undefined}
+              onClick={(event) => {
+                if (postsQuota.exhausted) {
+                  event.preventDefault()
+                  return
+                }
+                openComposer()
+              }}
+            >
+              Новый пост
+            </Button>
+          </Tooltip>
         </Group>
       </Group>
 

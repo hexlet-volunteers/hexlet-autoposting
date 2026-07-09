@@ -1,4 +1,5 @@
 import {
+  Alert,
   Anchor,
   AppShell,
   Avatar,
@@ -15,6 +16,7 @@ import {
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import {
+  IconAlertTriangle,
   IconCalendar,
   IconChartBar,
   IconCheck,
@@ -32,6 +34,7 @@ import 'dayjs/locale/ru'
 import { Logo } from '@/shared/ui'
 import { useCurrentProject, useProjects, setCurrentProject } from '@/entities/project'
 import { useSubscription, useQuota } from '@/entities/subscription'
+import type { QuotaState } from '@/entities/subscription'
 import { mediaKeys } from '@/entities/media'
 import { scheduledPostKeys } from '@/entities/scheduled-post'
 import { logout } from '@/entities/session'
@@ -162,19 +165,44 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   )
 }
 
+interface QuotaLineProps {
+  label: string
+  quota: QuotaState
+}
+
+/** Строка квоты в виджете тарифа: счётчик и прогресс-бар с подсветкой порогов из useQuota. */
+function QuotaLine({ label, quota }: QuotaLineProps) {
+  if (quota.unlimited) {
+    return (
+      <Text fz={11} c="dimmed" mb={6}>
+        {label}: безлимит
+      </Text>
+    )
+  }
+  return (
+    <Box mb={6}>
+      <Text fz={11} c={quota.exhausted ? 'red.7' : quota.warning ? 'orange.8' : 'dimmed'} mb={4}>
+        {label}: {quota.used} / {quota.limit}
+      </Text>
+      <Progress
+        value={quota.percent}
+        size="sm"
+        color={quota.exhausted ? 'red' : quota.warning ? 'orange' : 'brand'}
+      />
+    </Box>
+  )
+}
+
 function PlanWidget() {
   const { openUpgrade } = useAppModals()
   const { data: subscription } = useSubscription()
-  const { used, limit, exhausted } = useQuota('ai')
+  const ai = useQuota('ai')
+  const posts = useQuota('posts')
 
-  // Безлимитный тариф: показываем «безлимит» без счётчика и прогресс-бара
-  const unlimited = !Number.isFinite(limit)
-  const percent = unlimited ? 0 : Math.min(100, Math.round((used / limit) * 100))
-  // Подсветка: с ~80% — предупреждение, при исчерпании — цвет ошибки
-  const nearLimit = !unlimited && !exhausted && percent >= 80
-  const quotaColor = exhausted ? 'red' : nearLimit ? 'orange' : 'brand'
-  // На «Старте» предлагаем улучшение, на остальных тарифах — смену
-  const upgradeLabel = subscription.plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
+  // Квоты требуют внимания: акцентная кнопка и явный призыв улучшить тариф
+  const attention = ai.exhausted || ai.warning || posts.exhausted || posts.warning
+  const upgradeLabel =
+    attention || subscription.plan === 'Старт' ? 'Улучшить тариф' : 'Сменить тариф'
   const renewsLabel = `до ${dayjs(subscription.renewsAt).locale('ru').format('D MMM').replace('.', '')}`
 
   return (
@@ -194,32 +222,65 @@ function PlanWidget() {
           {renewsLabel}
         </Text>
       </Group>
-      {unlimited ? (
-        <Text fz={11} c="dimmed" mb="xs">
-          ИИ-тексты: безлимит
+      <QuotaLine label="ИИ-тексты" quota={ai} />
+      <QuotaLine label="Посты" quota={posts} />
+      {posts.exhausted ? (
+        <Text fz={11} c="red.7" mt={2} mb="xs">
+          Достигнут лимит тарифа: {posts.limit} постов в месяц
+        </Text>
+      ) : ai.exhausted ? (
+        <Text fz={11} c="red.7" mt={2} mb="xs">
+          Лимит ИИ-текстов на период исчерпан — поднимите его апгрейдом тарифа
+        </Text>
+      ) : posts.warning ? (
+        <Text fz={11} c="orange.8" mt={2} mb="xs">
+          Осталось {posts.limit - posts.used} из {posts.limit} постов до лимита
         </Text>
       ) : (
-        <>
-          <Text fz={11} c={exhausted ? 'red.7' : nearLimit ? 'orange.8' : 'dimmed'} mb={4}>
-            ИИ-тексты: {used} / {limit}
-          </Text>
-          <Progress value={percent} size="sm" color={quotaColor} mb="sm" />
-          {exhausted && (
-            <Text fz={11} c="red.7" mb="xs">
-              Лимит на период исчерпан — поднимите его апгрейдом тарифа
-            </Text>
-          )}
-        </>
+        <Box mt={2} mb="xs" />
       )}
-      <Button
-        size="xs"
-        variant={exhausted || nearLimit ? 'filled' : 'light'}
-        fullWidth
-        onClick={openUpgrade}
-      >
+      <Button size="xs" variant={attention ? 'filled' : 'light'} fullWidth onClick={openUpgrade}>
         {upgradeLabel} →
       </Button>
     </Box>
+  )
+}
+
+/**
+ * Мягкий enforcement лимита постов (#211): баннер над контентом кабинета.
+ * Оранжевое предупреждение при приближении к лимиту и красный призыв к апгрейду
+ * при исчерпании; блокировка самих кнопок создания — на экранах и в композере.
+ */
+function PostsQuotaBanner() {
+  const { openUpgrade } = useAppModals()
+  const posts = useQuota('posts')
+
+  if (!posts.exhausted && !posts.warning) return null
+
+  return (
+    <Alert
+      color={posts.exhausted ? 'red' : 'orange'}
+      variant="light"
+      radius="md"
+      mb="md"
+      icon={<IconAlertTriangle size={18} />}
+      title={
+        posts.exhausted
+          ? `Достигнут лимит тарифа: ${posts.limit} постов в месяц`
+          : 'Лимит постов почти исчерпан'
+      }
+    >
+      <Group justify="space-between" gap="sm">
+        <Text fz={13} style={{ flex: 1, minWidth: 220 }}>
+          {posts.exhausted
+            ? 'Новые посты не запланируются, пока не освободится квота. Улучшите тариф, чтобы публиковать без ограничений.'
+            : `Запланировано ${posts.used} из ${posts.limit} постов в месяц. Улучшите тариф, чтобы не останавливать публикации.`}
+        </Text>
+        <Button size="xs" color={posts.exhausted ? 'red' : 'orange'} onClick={openUpgrade}>
+          Улучшить тариф
+        </Button>
+      </Group>
+    </Alert>
   )
 }
 
@@ -294,6 +355,7 @@ export function AppLayout() {
       </AppShell.Navbar>
 
       <AppShell.Main>
+        <PostsQuotaBanner />
         <Outlet />
       </AppShell.Main>
 

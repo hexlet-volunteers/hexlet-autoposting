@@ -19,7 +19,7 @@ export function useAppModals() {
     closeComposer: () => dispatch(closeComposer()),
     openUpgrade: () => dispatch(openUpgrade()),
     closeUpgrade: () => dispatch(closeUpgrade()),
-    openConnectPlatform: () => dispatch(openConnectPlatform()),
+    openConnectPlatform: (networkId?: string) => dispatch(openConnectPlatform(networkId)),
     closeConnectPlatform: () => dispatch(closeConnectPlatform()),
   }
 }
