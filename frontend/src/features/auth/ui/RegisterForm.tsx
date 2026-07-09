@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Alert, Anchor, Button, Checkbox, PasswordInput, Stack, TextInput } from '@mantine/core'
+import { Alert, Button, Checkbox, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { login } from '@/entities/session'
+import { ExternalLink } from '@/shared/ui'
 import { getAuthErrorMessage, mockRegister } from '../api/mockAuthApi'
 import { useAuthModal } from '../model/hooks'
 
@@ -79,14 +80,8 @@ export function RegisterForm() {
           {...form.getInputProps('oferta', { type: 'checkbox' })}
           label={
             <>
-              Принимаю{' '}
-              <Anchor href="/legal#oferta" target="_blank">
-                оферту
-              </Anchor>{' '}
-              и{' '}
-              <Anchor href="/legal#privacy" target="_blank">
-                политику конфиденциальности
-              </Anchor>
+              Принимаю <ExternalLink href="/legal#oferta">оферту</ExternalLink> и{' '}
+              <ExternalLink href="/legal#privacy">политику конфиденциальности</ExternalLink>
             </>
           }
         />

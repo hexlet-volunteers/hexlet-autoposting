@@ -1,0 +1,11 @@
+# robots.txt для «Отложки» (#215)
+# Публичная часть (лендинг, страницы фич, тарифы, правовая) — открыта для индексации.
+# Приватный кабинет /app/* и auth-редиректы закрыты от поисковых роботов.
+User-agent: *
+Allow: /$
+Allow: /pricing
+Allow: /features
+Allow: /legal
+Disallow: /app
+Disallow: /auth
+Disallow: /login
