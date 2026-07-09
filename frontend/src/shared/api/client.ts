@@ -59,7 +59,14 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   if (res.status === 204) return undefined as T
 
   const text = await res.text()
-  const data: unknown = text ? JSON.parse(text) : undefined
+  // Не-JSON ответ (HTML прокси-ошибки, обрыв соединения) не должен ронять клиент
+  // сырым SyntaxError — приводим к предсказуемому HttpError.
+  let data: unknown
+  try {
+    data = text ? JSON.parse(text) : undefined
+  } catch {
+    throw new HttpError(res.status, 'Некорректный ответ сервера')
+  }
 
   if (!res.ok) {
     const message =

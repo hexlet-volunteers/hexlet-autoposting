@@ -2,6 +2,7 @@ import { useAppModals } from '@/features/app-modals'
 import { ComposerModal } from '@/features/composer'
 import { ConnectPlatformModal } from '@/features/connect-platform'
 import { UpgradePlanModal } from '@/features/upgrade-plan'
+import { ErrorBoundary } from '@/shared/ui'
 
 /**
  * Хост глобальных модалок кабинета — единственное место, где UI-состояние
@@ -15,15 +16,23 @@ export function AppModals() {
   const { composer, closeComposer, connectPlatform, closeConnectPlatform, upgrade, closeUpgrade } =
     useAppModals()
 
+  // Каждая рисковая модалка — в своей границе ошибок (fallback=null): падение
+  // рендера одной не роняет соседние модалки и оболочку кабинета.
   return (
     <>
-      <ComposerModal opened={composer.opened} postId={composer.postId} onClose={closeComposer} />
-      <ConnectPlatformModal
-        opened={connectPlatform.opened}
-        networkId={connectPlatform.networkId}
-        onClose={closeConnectPlatform}
-      />
-      <UpgradePlanModal opened={upgrade.opened} onClose={closeUpgrade} />
+      <ErrorBoundary fallback={null}>
+        <ComposerModal opened={composer.opened} postId={composer.postId} onClose={closeComposer} />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={null}>
+        <ConnectPlatformModal
+          opened={connectPlatform.opened}
+          networkId={connectPlatform.networkId}
+          onClose={closeConnectPlatform}
+        />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={null}>
+        <UpgradePlanModal opened={upgrade.opened} onClose={closeUpgrade} />
+      </ErrorBoundary>
     </>
   )
 }

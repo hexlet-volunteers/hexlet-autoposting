@@ -1,6 +1,5 @@
 import { Container, Group, Stack, Text, Title } from '@mantine/core'
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
 
 interface ErrorScreenProps {
@@ -20,9 +19,11 @@ export function ErrorScreen({ code, title, description, action }: ErrorScreenPro
   return (
     <Container size="md" mih="100vh" py={64} style={{ display: 'flex', flexDirection: 'column' }}>
       <Group justify="center">
-        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        {/* Обычная ссылка (не SPA-Link): экран ошибки может рендериться вне Router
+            — например из глобальной границы ошибок над роутером. */}
+        <a href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           <Logo />
-        </Link>
+        </a>
       </Group>
 
       <Stack align="center" gap="md" style={{ flex: 1, justifyContent: 'center' }}>
