@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   Divider,
+  Flex,
   Group,
   Paper,
   Select,
@@ -110,11 +111,13 @@ export function TeamPage() {
           ) : (
             <Stack gap="sm" p="md">
               {members.map((member) => (
-                <Group
+                // На мобильном строка — колонка: управление (роль/статус/удаление)
+                // переносится под идентификацию, поэтому нет горизонтального скролла.
+                <Flex
                   key={member.id}
-                  wrap="nowrap"
+                  direction={{ base: 'column', sm: 'row' }}
+                  align={{ base: 'stretch', sm: 'center' }}
                   gap="sm"
-                  align="center"
                   style={{
                     backgroundColor: 'var(--mantine-color-gray-0)',
                     border: '1px solid var(--mantine-color-gray-3)',
@@ -122,60 +125,65 @@ export function TeamPage() {
                     padding: '10px 14px',
                   }}
                 >
-                  <Avatar color="brand" radius="xl">
-                    {initials(member.name)}
-                  </Avatar>
-                  <Stack gap={0} style={{ minWidth: 0, flex: 1 }}>
-                    <Text fw={700} size="sm" truncate>
-                      {member.name}
-                    </Text>
-                    <Text size="xs" c="dimmed" truncate>
-                      {member.email}
-                    </Text>
-                  </Stack>
+                  {/* Идентификация участника: аватар + имя/почта (усечение по ширине) */}
+                  <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                    <Avatar color="brand" radius="xl">
+                      {initials(member.name)}
+                    </Avatar>
+                    <Stack gap={0} style={{ minWidth: 0 }}>
+                      <Text fw={700} size="sm" truncate>
+                        {member.name}
+                      </Text>
+                      <Text size="xs" c="dimmed" truncate>
+                        {member.email}
+                      </Text>
+                    </Stack>
+                  </Group>
 
-                  {member.status === 'pending' && (
-                    <Badge color="yellow" variant="light" style={{ flex: 'none' }}>
-                      приглашение отправлено
-                    </Badge>
-                  )}
-
-                  {canManageTeam ? (
-                    <Select
-                      data={ROLE_OPTIONS}
-                      value={member.role}
-                      onChange={(value) =>
-                        value && handleRoleChange(member.id, value as MemberRole)
-                      }
-                      disabled={member.role === 'owner'}
-                      allowDeselect={false}
-                      aria-label={`Роль участника ${member.name}`}
-                      w={130}
-                      style={{ flex: 'none' }}
-                    />
-                  ) : (
-                    // Режим «только чтение»: роль — бейджем (владельца показывает бейдж ниже)
-                    member.role !== 'owner' && (
-                      <Badge color="gray" variant="light" style={{ flex: 'none' }}>
-                        {ROLE_LABELS[member.role]}
+                  {/* Роль/статус/управление: на узком экране переносятся между собой */}
+                  <Group gap="sm" wrap="wrap" style={{ flex: 'none' }}>
+                    {member.status === 'pending' && (
+                      <Badge color="yellow" variant="light">
+                        приглашение отправлено
                       </Badge>
-                    )
-                  )}
+                    )}
 
-                  {member.role === 'owner' ? (
-                    <Badge color="dark" variant="filled" style={{ flex: 'none' }}>
-                      Владелец
-                    </Badge>
-                  ) : (
-                    canManageTeam && (
-                      <ConfirmDeleteButton
-                        onConfirm={() => handleRemove(member)}
-                        tooltip="Отозвать доступ к проекту"
-                        confirmText={`Отозвать доступ для ${member.name}?`}
+                    {canManageTeam ? (
+                      <Select
+                        data={ROLE_OPTIONS}
+                        value={member.role}
+                        onChange={(value) =>
+                          value && handleRoleChange(member.id, value as MemberRole)
+                        }
+                        disabled={member.role === 'owner'}
+                        allowDeselect={false}
+                        aria-label={`Роль участника ${member.name}`}
+                        w={130}
                       />
-                    )
-                  )}
-                </Group>
+                    ) : (
+                      // Режим «только чтение»: роль — бейджем (владельца показывает бейдж ниже)
+                      member.role !== 'owner' && (
+                        <Badge color="gray" variant="light">
+                          {ROLE_LABELS[member.role]}
+                        </Badge>
+                      )
+                    )}
+
+                    {member.role === 'owner' ? (
+                      <Badge color="dark" variant="filled">
+                        Владелец
+                      </Badge>
+                    ) : (
+                      canManageTeam && (
+                        <ConfirmDeleteButton
+                          onConfirm={() => handleRemove(member)}
+                          tooltip="Отозвать доступ к проекту"
+                          confirmText={`Отозвать доступ для ${member.name}?`}
+                        />
+                      )
+                    )}
+                  </Group>
+                </Flex>
               ))}
             </Stack>
           )}
