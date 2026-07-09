@@ -2,41 +2,10 @@ import { Box, Card, Text } from '@mantine/core'
 import type { Media } from '../model/types'
 import { formatDateShort } from '../lib/date'
 import { MediaThumb } from './MediaThumb'
+import { PlayOverlay } from './PlayOverlay'
 
 // Фон превью-заглушки — кремовый из макета (docs/design/mockups/app-dashboard.html).
 const PLACEHOLDER_BG = '#F6F4EF'
-
-/** Круглая иконка play поверх превью видео: круг 28px, тёмный фон, белый символ (по макету). */
-function PlayOverlay() {
-  return (
-    <Box
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Box
-        component="span"
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: '50%',
-          background: 'rgba(23,21,15,.72)',
-          color: '#fff',
-          fontSize: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        ▶
-      </Box>
-    </Box>
-  )
-}
 
 interface MediaTileProps {
   media: Media
