@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Alert, Button, Stack, TextInput } from '@mantine/core'
+import { Alert, Anchor, Button, Stack, TextInput } from '@mantine/core'
 import { IconAlertCircle, IconMailCheck } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { getAuthErrorMessage, mockRequestPasswordReset } from '../api/mockAuthApi'
@@ -42,9 +42,16 @@ export function ResetForm() {
         <Alert color="green" icon={<IconMailCheck size={18} />} title="Ссылка отправлена.">
           Проверьте входящие — а если письма нет, загляните в «Спам».
         </Alert>
-        <Button variant="light" fullWidth onClick={() => setSent(false)}>
+        <Anchor
+          component="button"
+          type="button"
+          fz={13}
+          fw={600}
+          onClick={() => setSent(false)}
+          style={{ alignSelf: 'center' }}
+        >
           Отправить ещё раз
-        </Button>
+        </Anchor>
       </Stack>
     )
   }
