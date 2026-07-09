@@ -1,6 +1,6 @@
 import { Anchor, Badge, Box, Button, Card, Group, SimpleGrid, Stack, Text } from '@mantine/core'
-import { IconArrowRight } from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
+import { useAuthModal } from '@/features/auth'
 import { Section } from '../Section'
 
 const FEATURED_BORDER = '2px solid #2B50EC'
@@ -46,6 +46,8 @@ const PLANS: Plan[] = [
 
 /** Тизер тарифов лендинга: три плана, рекомендованный выделен рамкой и бейджем. */
 export function PricingTeaserSection() {
+  const { open } = useAuthModal()
+
   return (
     <Section id="pricing" eyebrow="Тарифы" title="Простые и без звёздочек">
       <Group justify="flex-end" mt={-8}>
@@ -113,15 +115,13 @@ export function PricingTeaserSection() {
             </Stack>
 
             <Button
-              component={Link}
-              to="/login"
               mt="lg"
               fullWidth
               radius="md"
               size="md"
               color="brand"
               variant={plan.featured ? 'filled' : 'default'}
-              rightSection={plan.featured ? <IconArrowRight size={16} /> : undefined}
+              onClick={() => open('register')}
             >
               {plan.cta}
             </Button>
