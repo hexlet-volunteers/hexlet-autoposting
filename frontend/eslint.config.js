@@ -54,6 +54,17 @@ export default tseslint.config(
             'Сессию/токены не храним в sessionStorage (XSS). См. docs/adr/0001-fe-session-storage.md',
         },
       ],
+      // Запрет dangerouslySetInnerHTML на пользовательском контенте — защита от stored XSS (#239).
+      // Аналог react/no-danger без eslint-plugin-react (плагина нет в зависимостях): ловим JSX-атрибут
+      // через core-правило. Нужен HTML-рендер — только через sanitizeHtml из @/shared/lib.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'JSXAttribute[name.name="dangerouslySetInnerHTML"]',
+          message:
+            'dangerouslySetInnerHTML запрещён (XSS): санитайзьте через sanitizeHtml из @/shared/lib или рендерите как текст (#239).',
+        },
+      ],
     },
   },
 )

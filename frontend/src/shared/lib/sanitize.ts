@@ -1,5 +1,9 @@
+import DOMPurify from 'dompurify'
+
 // Санитайзинг пользовательского контента (#215/#239).
-// sanitizeUrl — allowlist схем для ссылок (нужен ExternalLink и HTML-санитайзеру).
+// Предупредительный guardrail: сейчас весь пользовательский текст рендерится как текст
+// (React экранирует), но как только появится RichText-HTML (#195) или HTML-предпросмотр
+// площадки (#183), sanitizeHtml должен стоять на границе рендера — до любого innerHTML.
 
 /** Схемы, которые разрешаем в ссылках. Всё остальное (javascript:/data:/vbscript:) режем. */
 const SAFE_SCHEMES = ['http:', 'https:', 'mailto:']
@@ -38,4 +42,42 @@ export function sanitizeUrl(rawUrl: unknown): string {
   }
 
   return SAFE_SCHEMES.includes(protocol) ? cleaned : ''
+}
+
+/** Теги, разрешённые в санитайзенном HTML пользовательского контента. */
+const ALLOWED_TAGS = ['b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'br', 'p']
+/** Атрибуты-белый список: только ссылочные, чтобы отсечь on*, style и прочее. */
+const ALLOWED_ATTR = ['href', 'target', 'rel']
+
+// Хук на границе очистки: прогоняем href через sanitizeUrl и навешиваем безопасный rel.
+// Регистрируется один раз при импорте модуля (DOMPurify — синглтон).
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.tagName === 'A' && node.hasAttribute('href')) {
+    const safeHref = sanitizeUrl(node.getAttribute('href'))
+    if (safeHref === '') {
+      // Небезопасная схема — снимаем ссылку целиком, оставляя только текст
+      node.removeAttribute('href')
+      node.removeAttribute('target')
+      node.removeAttribute('rel')
+    } else {
+      node.setAttribute('href', safeHref)
+      node.setAttribute('target', '_blank')
+      node.setAttribute('rel', 'noopener noreferrer')
+    }
+  }
+})
+
+/**
+ * Очищает HTML пользовательского контента: оставляет только whitelist тегов/атрибутов,
+ * вырезает on*, style, <script>, <iframe> и небезопасные ссылки.
+ * Использовать ПЕРЕД любым рендером HTML из API/ввода (dangerouslySetInnerHTML запрещён линтером).
+ */
+export function sanitizeHtml(dirty: unknown): string {
+  if (typeof dirty !== 'string') return ''
+  return DOMPurify.sanitize(dirty, {
+    ALLOWED_TAGS,
+    ALLOWED_ATTR,
+    FORBID_TAGS: ['script', 'iframe', 'style'],
+    FORBID_ATTR: ['style'],
+  })
 }
