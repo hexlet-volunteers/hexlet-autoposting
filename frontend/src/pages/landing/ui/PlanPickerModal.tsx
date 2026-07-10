@@ -38,6 +38,13 @@ const PLANS: Plan[] = [
     note: '7 дней бесплатно',
     features: ['5 проектов', 'команда из 3 человек', '200 ИИ-текстов'],
   },
+  {
+    name: 'Агентство',
+    price: '2490 ₽',
+    priceSuffix: ' /мес',
+    note: 'для агентств и команд',
+    features: ['20 проектов', '10 пользователей', 'ИИ без лимита'],
+  },
 ]
 
 interface PlanPickerModalProps {
@@ -59,7 +66,7 @@ export function PlanPickerModal({ opened, onClose, onChoose }: PlanPickerModalPr
       onClose={onClose}
       centered
       radius="lg"
-      size="lg"
+      size={900}
       title={
         <Stack gap={2}>
           <Text fw={800} fz="lg">
@@ -71,7 +78,7 @@ export function PlanPickerModal({ opened, onClose, onChoose }: PlanPickerModalPr
         </Stack>
       }
     >
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm" mt="xs">
+      <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="sm" mt="xs">
         {PLANS.map((plan) => (
           <Card
             key={plan.name}
