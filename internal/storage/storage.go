@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"hexlet/internal/config"
-	"log"
 	"net"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"go.uber.org/zap"
 )
 
 type DBConfig struct {
@@ -20,15 +20,17 @@ type DBConfig struct {
 	SSLMode  string
 }
 
-func InitDBConn(ctx context.Context, cfgenv *config.Config) (dbpool *pgxpool.Pool, err error) {
+func InitDBConn(ctx context.Context, cfgenv *config.Config, logger *zap.Logger) (dbpool *pgxpool.Pool, err error) {
 	config := loadDBConfig(cfgenv)
-	if err := waitForDB(ctx, config); err != nil {
+	if err := waitForDB(ctx, config, logger); err != nil {
 		return nil, fmt.Errorf("failed to wait for database: %v", err)
 	}
 	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
-
-	log.Printf("Connecting to database at: %s:%s", config.Host, config.Port)
+	logger.Info("Connecting to database",
+		zap.String("host", config.Host),
+		zap.String("port", config.Port),
+	)
 	cfg, err := pgxpool.ParseConfig(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse pg config: %v", err)
@@ -47,30 +49,34 @@ func InitDBConn(ctx context.Context, cfgenv *config.Config) (dbpool *pgxpool.Poo
 	for i := 0; i < 10; i++ {
 		dbpool, err = pgxpool.ConnectConfig(ctx, cfg)
 		if err != nil {
-			log.Printf("Attempt %d: failed to connect to database: %v", i+1, err)
+			logger.Error("Failed to connect database",
+				zap.Int("attempt", i+1),
+				zap.Error(err),
+			)
 			time.Sleep(2 * time.Second)
 			continue
 		}
 
 		if err = dbpool.Ping(ctx); err != nil {
-			log.Printf("Attempt %d: failed to ping database: %v", i+1, err)
+			logger.Error("Failed to ping database",
+				zap.Int("attempt", i+1),
+				zap.Error(err),
+			)
 			dbpool.Close()
 			time.Sleep(2 * time.Second)
 			continue
 		}
-
-		log.Println("Database connection established")
+		logger.Info("Database connection established")
 		return dbpool, nil
 	}
 
 	return nil, fmt.Errorf("failed to connect to database after 10 attempts: %v", err)
 }
 
-func waitForDB(ctx context.Context, config DBConfig) error {
+func waitForDB(ctx context.Context, config DBConfig, logger *zap.Logger) error {
 	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
-
-	log.Printf("Waiting for database to be ready...")
+	logger.Info("Waiting for database to be ready...")
 
 	for i := 0; i < 30; i++ {
 		cfg, err := pgxpool.ParseConfig(url)
@@ -82,20 +88,26 @@ func waitForDB(ctx context.Context, config DBConfig) error {
 
 		dbpool, err := pgxpool.ConnectConfig(ctx, cfg)
 		if err != nil {
-			log.Printf("Database not ready yet (attempt %d): %v", i+1, err)
+			logger.Error("Database not ready yet",
+				zap.Int("attempt", i+1),
+				zap.Error(err),
+			)
 			time.Sleep(2 * time.Second)
 			continue
 		}
 
 		if err := dbpool.Ping(ctx); err != nil {
-			log.Printf("Database ping failed (attempt %d): %v", i+1, err)
+			logger.Error("Failed to ping database",
+				zap.Int("attempt", i+1),
+				zap.Error(err),
+			)
 			dbpool.Close()
 			time.Sleep(2 * time.Second)
 			continue
 		}
 
 		dbpool.Close()
-		log.Println("Database is ready!")
+		logger.Info("Database is ready!")
 		return nil
 	}
 

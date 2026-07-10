@@ -26,29 +26,48 @@ type MockPostRepository struct {
 	mock.Mock
 }
 
+const (
+	TestPost     = "Test Post"
+	TestContent  = "Test Content"
+	TestPlatform = "Test Platform"
+	TestToken    = `{"token":"test_token"}`
+	TestBot      = "test_bot"
+
+	UpdatedTitle    = "Updated Title"
+	UpdatedContent  = "Updated Content"
+	UpdatedPlatform = "Updated Platform"
+	UpdatedBot      = "updated_bot"
+	UpdatedConfig   = "updated_config"
+
+	OriginalTitle   = "Original Title"
+	OriginalContent = "Original Content"
+	Telegram        = "telegram"
+	Content         = "Content"
+)
+
 func (m *MockPostRepository) CreatePost(ctx context.Context, post dto.CreatePostRequest) (int, time.Time, error) {
 	args := m.Called(ctx, post)
 	return args.Int(0), args.Get(1).(time.Time), args.Error(2)
 }
 
-func (m *MockPostRepository) GetPost(ctx context.Context, ID_user string) (dto.GetPostsResponce, error) {
-	args := m.Called(ctx, ID_user)
-	return args.Get(0).(dto.GetPostsResponce), args.Error(1)
+func (m *MockPostRepository) GetPost(ctx context.Context, userID string) (dto.GetPostsResponse, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).(dto.GetPostsResponse), args.Error(1)
 }
 
-func (m *MockPostRepository) GetPostByID(ctx context.Context, ID_post int, ID_user string) (dto.GetPostResponce, error) {
-	args := m.Called(ctx, ID_post, ID_user)
-	return args.Get(0).(dto.GetPostResponce), args.Error(1)
+func (m *MockPostRepository) GetPostByID(ctx context.Context, postID int, userID string) (dto.GetPostResponse, error) {
+	args := m.Called(ctx, postID, userID)
+	return args.Get(0).(dto.GetPostResponse), args.Error(1)
 }
 
-func (m *MockPostRepository) DeletePostByID(ctx context.Context, ID_post int) error {
-	args := m.Called(ctx, ID_post)
+func (m *MockPostRepository) DeletePostByID(ctx context.Context, postID int) error {
+	args := m.Called(ctx, postID)
 	return args.Error(0)
 }
 
-func (m *MockPostRepository) UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponce, error) {
+func (m *MockPostRepository) UpdatePostByID(ctx context.Context, req dto.PutPostRequest) (dto.PutPostResponse, error) {
 	args := m.Called(ctx, req)
-	return args.Get(0).(dto.PutPostResponce), args.Error(1)
+	return args.Get(0).(dto.PutPostResponse), args.Error(1)
 }
 
 func (m *MockPostRepository) CreatePlatform(ctx context.Context, platform dto.CreatePlatformRequest) (int, time.Time, error) {
@@ -56,24 +75,24 @@ func (m *MockPostRepository) CreatePlatform(ctx context.Context, platform dto.Cr
 	return args.Int(0), args.Get(1).(time.Time), args.Error(2)
 }
 
-func (m *MockPostRepository) GetPlatform(ctx context.Context, ID_user string) (dto.GetPlatformResponce, error) {
-	args := m.Called(ctx, ID_user)
-	return args.Get(0).(dto.GetPlatformResponce), args.Error(1)
+func (m *MockPostRepository) GetPlatform(ctx context.Context, userID string) (dto.GetPlatformResponse, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).(dto.GetPlatformResponse), args.Error(1)
 }
 
-func (m *MockPostRepository) GetPlatformByID(ctx context.Context, ID_platform int, ID_user string) (domain.Platform, error) {
-	args := m.Called(ctx, ID_platform, ID_user)
+func (m *MockPostRepository) GetPlatformByID(ctx context.Context, platformID int, userID string) (domain.Platform, error) {
+	args := m.Called(ctx, platformID, userID)
 	return args.Get(0).(domain.Platform), args.Error(1)
 }
 
-func (m *MockPostRepository) DeletePlatformByID(ctx context.Context, ID_platform int) error {
-	args := m.Called(ctx, ID_platform)
+func (m *MockPostRepository) DeletePlatformByID(ctx context.Context, platformID int) error {
+	args := m.Called(ctx, platformID)
 	return args.Error(0)
 }
 
-func (m *MockPostRepository) UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponce, error) {
+func (m *MockPostRepository) UpdatePlatformByID(ctx context.Context, req dto.PutPlatformRequest) (dto.PutPlatformResponse, error) {
 	args := m.Called(ctx, req)
-	return args.Get(0).(dto.PutPlatformResponce), args.Error(1)
+	return args.Get(0).(dto.PutPlatformResponse), args.Error(1)
 }
 
 func setupTest() (*gin.Engine, *MockPostRepository, *App) {
@@ -109,40 +128,39 @@ func TestCreatePost_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 	baseTime := time.Now().Add(24 * time.Hour).UTC().Truncate(time.Second)
 	reqBody := dto.CreatePostRequest{
-		ID_user:      "1",
-		Title:        "Test Post",
-		Content:      "Test Content",
-		Sheduled_for: baseTime,
+		IDUser:      "1",
+		Title:       TestPost,
+		Content:     TestContent,
+		SheduledFor: baseTime,
 	}
 	expectedCreatedAt := time.Now().Add(3 * time.Hour).UTC().Truncate(time.Second)
 	jsonBody, _ := json.Marshal(reqBody)
 	mockRepo.On("CreatePost", mock.Anything, mock.MatchedBy(func(req dto.CreatePostRequest) bool {
 		expectedTimeInRepo := baseTime.Add(-3 * time.Hour).Unix()
 
-		return req.ID_user == "1" &&
-			req.Title == "Test Post" &&
-			req.Status == "scheduled" &&
-			req.Sheduled_for.Unix() == expectedTimeInRepo
+		return req.IDUser == "1" &&
+			req.Title == TestPost &&
+			req.Status == Scheduled &&
+			req.SheduledFor.Unix() == expectedTimeInRepo
 	})).Return(1, expectedCreatedAt, nil)
-	req, _ := http.NewRequest("POST", "/posts", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	var response dto.CreatePostResponce
+	var response dto.CreatePostResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, response.ID_post)
-	assert.Equal(t, "1", response.ID_user)
-	assert.Equal(t, expectedCreatedAt.Unix(), response.Created_at.Unix())
+	assert.Equal(t, 1, response.IDPost)
+	assert.Equal(t, "1", response.IDUser)
+	assert.Equal(t, expectedCreatedAt.Unix(), response.CreatedAt.Unix())
 	mockRepo.AssertExpectations(t)
 }
 
 func TestCreatePost_InvalidJSON(t *testing.T) {
 	router, mockRepo, _ := setupTest()
-
-	req, _ := http.NewRequest("POST", "/posts", bytes.NewBuffer([]byte("invalid json")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/posts", bytes.NewBuffer([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -165,7 +183,7 @@ func TestCreatePost_ValidationError(t *testing.T) {
 	reqBody := dto.CreatePostRequest{}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", "/posts", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -180,17 +198,17 @@ func TestCreatePost_RepositoryError(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.CreatePostRequest{
-		ID_user:      "1",
-		Title:        "Test Post",
-		Content:      "Test Content",
-		Sheduled_for: time.Now().Add(24 * time.Hour),
+		IDUser:      "1",
+		Title:       TestPost,
+		Content:     TestContent,
+		SheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	mockRepo.On("CreatePost", mock.Anything, mock.AnythingOfType("dto.CreatePostRequest")).
 		Return(0, time.Time{}, errors.New("database error"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", "/posts", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -212,49 +230,49 @@ func TestGetPosts_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
-	expectedResponse := dto.GetPostsResponce{
+	expectedResponse := dto.GetPostsResponse{
 		Scheduled: []domain.Post{
 			{
-				ID_post:      1,
-				ID_user:      "1",
-				Title:        "Scheduled Post",
-				Content:      "Content 1",
-				Status:       "scheduled",
-				Created_at:   time.Now().Round(0),
-				Sheduled_for: time.Now().Add(24 * time.Hour).Round(0),
+				IDPost:      1,
+				IDUser:      "1",
+				Title:       "Scheduled Post",
+				Content:     "Content 1",
+				Status:      Scheduled,
+				CreatedAt:   time.Now().Round(0),
+				SheduledFor: time.Now().Add(24 * time.Hour).Round(0),
 			},
 		},
 		Processing: []domain.Post{
 			{
-				ID_post:      2,
-				ID_user:      "1",
-				Title:        "Processing Post",
-				Content:      "Content 2",
-				Status:       "processing",
-				Created_at:   time.Now().Round(0),
-				Sheduled_for: time.Now().Add(1 * time.Hour).Round(0),
+				IDPost:      2,
+				IDUser:      "1",
+				Title:       "Processing Post",
+				Content:     "Content 2",
+				Status:      "processing",
+				CreatedAt:   time.Now().Round(0),
+				SheduledFor: time.Now().Add(1 * time.Hour).Round(0),
 			},
 		},
 		Published: []domain.Post{
 			{
-				ID_post:    3,
-				ID_user:    "1",
-				Title:      "Published Post",
-				Content:    "Content 3",
-				Status:     "published",
-				Created_at: time.Now().Add(-24 * time.Hour).Round(0),
+				IDPost:    3,
+				IDUser:    "1",
+				Title:     "Published Post",
+				Content:   "Content 3",
+				Status:    "published",
+				CreatedAt: time.Now().Add(-24 * time.Hour).Round(0),
 			},
 		},
 		Failed: []domain.Post{
 			{
-				ID_post:      4,
-				ID_user:      "1",
+				IDPost:       4,
+				IDUser:       "1",
 				Title:        "Failed Post",
 				Content:      "Content 4",
 				Status:       "failed",
-				Created_at:   time.Now().Add(-48 * time.Hour).Round(0),
+				CreatedAt:    time.Now().Add(-48 * time.Hour).Round(0),
 				ErrorMessage: stringPtr("Failed to publish"),
 			},
 		},
@@ -263,7 +281,7 @@ func TestGetPosts_Success(t *testing.T) {
 	mockRepo.On("GetPost", mock.Anything, "1").Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/posts", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -272,7 +290,7 @@ func TestGetPosts_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var response dto.GetPostsResponce
+	var response dto.GetPostsResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Len(t, response.Scheduled, 1)
@@ -291,13 +309,13 @@ func TestGetPosts_RepositoryError(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
-	mockRepo.On("GetPost", mock.Anything, "1").Return(dto.GetPostsResponce{}, errors.New("database error"))
+	mockRepo.On("GetPost", mock.Anything, "1").Return(dto.GetPostsResponse{}, errors.New("database error"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/posts", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -319,20 +337,20 @@ func TestGetPost_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	scheduledTime := time.Now().Add(24 * time.Hour).Round(0)
-	expectedPost := dto.GetPostResponce{
+	expectedPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				ID_post:      1,
-				ID_user:      "1",
-				Title:        "Test Post",
-				Content:      "Test Content",
-				Status:       "scheduled",
-				Created_at:   time.Now().Round(0),
-				Sheduled_for: scheduledTime,
+				IDPost:      1,
+				IDUser:      "1",
+				Title:       TestPost,
+				Content:     TestContent,
+				Status:      Scheduled,
+				CreatedAt:   time.Now().Round(0),
+				SheduledFor: scheduledTime,
 			},
 		},
 	}
@@ -340,7 +358,7 @@ func TestGetPost_Success(t *testing.T) {
 	mockRepo.On("GetPostByID", mock.Anything, 1, "1").Return(expectedPost, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/posts/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/posts/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -349,19 +367,18 @@ func TestGetPost_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var response dto.GetPostResponce
+	var response dto.GetPostResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
 	assert.Len(t, response.Posts, 1)
-	assert.Equal(t, "Test Post", response.Posts[0].Title)
+	assert.Equal(t, TestPost, response.Posts[0].Title)
 
 	mockRepo.AssertExpectations(t)
 }
 
 func TestGetPost_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
-
-	req, _ := http.NewRequest("GET", "/posts/invalid", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/posts/invalid", nil)
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -381,36 +398,36 @@ func TestPutPost_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.PutPostRequest{
-		ID_user: "1",
-		Title:   "Updated Title",
-		Content: "Updated Content",
+		IDUser:  "1",
+		Title:   UpdatedTitle,
+		Content: UpdatedContent,
 	}
 
-	existingPost := dto.GetPostResponce{
+	existingPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				ID_post:      1,
-				ID_user:      "1",
-				Title:        "Original Title",
-				Content:      "Original Content",
-				Sheduled_for: time.Now().Add(24 * time.Hour),
+				IDPost:      1,
+				IDUser:      "1",
+				Title:       OriginalTitle,
+				Content:     OriginalContent,
+				SheduledFor: time.Now().Add(24 * time.Hour),
 			},
 		},
 	}
 
-	expectedResponse := dto.PutPostResponce{
-		ID_post:    1,
-		ID_user:    "1",
-		Updated_at: time.Now().Round(0),
+	expectedResponse := dto.PutPostResponse{
+		IDPost:    1,
+		IDUser:    "1",
+		UpdatedAt: time.Now().Round(0),
 	}
 
 	mockRepo.On("GetPostByID", mock.Anything, 1, "1").Return(existingPost, nil)
 	mockRepo.On("UpdatePostByID", mock.Anything, mock.MatchedBy(func(req dto.PutPostRequest) bool {
-		return req.Title == "Updated Title" && req.Content == "Updated Content"
+		return req.Title == UpdatedTitle && req.Content == UpdatedContent
 	})).Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("PUT", "/posts/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/posts/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -425,38 +442,38 @@ func TestPutPost_WithEmptyFields(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.PutPostRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	scheduledTime := time.Now().Add(24 * time.Hour).Round(0)
-	existingPost := dto.GetPostResponce{
+	existingPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				ID_post:      1,
-				ID_user:      "1",
-				Title:        "Original Title",
-				Content:      "Original Content",
-				Sheduled_for: scheduledTime,
+				IDPost:      1,
+				IDUser:      "1",
+				Title:       OriginalTitle,
+				Content:     OriginalContent,
+				SheduledFor: scheduledTime,
 			},
 		},
 	}
 
-	expectedResponse := dto.PutPostResponce{
-		ID_post:    1,
-		ID_user:    "1",
-		Updated_at: time.Now().Round(0),
+	expectedResponse := dto.PutPostResponse{
+		IDPost:    1,
+		IDUser:    "1",
+		UpdatedAt: time.Now().Round(0),
 	}
 
 	mockRepo.On("GetPostByID", mock.Anything, 1, "1").Return(existingPost, nil)
 	mockRepo.On("UpdatePostByID", mock.Anything, mock.MatchedBy(func(req dto.PutPostRequest) bool {
-		return req.ID_user == "1" &&
-			req.Title == "Original Title" &&
-			req.Content == "Original Content" &&
-			compareTime(req.Sheduled_for, scheduledTime)
+		return req.IDUser == "1" &&
+			req.Title == OriginalTitle &&
+			req.Content == OriginalContent &&
+			compareTime(req.SheduledFor, scheduledTime)
 	})).Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("PUT", "/posts/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/posts/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -471,13 +488,13 @@ func TestPutPost_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.PutPostRequest{
-		ID_user: "1",
-		Title:   "Updated Title",
-		Content: "Updated Content",
+		IDUser:  "1",
+		Title:   UpdatedTitle,
+		Content: UpdatedContent,
 	}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("PUT", "/posts/invalid", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/posts/invalid", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -500,12 +517,12 @@ func TestDeletePost_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
-	expectedPost := dto.GetPostResponce{
+	expectedPost := dto.GetPostResponse{
 		Posts: []domain.Post{
-			{ID_post: 1, ID_user: "1"},
+			{IDPost: 1, IDUser: "1"},
 		},
 	}
 
@@ -513,7 +530,7 @@ func TestDeletePost_Success(t *testing.T) {
 	mockRepo.On("DeletePostByID", mock.Anything, 1).Return(nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/posts/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/posts/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -528,13 +545,13 @@ func TestDeletePost_NotFound(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
-	mockRepo.On("GetPostByID", mock.Anything, 1, "1").Return(dto.GetPostResponce{}, errors.New("not found"))
+	mockRepo.On("GetPostByID", mock.Anything, 1, "1").Return(dto.GetPostResponse{}, errors.New("not found"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/posts/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/posts/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -550,11 +567,11 @@ func TestDeletePost_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/posts/invalid", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/posts/invalid", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -577,22 +594,22 @@ func TestCreatePlatform_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.CreatePlatformRequest{
-		ID_user:      "1",
-		PlatformName: "Test Platform",
-		Bot_name:     "test_bot",
+		IDUser:       "1",
+		PlatformName: TestPlatform,
+		BotName:      "test_bot",
 		Config:       "test_config",
 	}
 
 	expectedTime := time.Now().Round(0)
 	mockRepo.On("CreatePlatform", mock.Anything, mock.MatchedBy(func(req dto.CreatePlatformRequest) bool {
-		return req.ID_user == "1" &&
-			req.PlatformName == "Test Platform" &&
-			req.Bot_name == "test_bot" &&
+		return req.IDUser == "1" &&
+			req.PlatformName == TestPlatform &&
+			req.BotName == "test_bot" &&
 			req.Config == "test_config"
 	})).Return(1, expectedTime, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", "/platforms", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/platforms", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -601,12 +618,12 @@ func TestCreatePlatform_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var response dto.CreatePlatformResponce
+	var response dto.CreatePlatformResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, response.ID_platform)
-	assert.Equal(t, "1", response.ID_user)
-	assert.True(t, compareTime(expectedTime, response.Created_at))
+	assert.Equal(t, 1, response.IDPlatform)
+	assert.Equal(t, "1", response.IDUser)
+	assert.True(t, compareTime(expectedTime, response.CreatedAt))
 
 	mockRepo.AssertExpectations(t)
 }
@@ -617,7 +634,7 @@ func TestCreatePlatform_ValidationError(t *testing.T) {
 	reqBody := dto.CreatePlatformRequest{}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", "/platforms", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/platforms", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -633,30 +650,30 @@ func TestGetPlatforms_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
-	expectedResponse := dto.GetPlatformResponce{
-		Platfroms: []domain.Platform{
+	expectedResponse := dto.GetPlatformResponse{
+		Platforms: []domain.Platform{
 			{
-				ID_platform: 1,
-				Name:        "Platform 1",
-				Api_config: map[string]string{
+				IDPlatform: 1,
+				Name:       "Platform 1",
+				APIConfig: map[string]string{
 					"bot1": "config1",
 				},
-				Is_active:  true,
-				Created_at: time.Now().Round(0),
-				Updated_at: time.Now().Round(0),
+				IsActive:  true,
+				CreatedAt: time.Now().Round(0),
+				UpdatedAt: time.Now().Round(0),
 			},
 			{
-				ID_platform: 2,
-				Name:        "Platform 2",
-				Api_config: map[string]string{
+				IDPlatform: 2,
+				Name:       "Platform 2",
+				APIConfig: map[string]string{
 					"bot2": "config2",
 				},
-				Is_active:  true,
-				Created_at: time.Now().Round(0),
-				Updated_at: time.Now().Round(0),
+				IsActive:  true,
+				CreatedAt: time.Now().Round(0),
+				UpdatedAt: time.Now().Round(0),
 			},
 		},
 	}
@@ -664,7 +681,7 @@ func TestGetPlatforms_Success(t *testing.T) {
 	mockRepo.On("GetPlatform", mock.Anything, "1").Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/platforms", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/platforms", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -673,12 +690,12 @@ func TestGetPlatforms_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var response dto.GetPlatformResponce
+	var response dto.GetPlatformResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Len(t, response.Platfroms, 2)
-	assert.Equal(t, "Platform 1", response.Platfroms[0].Name)
-	assert.Equal(t, "Platform 2", response.Platfroms[1].Name)
+	assert.Len(t, response.Platforms, 2)
+	assert.Equal(t, "Platform 1", response.Platforms[0].Name)
+	assert.Equal(t, "Platform 2", response.Platforms[1].Name)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -687,13 +704,13 @@ func TestGetPlatforms_RepositoryError(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
-	mockRepo.On("GetPlatform", mock.Anything, "1").Return(dto.GetPlatformResponce{}, errors.New("database error"))
+	mockRepo.On("GetPlatform", mock.Anything, "1").Return(dto.GetPlatformResponse{}, errors.New("database error"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/platforms", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/platforms", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -715,24 +732,24 @@ func TestGetPlatform_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	expectedPlatform := domain.Platform{
-		ID_platform: 1,
-		Name:        "Test Platform",
-		Api_config: map[string]string{
+		IDPlatform: 1,
+		Name:       TestPlatform,
+		APIConfig: map[string]string{
 			"bot1": "config1",
 		},
-		Is_active:  true,
-		Created_at: time.Now().Round(0),
-		Updated_at: time.Now().Round(0),
+		IsActive:  true,
+		CreatedAt: time.Now().Round(0),
+		UpdatedAt: time.Now().Round(0),
 	}
 
 	mockRepo.On("GetPlatformByID", mock.Anything, 1, "1").Return(expectedPlatform, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/platforms/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/platforms/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -744,8 +761,8 @@ func TestGetPlatform_Success(t *testing.T) {
 	var response domain.Platform
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, response.ID_platform)
-	assert.Equal(t, "Test Platform", response.Name)
+	assert.Equal(t, 1, response.IDPlatform)
+	assert.Equal(t, TestPlatform, response.Name)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -754,11 +771,11 @@ func TestGetPlatform_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/platforms/invalid", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/platforms/invalid", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -779,13 +796,13 @@ func TestGetPlatform_NotFound(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	mockRepo.On("GetPlatformByID", mock.Anything, 1, "1").Return(domain.Platform{}, errors.New("not found"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("GET", "/platforms/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/platforms/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -807,39 +824,39 @@ func TestPutPlatform_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.PutPlatformRequest{
-		ID_user:      "1",
-		ID_platform:  1,
-		PlatformName: "Updated Platform",
-		Bot_name:     "updated_bot",
-		Config:       "updated_config",
+		IDUser:       "1",
+		IDPlatform:   1,
+		PlatformName: UpdatedPlatform,
+		BotName:      UpdatedBot,
+		Config:       UpdatedConfig,
 	}
 
 	existingPlatform := domain.Platform{
-		ID_platform: 1,
-		Name:        "Old Platform",
-		Api_config: map[string]string{
+		IDPlatform: 1,
+		Name:       "Old Platform",
+		APIConfig: map[string]string{
 			"old_bot": "old_config",
 		},
-		Is_active: true,
+		IsActive: true,
 	}
 
-	expectedResponse := dto.PutPlatformResponce{
-		ID_platform: 1,
-		ID_user:     "1",
-		Updated_at:  time.Now().Round(0),
+	expectedResponse := dto.PutPlatformResponse{
+		IDPlatform: 1,
+		IDUser:     "1",
+		UpdatedAt:  time.Now().Round(0),
 	}
 
 	mockRepo.On("GetPlatformByID", mock.Anything, 1, "1").Return(existingPlatform, nil)
 	mockRepo.On("UpdatePlatformByID", mock.Anything, mock.MatchedBy(func(req dto.PutPlatformRequest) bool {
-		return req.ID_user == "1" &&
-			req.ID_platform == 1 &&
-			req.PlatformName == "Updated Platform" &&
-			req.Bot_name == "updated_bot" &&
-			req.Config == "updated_config"
+		return req.IDUser == "1" &&
+			req.IDPlatform == 1 &&
+			req.PlatformName == UpdatedPlatform &&
+			req.BotName == UpdatedBot &&
+			req.Config == UpdatedConfig
 	})).Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("PUT", "/platforms/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/platforms/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -854,15 +871,15 @@ func TestPutPlatform_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.PutPlatformRequest{
-		ID_user:      "1",
-		ID_platform:  1,
-		PlatformName: "Updated Platform",
-		Bot_name:     "updated_bot",
-		Config:       "updated_config",
+		IDUser:       "1",
+		IDPlatform:   1,
+		PlatformName: UpdatedPlatform,
+		BotName:      UpdatedBot,
+		Config:       UpdatedConfig,
 	}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("PUT", "/platforms/invalid", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/platforms/invalid", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -885,19 +902,19 @@ func TestDeletePlatform_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	existingPlatform := domain.Platform{
-		ID_platform: 1,
-		Name:        "Test Platform",
+		IDPlatform: 1,
+		Name:       TestPlatform,
 	}
 
 	mockRepo.On("GetPlatformByID", mock.Anything, 1, "1").Return(existingPlatform, nil)
 	mockRepo.On("DeletePlatformByID", mock.Anything, 1).Return(nil)
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/platforms/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/platforms/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -912,13 +929,13 @@ func TestDeletePlatform_NotFound(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	mockRepo.On("GetPlatformByID", mock.Anything, 1, "1").Return(domain.Platform{}, errors.New("not found"))
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/platforms/1", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/platforms/1", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -934,11 +951,11 @@ func TestDeletePlatform_InvalidID(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.GetByUserIDRequest{
-		ID_user: "1",
+		IDUser: "1",
 	}
 
 	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("DELETE", "/platforms/invalid", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/platforms/invalid", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+generateTestToken("1"))
 
@@ -960,7 +977,7 @@ func TestDeletePlatform_InvalidID(t *testing.T) {
 func TestNoRoute(t *testing.T) {
 	router, _, _ := setupTest()
 
-	req, _ := http.NewRequest("GET", "/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/nonexistent", nil)
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

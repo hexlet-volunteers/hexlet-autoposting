@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -21,12 +22,17 @@ func GenerateTokens(userID string) (string, string, error) {
 		},
 	})
 	aToken, err := accessToken.SignedString([]byte(os.Getenv("JWT_ACCESS_SECRET")))
+	if err != nil {
+		return "", "", errors.New("can not read JWT_ACCESS_SECRET")
+	}
 	// Refresh Token
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		Subject:   userID,
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)),
 	})
 	rToken, err := refreshToken.SignedString([]byte(os.Getenv("JWT_REFRESH_SECRET")))
-
+	if err != nil {
+		return "", "", errors.New("can not read JWT_REFRESH_SECRET")
+	}
 	return aToken, rToken, err
 }

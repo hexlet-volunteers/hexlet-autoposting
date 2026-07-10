@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"os"
 
@@ -16,7 +17,7 @@ const (
 	IsProd = false
 )
 
-func NewAuth() {
+func NewAuth() error {
 	store := sessions.NewCookieStore([]byte(key))
 	store.MaxAge(MaxAge)
 	store.Options.Path = "/"
@@ -24,9 +25,18 @@ func NewAuth() {
 	store.Options.Secure = IsProd
 	store.Options.SameSite = http.SameSiteLaxMode
 	gothic.Store = store
+	key := getEnv("GOOGLE_KEY")
+	secret := getEnv("GOOGLE_SECRET")
+	if key == " " {
+		return errors.New("can not read GOOGLE_KEY")
+	}
+	if secret == " " {
+		return errors.New("can not read GOOGLE_SECRET")
+	}
 	goth.UseProviders(
-		google.New(getEnv("GOOGLE_KEY"), getEnv("GOOGLE_SECRET"), "http://localhost:8080/auth/google/callback"),
+		google.New(key, secret, "http://localhost:8080/auth/google/callback"),
 	)
+	return nil
 }
 
 func getEnv(key string) string {

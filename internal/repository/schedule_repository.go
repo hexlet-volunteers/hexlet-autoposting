@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	// "fmt"
 	"hexlet/internal/domain"
 	"time"
 
@@ -13,7 +15,9 @@ import (
 
 var publications []domain.ScheduledPublication
 
-func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) ([]domain.ScheduledPublication, error) {
+// GetReadyForPublication запускает фоновый планировщик для ежеминутного поиска публикаций, готовых к отправке.
+// Функция настраивает задачу cron, логирует найденные посты, отправляет их в Kafka и возвращает срез публикаций или ошибку инициализации.
+func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPublication, error) {
 	c := cron.New()
 	_, err := c.AddFunc("@every 1m", func() {
 		taskCtx := context.Background()
@@ -35,7 +39,7 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
         LIMIT $1`
 		rows, err := r.SlavePool.Query(taskCtx, query, batchSize)
 		if err != nil {
-			fmt.Printf("CRON: failed to query scheduled publications: %v\n", err)
+			r.logger.Error("CRON: failed to query scheduled publications: ", zap.Error(err))
 			return
 		}
 		defer rows.Close()
@@ -43,37 +47,39 @@ func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) 
 		for rows.Next() {
 			var pub domain.ScheduledPublication
 			err := rows.Scan(
-				&pub.ID_destination,
-				&pub.ID_post,
-				&pub.ID_user,
+				&pub.IDDestination,
+				&pub.IDPost,
+				&pub.IDUser,
 				&pub.Title,
 				&pub.Content,
-				&pub.ID_platform,
-				&pub.Platform_name,
+				&pub.IDPlatform,
+				&pub.PlatformName,
 			)
 			if err != nil {
-				fmt.Printf("CRON: failed to scan publication: %v\n", err)
+				r.logger.Error("CRON: failed to scan publication: ", zap.Error(err))
 				continue
 			}
 			publications = append(publications, pub)
 		}
 		for _, pub := range publications {
-			fmt.Printf("Отправляем в Kafka пост %d для публикации в %s\n",
-				pub.ID_post, pub.Platform_name)
+			r.logger.Info("Отправляем в Kafka пост для публикации ",
+				zap.Int("post_id", pub.IDPost),
+				zap.String("platformName", pub.PlatformName),
+			)
 		}
-
-		fmt.Printf("Найдено %d постов для публикации в %v\n",
-			len(publications), time.Now())
+		r.logger.Info("Найдено постов для публикации", zap.Int("quantity", len(publications)), zap.Time("time", time.Now()))
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to add cron job: %w", err)
 	}
 	c.Start()
-	fmt.Println("Автопостинг запущен, проверка каждую минуту")
+	r.logger.Info("Автопостинг запущен, проверка каждую минуту")
 	return publications, nil
 }
 
-func (r *Repository) GetPlatformsByUserID(ctx context.Context, platform_name string, userID string) (domain.PlatformSQL, error) {
+// GetPlatformsByUserID извлекает конфигурацию конкретной активной платформы пользователя по его идентификатору.
+// Функция запрашивает данные из SlavePool, декодирует JSON-конфигурацию API и возвращает структуру domain.PlatformSQL или ошибку.
+func (r *Repository) GetPlatformsByUserID(ctx context.Context, platformName string, userID string) (domain.PlatformSQL, error) {
 	query := "SELECT platform_name, api_config, is_active FROM platforms WHERE user_id = $1"
 	rows, err := r.SlavePool.Query(ctx, query, userID)
 	if err != nil {
@@ -96,7 +102,7 @@ func (r *Repository) GetPlatformsByUserID(ctx context.Context, platform_name str
 			)
 			return domain.PlatformSQL{}, err
 		}
-		if !platform.IsActive || platform.PlatformName != platform_name {
+		if !platform.IsActive || platform.PlatformName != platformName {
 			r.logger.Error("GetPlatformsByUserID not active",
 				zap.Error(err),
 				zap.String("user_id", userID),
@@ -123,6 +129,8 @@ func (r *Repository) GetPlatformsByUserID(ctx context.Context, platform_name str
 	return res, nil
 }
 
+// GetTitleANDContent извлекает заголовок и содержимое публикации из базы данных по её идентификатору.
+// Функция выполняет запрос к реплике (SlavePool), логирует возможные сбои и возвращает структуру domain.Message или ошибку.
 func (r *Repository) GetTitleANDContent(ctx context.Context, id int) (domain.Message, error) {
 	query := `
         SELECT title, content FROM posts WHERE id = $1
@@ -139,36 +147,40 @@ func (r *Repository) GetTitleANDContent(ctx context.Context, id int) (domain.Mes
 	return res, nil
 }
 
-func (r *Repository) MarkAsSent(ctx context.Context, ID int) error {
+// MarkAsSent обновляет статус публикации на 'published' и устанавливает текущее время отправки в базе данных.
+// Функция логирует ошибку и возвращает её в обернутом виде, если операцию обновления выполнить не удалось.
+func (r *Repository) MarkAsSent(ctx context.Context, id int) error {
 	query := `
 		UPDATE post_destinations
 		SET 
 			status= 'published', published_at = $1
 		WHERE id = $2
 	`
-	_, err := r.MasterPool.Exec(ctx, query, time.Now(), ID)
+	_, err := r.MasterPool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		r.logger.Error("MarkAsSent failed",
 			zap.Error(err),
-			zap.Int("post_destinations_id", ID),
+			zap.Int("post_destinations_id", id),
 		)
 		return fmt.Errorf("failed to mark as sent: %w", err)
 	}
 	return nil
 }
 
-func (r *Repository) ErrorMessage(ctx context.Context, destination_id int, err error) error {
+// ErrorMessage обновляет текст сообщения об ошибке для указанной публикации в базе данных.
+// Функция логирует сбой и возвращает обернутую ошибку, если запрос к базе данных завершился неудачно.
+func (r *Repository) ErrorMessage(ctx context.Context, destinationID int, err error) error {
 	query := `
 		UPDATE post_destinations
 		SET 
 			error_message = $1
 		WHERE id = $2
 	`
-	_, err1 := r.MasterPool.Exec(ctx, query, err, destination_id)
+	_, err1 := r.MasterPool.Exec(ctx, query, err, destinationID)
 	if err1 != nil {
 		r.logger.Error("ErrorMessage failed",
 			zap.Error(err1),
-			zap.Int("post_destinations_id", destination_id),
+			zap.Int("post_destinations_id", destinationID),
 		)
 		return fmt.Errorf("failed set error message: %w", err1)
 	}
