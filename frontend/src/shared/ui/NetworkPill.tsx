@@ -1,5 +1,6 @@
 import { Box, Group, Text } from '@mantine/core'
 import type { Network } from '@/shared/config/networks'
+import { NETWORK_GLYPHS } from './networkGlyphs'
 
 type BadgeSize = 'md' | 'chipSm' | 'cardSm'
 
@@ -7,18 +8,18 @@ interface NetworkPillProps {
   network: Network
   variant?: 'pill' | 'badge'
   /**
-   * Размер цветного кода-значка в варианте `badge`:
+   * Размер значка-логотипа в варианте `badge`:
    * - `md` (по умолчанию) — квадрат 24×24 (шапки, очередь, лендинг);
-   * - `chipSm` — компактная пилюля 9px для чипсов площадок (макет netChips);
-   * - `cardSm` — компактный прямоугольник 9px для карточек постов (макет day.posts).
+   * - `chipSm` — компактный 18×18 для чипсов площадок над календарём;
+   * - `cardSm` — компактный 16×16 для карточек постов в недельной сетке.
    * В варианте `pill` не влияет — внутри всегда `md`.
    */
   size?: BadgeSize
 }
 
-/** Бейдж соцсети: цветной короткий код (+ название в варианте pill). */
+/** Бейдж соцсети: брендовый значок с реальным логотипом (+ название в варианте pill). */
 export function NetworkPill({ network, variant = 'pill', size = 'md' }: NetworkPillProps) {
-  if (variant === 'badge') return <CodeBadge network={network} size={size} />
+  if (variant === 'badge') return <NetworkBadge network={network} size={size} />
 
   return (
     <Group
@@ -31,7 +32,7 @@ export function NetworkPill({ network, variant = 'pill', size = 'md' }: NetworkP
         background: `${network.color}14`,
       }}
     >
-      <CodeBadge network={network} size="md" />
+      <NetworkBadge network={network} size="md" />
       <Text size="sm" fw={600}>
         {network.name}
       </Text>
@@ -39,69 +40,44 @@ export function NetworkPill({ network, variant = 'pill', size = 'md' }: NetworkP
   )
 }
 
-/** Цветной значок с коротким кодом сети. Форма/размер зависят от контекста (`size`). */
-function CodeBadge({ network, size }: { network: Network; size: BadgeSize }) {
-  if (size === 'chipSm') {
-    // Пилюля для чипсов площадок над календарём (макет netChips).
-    return (
-      <Box
-        component="span"
-        style={{
-          flexShrink: 0,
-          lineHeight: 1,
-          fontSize: 9,
-          fontWeight: 700,
-          color: '#fff',
-          background: network.color,
-          borderRadius: 'var(--mantine-radius-pill)',
-          padding: '3px 6px',
-        }}
-      >
-        {network.code}
-      </Box>
-    )
-  }
+// Геометрия бейджа по контексту: размер квадрата, скругление и размер глифа внутри.
+const BADGE_GEOMETRY: Record<BadgeSize, { box: number; radius: number; glyph: number }> = {
+  md: { box: 24, radius: 7, glyph: 15 },
+  chipSm: { box: 18, radius: 5, glyph: 12 },
+  cardSm: { box: 16, radius: 4, glyph: 11 },
+}
 
-  if (size === 'cardSm') {
-    // Прямоугольник для карточек постов в недельной сетке (макет day.posts).
-    return (
-      <Box
-        component="span"
-        style={{
-          flexShrink: 0,
-          lineHeight: 1,
-          fontSize: 9,
-          fontWeight: 700,
-          letterSpacing: '0.3px',
-          color: '#fff',
-          background: network.color,
-          borderRadius: 4,
-          padding: '2px 5px',
-        }}
-      >
-        {network.code}
-      </Box>
-    )
-  }
+/** Логотип площадки — белый моно-глиф на брендовом скруглённом квадрате. */
+function NetworkBadge({ network, size }: { network: Network; size: BadgeSize }) {
+  const { box, radius, glyph } = BADGE_GEOMETRY[size]
+  const data = NETWORK_GLYPHS[network.id]
 
-  // md (по умолчанию) — квадрат 24×24, как раньше.
   return (
     <Box
       style={{
-        width: 24,
-        height: 24,
-        borderRadius: 7,
+        width: box,
+        height: box,
+        borderRadius: radius,
         background: network.color,
-        color: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontWeight: 800,
-        fontSize: 11,
         flexShrink: 0,
       }}
+      aria-label={network.name}
     >
-      {network.code}
+      {data ? (
+        <svg viewBox={data.viewBox} width={glyph} height={glyph} fill="#fff" role="img" aria-hidden>
+          {data.paths.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </svg>
+      ) : (
+        // Фолбэк на короткий код, если глифа для площадки нет.
+        <Text component="span" fw={800} fz={box >= 24 ? 11 : 9} c="#fff" style={{ lineHeight: 1 }}>
+          {network.code}
+        </Text>
+      )}
     </Box>
   )
 }
