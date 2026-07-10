@@ -42,6 +42,14 @@ const PLANS: Plan[] = [
     features: ['5 проектов · команда из 3 человек', '200 ИИ-текстов · согласование'],
     cta: 'Выбрать',
   },
+  {
+    name: 'Агентство',
+    price: '2490 ₽',
+    priceSuffix: ' /мес',
+    note: 'или 1992 ₽/мес при оплате за год',
+    features: ['20 проектов · команда из 10 человек', 'ИИ без лимита · отчёты для клиентов'],
+    cta: 'Написать нам',
+  },
 ]
 
 /** Тизер тарифов лендинга: три плана, рекомендованный выделен рамкой и бейджем. */
@@ -56,7 +64,7 @@ export function PricingTeaserSection() {
         </Anchor>
       </Group>
 
-      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg" mt="md" verticalSpacing="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg" mt="md" verticalSpacing="lg">
         {PLANS.map((plan) => (
           <Card
             key={plan.name}
