@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { Link } from 'react-router-dom'
 import { Box, Button, Card, Container, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
 import { IconCalendarEvent, IconClockHour4, IconRefresh } from '@tabler/icons-react'
@@ -35,6 +36,11 @@ const FEATURES: FeatureCard[] = [
 ]
 
 export function AutopostingPage() {
+  usePageMeta({
+    title: 'Автопостинг — Отложка',
+    description:
+      'Планируйте посты заранее — Отложка сама опубликует их в нужное время во всех соцсетях.',
+  })
   const { open } = useAuthModal()
 
   return (

@@ -14,33 +14,9 @@ const ER_BG = 'rgba(34, 160, 107, 0.1)'
 const ER_COLOR = '#1E7F4F'
 
 /**
- * Переходы отправленных постов (#196). Поля clicks в доменной модели PostMetrics
- * пока нет (добавляется отдельной backend-задачей #147): для «витринных» постов
- * значения заданы здесь, а для сгенерированных — выводятся детерминированно из
- * просмотров, чтобы плитка «переходы» была заполнена у КАЖДОГО поста, как в макете.
- * ER не мокаем — считаем из метрик, как в макете: (likes+reposts+comments)/views.
+ * ER = ((лайки+репосты+комментарии)/просмотры)*100, одна цифра после запятой (как в макете).
+ * Переходы берём из поля metrics.clicks доменной модели (заполняется в SEED/генераторе).
  */
-const CLICKS_BY_ID: Record<string, number> = {
-  'sp-sent-1': 342,
-  'sp-sent-2': 261,
-  'sp-sent-3': 148,
-  'sp-sent-4': 517,
-}
-
-/** Переходы: поле сущности (когда появится) → «витринный» мок → детерминированно ~2–6% просмотров. */
-function clicksFor(post: Post, metrics: PostMetrics): number {
-  const entityClicks = (metrics as PostMetrics & { clicks?: number }).clicks
-  if (entityClicks != null) return entityClicks
-  const override = CLICKS_BY_ID[post.id]
-  if (override != null) return override
-  // Стабильный хэш id даёт разброс доли переходов по постам без Math.random.
-  let hash = 0
-  for (let i = 0; i < post.id.length; i += 1) hash = (hash * 31 + post.id.charCodeAt(i)) >>> 0
-  const ratio = 0.02 + (hash % 41) / 1000
-  return Math.round(metrics.views * ratio)
-}
-
-/** ER = ((лайки+репосты+комментарии)/просмотры)*100, одна цифра после запятой (как в макете). */
 function erFor(metrics: PostMetrics): string {
   const { views, likes, reposts, comments } = metrics
   if (views <= 0) return '—'
@@ -136,10 +112,7 @@ export function PostStatsModal({ post, opened, onClose }: PostStatsModalProps) {
               <MetricCell value={metrics.likes.toLocaleString('ru-RU')} label="лайки" />
               <MetricCell value={metrics.reposts.toLocaleString('ru-RU')} label="репосты" />
               <MetricCell value={metrics.comments.toLocaleString('ru-RU')} label="комментарии" />
-              <MetricCell
-                value={clicksFor(post, metrics).toLocaleString('ru-RU')}
-                label="переходы"
-              />
+              <MetricCell value={metrics.clicks.toLocaleString('ru-RU')} label="переходы" />
               <MetricCell value={erFor(metrics)} label="ER" accent />
             </SimpleGrid>
           ) : (

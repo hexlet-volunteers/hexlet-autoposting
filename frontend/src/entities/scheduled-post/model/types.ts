@@ -14,6 +14,8 @@ export interface PostMetrics {
   likes: number
   reposts: number
   comments: number
+  /** Переходы по ссылке (клики). */
+  clicks: number
 }
 
 export interface Post {

@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useDisclosure } from '@mantine/hooks'
@@ -105,6 +106,11 @@ const ROW_STYLE: CSSProperties = {
 
 /** Экран «Очередь»: вкладки «В очереди» и «Отправленные». */
 export function QueuePage() {
+  usePageMeta({
+    title: 'Очередь — Отложка',
+    description: 'Очередь публикаций и архив отправленных постов в Отложке.',
+    noindex: true,
+  })
   const queue = useQueue()
   // Флаг загрузки появится в useQueue после перевода мока на асинхронную выборку
   // (задача по entities/scheduled-post); до неё поле отсутствует и флаг всегда false.

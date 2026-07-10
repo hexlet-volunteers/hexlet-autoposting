@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import {
   Box,
@@ -34,6 +35,11 @@ const DASHED_BORDER = '1.5px dashed rgba(23,21,15,.2)'
 const DANGER_COLOR = '#C4352D'
 
 export function MediaPage() {
+  usePageMeta({
+    title: 'Медиатека — Отложка',
+    description: 'Фото и видео проекта в Отложке.',
+    noindex: true,
+  })
   const { data, isLoading, error } = useMedia()
   const media = data ?? []
 

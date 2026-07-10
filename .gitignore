@@ -30,3 +30,7 @@ go.work.sum
 # Editor/IDE
 .idea/
 # .vscode/
+
+# Секреты окружения — не коммитим (значения-примеры в .env.example)
+.env
+.env.local

@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -187,6 +188,11 @@ function FaqIcon({ open }: { open: boolean }) {
 }
 
 export function PricingPage() {
+  usePageMeta({
+    title: 'Тарифы — Отложка',
+    description:
+      'Тарифы Отложки: бесплатный навсегда, Старт, Про и Агентство. Автопостинг в 7 соцсетей, ИИ-помощник и командная работа.',
+  })
   const { open } = useAuthModal()
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
   // Управляемый аккордеон FAQ: по макету все пункты свёрнуты, значку нужен статус.
