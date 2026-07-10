@@ -61,6 +61,11 @@ const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
 const WEEKEND_COLOR = '#C4552D'
 
+// Демо на лендинге даёт «пощупать» добавление постов, но ограниченно:
+// после MAX_DEMO_ADDS добавлений «+» открывает регистрацию — дальше уже в кабинете.
+const INITIAL_TOTAL = INITIAL_WEEK.reduce((sum, day) => sum + day.length, 0)
+const MAX_DEMO_ADDS = 3
+
 /** Плюрализация русских существительных: [1, 2-4, 5+]. */
 function plural(n: number, forms: [string, string, string]): string {
   const a = Math.abs(n) % 100
@@ -77,6 +82,12 @@ export function HeroSection() {
   const [nextSeed, setNextSeed] = useState(3)
 
   const addPost = (dayIdx: number) => {
+    // Демо расширяется лишь на пару постов; дальше зовём регистрацию.
+    const currentTotal = week.reduce((sum, day) => sum + day.length, 0)
+    if (currentTotal - INITIAL_TOTAL >= MAX_DEMO_ADDS) {
+      open('register')
+      return
+    }
     const seed = nextSeed
     setWeek((prev) => {
       const next = prev.map((day) => day.slice())
