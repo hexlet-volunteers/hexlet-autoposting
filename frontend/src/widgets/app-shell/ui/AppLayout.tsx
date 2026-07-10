@@ -22,8 +22,8 @@ import {
   IconChartBar,
   IconCheck,
   IconChevronDown,
-  IconClockHour4,
-  IconPhoto,
+  IconFolder,
+  IconList,
   IconPlus,
   IconSettings,
   IconUsers,
@@ -46,8 +46,8 @@ import { AppModals } from './AppModals'
 
 const NAV = [
   { label: 'Календарь', to: '/app/calendar', icon: IconCalendar },
-  { label: 'Очередь', to: '/app/queue', icon: IconClockHour4 },
-  { label: 'Медиатека', to: '/app/media', icon: IconPhoto },
+  { label: 'Очередь', to: '/app/queue', icon: IconList },
+  { label: 'Медиатека', to: '/app/media', icon: IconFolder },
   { label: 'Отчёты', to: '/app/reports', icon: IconChartBar },
   { label: 'Команда', to: '/app/team', icon: IconUsers },
   { label: 'Настройки', to: '/app/settings', icon: IconSettings },
@@ -72,12 +72,12 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
     queryClient.invalidateQueries({ queryKey: mediaKeys.all })
   }
 
-  const dot = (color: string, letter: string, muted = false) => (
+  const dot = (color: string, letter: string, muted = false, size = 26) => (
     <Box
       style={{
-        width: 26,
-        height: 26,
-        borderRadius: 8,
+        width: size,
+        height: size,
+        borderRadius: size >= 30 ? 9 : 8,
         background: muted ? 'rgba(23,21,15,0.12)' : color,
         color: muted ? 'rgba(23,21,15,0.5)' : '#fff',
         display: 'flex',
@@ -98,13 +98,14 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
         <UnstyledButton
           style={{
             width: '100%',
-            padding: 8,
-            borderRadius: 10,
-            border: '1px solid rgba(23,21,15,0.1)',
+            padding: '10px 12px',
+            borderRadius: 12,
+            background: '#F6F4EF',
+            border: '1px solid rgba(23,21,15,0.08)',
           }}
         >
-          <Group gap={8} wrap="nowrap">
-            {current ? dot(current.color, current.letter) : null}
+          <Group gap={10} wrap="nowrap">
+            {current ? dot(current.color, current.letter, false, 30) : null}
             <Box style={{ flex: 1, minWidth: 0 }}>
               <Text fw={600} fz={14} lineClamp={1}>
                 {current?.name ?? 'Проект'}
@@ -176,14 +177,14 @@ function QuotaLine({ label, quota }: QuotaLineProps) {
   if (quota.unlimited) {
     return (
       <Text fz={11} c="dimmed" mb={6}>
-        {label}: безлимит
+        {label} · безлимит
       </Text>
     )
   }
   return (
     <Box mb={6}>
       <Text fz={11} c={quota.exhausted ? 'red.7' : quota.warning ? 'orange.8' : 'dimmed'} mb={4}>
-        {label}: {quota.used} / {quota.limit}
+        {label} · {quota.used} из {quota.limit}
       </Text>
       <Progress
         value={quota.percent}
@@ -211,13 +212,13 @@ function PlanWidget() {
       p="sm"
       style={{
         borderRadius: 12,
-        background: 'rgba(43,80,236,0.06)',
-        border: '1px solid rgba(43,80,236,0.12)',
+        background: '#F6F4EF',
+        border: '1px solid rgba(23,21,15,0.08)',
       }}
     >
       <Group justify="space-between" mb={4}>
         <Text fw={700} fz={13}>
-          {subscription.plan}
+          Тариф «{subscription.plan}»
         </Text>
         <Text fz={11} c="dimmed">
           {renewsLabel}
@@ -240,9 +241,17 @@ function PlanWidget() {
       ) : (
         <Box mt={2} mb="xs" />
       )}
-      <Button size="xs" variant={attention ? 'filled' : 'light'} fullWidth onClick={openUpgrade}>
+      <Anchor
+        component="button"
+        type="button"
+        fw={700}
+        fz={12.5}
+        c="brand.6"
+        onClick={openUpgrade}
+        style={{ display: 'block', textAlign: 'left' }}
+      >
         {upgradeLabel} →
-      </Button>
+      </Anchor>
     </Box>
   )
 }
@@ -318,7 +327,7 @@ export function AppLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar p="sm" bg="white">
-        <AppShell.Section>
+        <AppShell.Section visibleFrom="sm">
           <Box px={6} py={4}>
             <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
               <Logo />

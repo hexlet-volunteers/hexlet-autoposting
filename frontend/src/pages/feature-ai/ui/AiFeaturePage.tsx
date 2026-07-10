@@ -9,7 +9,6 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  ThemeIcon,
   Title,
 } from '@mantine/core'
 import { IconCalendarStats, IconPencil, IconSparkles } from '@tabler/icons-react'
@@ -18,6 +17,7 @@ import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
 import { PostGeneratorDemo } from './PostGeneratorDemo'
+import styles from './AiFeaturePage.module.css'
 
 interface FeatureItem {
   icon: Icon
@@ -76,12 +76,7 @@ export function AiFeaturePage() {
       {/* Hero: слева тексты и кнопки, справа демо-генератор постов */}
       <Box component="section">
         <Container size="lg" py={{ base: 48, sm: 64 }}>
-          <SimpleGrid
-            cols={{ base: 1, md: 2 }}
-            spacing={{ base: 32, md: 48 }}
-            verticalSpacing={32}
-            style={{ alignItems: 'start' }}
-          >
+          <Box className={styles.hero}>
             <Stack gap={0} maw={620} pt={{ base: 0, md: 20 }}>
               <Box
                 style={{
@@ -138,7 +133,7 @@ export function AiFeaturePage() {
             </Stack>
 
             <PostGeneratorDemo />
-          </SimpleGrid>
+          </Box>
         </Container>
       </Box>
 
@@ -151,17 +146,9 @@ export function AiFeaturePage() {
 
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" mt={28}>
             {FEATURES.map((feature) => (
-              <Card
-                key={feature.title}
-                withBorder
-                radius="lg"
-                p="lg"
-                style={{ borderColor: BORDER }}
-              >
+              <Card key={feature.title} radius="lg" p={26} style={{ background: '#F6F4EF' }}>
                 <Stack gap={10}>
-                  <ThemeIcon variant="light" color="brand" size={44} radius="md">
-                    <feature.icon size={24} stroke={1.8} />
-                  </ThemeIcon>
+                  <feature.icon size={26} stroke={1.8} color="var(--mantine-color-brand-6)" />
                   <Text fz={17} fw={700}>
                     {feature.title}
                   </Text>
@@ -175,45 +162,40 @@ export function AiFeaturePage() {
         </Container>
       </Box>
 
-      {/* Финальный CTA-баннер */}
-      <Box component="section" py={{ base: 40, sm: 56 }}>
-        <Container size="lg">
-          <Box
-            p={{ base: 28, sm: 40 }}
-            style={{ background: DARK, borderRadius: 20, color: '#F6F4EF' }}
-          >
-            <Group justify="space-between" align="center" gap={24} wrap="wrap">
-              <Stack gap={8} maw={620}>
-                <Text
-                  component="h2"
-                  fz={{ base: 22, sm: 26 }}
-                  fw={800}
-                  lh={1.15}
-                  style={{ letterSpacing: '-0.4px' }}
-                >
-                  5 ИИ-текстов в месяц — бесплатно
-                </Text>
-                <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
-                  Попробуйте на своём проекте, карта не нужна.
-                </Text>
-              </Stack>
-
-              <Button
-                size="md"
-                radius="md"
-                onClick={() => open('register')}
-                styles={{
-                  root: {
-                    background: 'var(--mantine-color-accent-5)',
-                    color: DARK,
-                    fontWeight: 700,
-                  },
-                }}
+      {/* Финальный CTA-баннер: тёмная полоса #17150F во всю ширину (макет feature-ai) */}
+      <Box component="section" style={{ background: DARK, color: '#F6F4EF' }}>
+        <Container size="lg" py={{ base: 40, sm: 56 }}>
+          <Group justify="space-between" align="center" gap={24} wrap="wrap">
+            <Stack gap={8} maw={620}>
+              <Text
+                component="h2"
+                fz={{ base: 22, sm: 26 }}
+                fw={800}
+                lh={1.15}
+                style={{ letterSpacing: '-0.4px' }}
               >
-                Попробовать бесплатно
-              </Button>
-            </Group>
-          </Box>
+                5 ИИ-текстов в месяц — бесплатно
+              </Text>
+              <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
+                Попробуйте на своём проекте, карта не нужна.
+              </Text>
+            </Stack>
+
+            <Button
+              size="md"
+              radius="md"
+              onClick={() => open('register')}
+              styles={{
+                root: {
+                  background: 'var(--mantine-color-accent-5)',
+                  color: DARK,
+                  fontWeight: 700,
+                },
+              }}
+            >
+              Попробовать бесплатно
+            </Button>
+          </Group>
         </Container>
       </Box>
 

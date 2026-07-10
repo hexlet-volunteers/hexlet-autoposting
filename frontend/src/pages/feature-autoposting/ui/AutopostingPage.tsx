@@ -1,25 +1,13 @@
 import { Link } from 'react-router-dom'
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Container,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core'
+import { Box, Button, Card, Container, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
 import { IconCalendarEvent, IconClockHour4, IconRefresh } from '@tabler/icons-react'
 import type { Icon } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
 import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
 import { QueueDemo } from './QueueDemo'
+import styles from './AutopostingPage.module.css'
 
-const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
 
 interface FeatureCard {
@@ -83,17 +71,19 @@ export function AutopostingPage() {
       {/* Hero */}
       <Box component="section">
         <Container size="lg" py={{ base: 48, sm: 64 }}>
-          <SimpleGrid cols={{ base: 1, md: 2 }} spacing={48} verticalSpacing={40}>
+          <Box className={styles.hero}>
             <Stack gap={0} justify="center">
-              <Box>
-                <Badge
-                  radius="xl"
-                  variant="light"
-                  color="brand"
-                  styles={{ root: { textTransform: 'none', fontWeight: 700 } }}
-                >
+              <Box
+                style={{
+                  alignSelf: 'flex-start',
+                  background: 'rgba(43,80,236,.08)',
+                  borderRadius: 'var(--mantine-radius-pill)',
+                  padding: '6px 12px',
+                }}
+              >
+                <Text fz={12} fw={700} c="brand.6">
                   Автопостинг
-                </Badge>
+                </Text>
               </Box>
 
               <Title
@@ -138,7 +128,7 @@ export function AutopostingPage() {
 
             {/* Живое демо: интерактивная очередь публикаций на локальном состоянии */}
             <QueueDemo />
-          </SimpleGrid>
+          </Box>
         </Container>
       </Box>
 
@@ -156,17 +146,9 @@ export function AutopostingPage() {
             {FEATURES.map((feature) => {
               const FeatureIcon = feature.icon
               return (
-                <Card
-                  key={feature.title}
-                  withBorder
-                  radius="lg"
-                  p="lg"
-                  style={{ borderColor: BORDER, background: '#F6F4EF' }}
-                >
+                <Card key={feature.title} radius="lg" p={26} style={{ background: '#F6F4EF' }}>
                   <Stack gap={10}>
-                    <ThemeIcon variant="light" color="brand" size={44} radius="md">
-                      <FeatureIcon size={24} stroke={1.8} />
-                    </ThemeIcon>
+                    <FeatureIcon size={26} stroke={1.8} color="var(--mantine-color-brand-6)" />
                     <Text fz={17} fw={700}>
                       {feature.title}
                     </Text>
@@ -181,45 +163,40 @@ export function AutopostingPage() {
         </Container>
       </Box>
 
-      {/* Финальный CTA-баннер */}
-      <Box component="section" py={{ base: 40, sm: 56 }}>
-        <Container size="lg">
-          <Box
-            p={{ base: 28, sm: 40 }}
-            style={{ background: '#17150F', borderRadius: 20, color: '#F6F4EF' }}
-          >
-            <Group justify="space-between" align="center" gap={24} wrap="wrap">
-              <Stack gap={8} maw={620}>
-                <Text
-                  component="h2"
-                  fz={{ base: 24, sm: 26 }}
-                  fw={800}
-                  lh={1.15}
-                  style={{ letterSpacing: '-.4px' }}
-                >
-                  Поставьте постинг на автопилот
-                </Text>
-                <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
-                  Бесплатный тариф — без срока действия и без карты.
-                </Text>
-              </Stack>
-
-              <Button
-                size="md"
-                radius="md"
-                onClick={() => open('register')}
-                styles={{
-                  root: {
-                    background: 'var(--mantine-color-accent-5)',
-                    color: '#17150F',
-                    fontWeight: 700,
-                  },
-                }}
+      {/* Финальный CTA-баннер: тёмная полоса #17150F во всю ширину (макет feature-autoposting) */}
+      <Box component="section" style={{ background: '#17150F', color: '#F6F4EF' }}>
+        <Container size="lg" py={{ base: 40, sm: 56 }}>
+          <Group justify="space-between" align="center" gap={24} wrap="wrap">
+            <Stack gap={8} maw={620}>
+              <Text
+                component="h2"
+                fz={{ base: 24, sm: 26 }}
+                fw={800}
+                lh={1.15}
+                style={{ letterSpacing: '-.4px' }}
               >
-                Попробовать бесплатно
-              </Button>
-            </Group>
-          </Box>
+                Поставьте постинг на автопилот
+              </Text>
+              <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
+                Бесплатный тариф — без срока действия и без карты.
+              </Text>
+            </Stack>
+
+            <Button
+              size="md"
+              radius="md"
+              onClick={() => open('register')}
+              styles={{
+                root: {
+                  background: 'var(--mantine-color-accent-5)',
+                  color: '#17150F',
+                  fontWeight: 700,
+                },
+              }}
+            >
+              Попробовать бесплатно
+            </Button>
+          </Group>
         </Container>
       </Box>
 

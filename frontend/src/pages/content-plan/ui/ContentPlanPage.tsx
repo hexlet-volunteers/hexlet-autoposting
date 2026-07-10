@@ -11,7 +11,7 @@ import {
   Tooltip,
   UnstyledButton,
 } from '@mantine/core'
-import { IconLink, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useAppModals } from '@/features/app-modals'
 import { useCalendarFilter } from '@/features/filter-by-platform'
@@ -40,7 +40,7 @@ export function ContentPlanPage() {
   // Смещение отображаемой недели от текущей (стрелки «‹ / ›» двигают на ±1)
   const [weekOffset, setWeekOffset] = useState(0)
   const [calYear, setCalYear] = useState(() => dayjs().year())
-  const { openComposer, openConnectPlatform } = useAppModals()
+  const { openComposer } = useAppModals()
   const postsQuota = useQuota('posts')
   const { data: posts, isLoading } = useContentPlan()
   const { activeNetworkIds } = useCalendarFilter()
@@ -81,7 +81,7 @@ export function ContentPlanPage() {
     <Stack gap="lg">
       <Group gap="md" wrap="wrap" align="center">
         <Title order={1} fw={800} style={{ letterSpacing: '-0.4px' }}>
-          Контент-план
+          Календарь
         </Title>
         <SegmentedControl
           value={scale}
@@ -148,36 +148,27 @@ export function ContentPlanPage() {
           />
         ) : null}
         <Box style={{ flex: 1 }} />
-        <Group gap="sm">
+        {/* Мягкий enforcement квоты постов (#211): при исчерпании кнопка
+            неактивна, тултип объясняет причину. data-disabled вместо disabled,
+            чтобы Tooltip продолжал работать. */}
+        <Tooltip
+          label="Достигнут лимит постов тарифа — улучшите тариф, чтобы планировать больше"
+          disabled={!postsQuota.exhausted}
+        >
           <Button
-            variant="default"
-            leftSection={<IconLink size={16} />}
-            onClick={() => openConnectPlatform()}
+            leftSection={<IconPlus size={16} />}
+            data-disabled={postsQuota.exhausted || undefined}
+            onClick={(event) => {
+              if (postsQuota.exhausted) {
+                event.preventDefault()
+                return
+              }
+              openComposer()
+            }}
           >
-            Подключить площадку
+            Новый пост
           </Button>
-          {/* Мягкий enforcement квоты постов (#211): при исчерпании кнопка
-              неактивна, тултип объясняет причину. data-disabled вместо disabled,
-              чтобы Tooltip продолжал работать. */}
-          <Tooltip
-            label="Достигнут лимит постов тарифа — улучшите тариф, чтобы планировать больше"
-            disabled={!postsQuota.exhausted}
-          >
-            <Button
-              leftSection={<IconPlus size={16} />}
-              data-disabled={postsQuota.exhausted || undefined}
-              onClick={(event) => {
-                if (postsQuota.exhausted) {
-                  event.preventDefault()
-                  return
-                }
-                openComposer()
-              }}
-            >
-              Новый пост
-            </Button>
-          </Tooltip>
-        </Group>
+        </Tooltip>
       </Group>
 
       <PlatformChips />

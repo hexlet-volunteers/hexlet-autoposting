@@ -1,15 +1,25 @@
 import { Button, Card, Center, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
-import { Link } from 'react-router-dom'
 import { NetworkPill } from '@/shared/ui'
 import { NETWORKS } from '@/shared/config'
+import { useAuthModal } from '@/features/auth'
 import { Section } from '../Section'
 
-/** Время публикации для каждой площадки — статичная выборка вместо data-driven демо из макета. */
-const PUBLISHED_TIMES = ['10:00', '10:00', '10:01', '10:01', '10:02', '10:02', '10:03']
+/** Время публикации для каждой площадки (в порядке NETWORKS) — из макета landing-home. */
+const PUBLISHED_WHEN = [
+  'пн, 09:00',
+  'пн, 09:05',
+  'пн, 12:00',
+  'пн, 12:00',
+  'пн, 15:00',
+  'пн, 15:10',
+  'пн, 19:00',
+]
 
 /** Секция «Кросспостинг»: один черновик → семь публикаций во все площадки. */
 export function CrosspostingSection() {
+  const { open } = useAuthModal()
+
   return (
     <Section
       id="crossposting"
@@ -62,7 +72,7 @@ export function CrosspostingSection() {
             фото 1200 × 800
           </Center>
 
-          <Button component={Link} to="/login" color="brand" mt={14} fullWidth radius="md">
+          <Button color="brand" mt={14} fullWidth radius="md" onClick={() => open('register')}>
             Опубликовать в 7 соцсетей
           </Button>
         </Card>
@@ -83,7 +93,7 @@ export function CrosspostingSection() {
                 {network.name}
               </Text>
               <Text ml="auto" fz={12} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                Опубликовано · {PUBLISHED_TIMES[index]}
+                Опубликовано · {PUBLISHED_WHEN[index]}
               </Text>
               <ThemeIcon color="teal" radius="pill" size={18} variant="filled">
                 <IconCheck size={11} stroke={3} />

@@ -144,7 +144,7 @@ function NetworkList({ connections, onPick, onClose }: NetworkListProps) {
 
                 <Button
                   variant="light"
-                  color={connected ? 'red' : 'brand'}
+                  color={connected ? DANGER_COLOR : 'brand'}
                   size="xs"
                   onClick={() => onPick(network.id)}
                 >

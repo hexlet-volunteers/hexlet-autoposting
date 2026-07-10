@@ -33,7 +33,6 @@ export async function fetchReport(period: string, year: string): Promise<ReportR
     networkId: row.networkId,
     publications: Math.round(row.publications * mult),
     views: Math.round(row.views * mult),
-    likes: Math.round(row.likes * mult),
-    reposts: Math.round(row.reposts * mult),
+    clicks: Math.round(row.clicks * mult),
   }))
 }

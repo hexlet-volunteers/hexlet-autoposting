@@ -1,0 +1,18 @@
+/* Карточка поста в недельной сетке (макет app-dashboard, блок day.posts).
+   Цвет рамки/фона зависит от площадки — передаётся через CSS-переменные,
+   чтобы :hover мог переопределить border-color поверх инлайн-значения. */
+.card {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 7px;
+  border: 1px solid var(--card-line);
+  border-radius: 8px;
+  background: var(--card-soft);
+}
+
+.card:hover {
+  border-color: rgba(23, 21, 15, 0.4);
+}

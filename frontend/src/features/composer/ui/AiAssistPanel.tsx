@@ -3,40 +3,39 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   Group,
   Loader,
   Select,
   Stack,
   Text,
   TextInput,
-  Tooltip,
   UnstyledButton,
 } from '@mantine/core'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { IconAlertTriangle, IconSparkles } from '@tabler/icons-react'
 import { incrementAiUsage, useQuota } from '@/entities/subscription'
-import { AI_ACCENT, AI_MODELS, AI_TONES, generateAiVariants } from '../model/aiAssist'
-import type { AiTone } from '../model/aiAssist'
+import { AI_ACCENT, AI_MODELS, generateAiVariants } from '../model/aiAssist'
 
 /**
  * Панель ИИ-помощника композера (сегмент features/composer, см. model/aiAssist).
+ * По макету app-dashboard.html (строки 428-444): шапка (иконка + «ИИ-помощник» +
+ * селект модели), строка «инпут + Предложить» и подпись со счётчиком «осталось N».
  * Состояния: idle → загрузка (блокируется только панель) → варианты / ошибка;
  * при исчерпанной квоте генерация недоступна и виден совет улучшить тариф.
  */
 
+// Тон генерации в макете не выбирается — используем нейтральный по умолчанию.
+const DEFAULT_TONE = 'Дружелюбный' as const
+
 interface AiAssistPanelProps {
-  /** Есть ли фото во вложениях — включает генерацию «по фото». */
-  hasPhoto: boolean
   /** Вставить выбранный вариант в поле «Текст поста». */
   onInsert: (text: string) => void
 }
 
-export function AiAssistPanel({ hasPhoto, onInsert }: AiAssistPanelProps) {
+export function AiAssistPanel({ onInsert }: AiAssistPanelProps) {
   const queryClient = useQueryClient()
   const quota = useQuota('ai')
   const [model, setModel] = useState(AI_MODELS[0])
-  const [tone, setTone] = useState<AiTone>('Дружелюбный')
   const [topic, setTopic] = useState('')
 
   const generation = useMutation({
@@ -48,13 +47,14 @@ export function AiAssistPanel({ hasPhoto, onInsert }: AiAssistPanelProps) {
   const isLoading = generation.isPending
   const inputsDisabled = isLoading || quota.exhausted
 
+  // Как в макете (aiLeftLabel): только «осталось N» / «безлимит».
   const counterLabel = Number.isFinite(quota.limit)
-    ? `ИИ-тексты · ${quota.used} из ${quota.limit} · осталось ${Math.max(0, quota.limit - quota.used)}`
-    : 'ИИ-тексты · безлимит'
+    ? `осталось ${Math.max(0, quota.limit - quota.used)}`
+    : 'безлимит'
 
-  const handleGenerate = (byPhoto: boolean) => {
+  const handleGenerate = () => {
     if (quota.exhausted) return
-    generation.mutate({ topic, tone, byPhoto })
+    generation.mutate({ topic, tone: DEFAULT_TONE, byPhoto: false })
   }
 
   const handleRetry = () => {
@@ -86,24 +86,7 @@ export function AiAssistPanel({ hasPhoto, onInsert }: AiAssistPanelProps) {
         />
       </Group>
 
-      {/* Тон генерации — влияет на мок-варианты */}
-      <Chip.Group value={tone} onChange={(value) => setTone(value as AiTone)}>
-        <Group gap={6} mb={10}>
-          {AI_TONES.map((toneOption) => (
-            <Chip
-              key={toneOption}
-              value={toneOption}
-              size="xs"
-              color={AI_ACCENT}
-              disabled={inputsDisabled}
-            >
-              {toneOption}
-            </Chip>
-          ))}
-        </Group>
-      </Chip.Group>
-
-      {/* wrap: на мобильном кнопки «Предложить»/«По фото» переносятся под поле ввода;
+      {/* wrap: на мобильном кнопка «Предложить» переносится под поле ввода;
           flex-basis поля держит его во всю ширину строки до переноса */}
       <Group gap={8} wrap="wrap">
         <TextInput
@@ -118,34 +101,10 @@ export function AiAssistPanel({ hasPhoto, onInsert }: AiAssistPanelProps) {
           color={AI_ACCENT}
           loading={isLoading}
           disabled={quota.exhausted}
-          onClick={() => handleGenerate(false)}
+          onClick={handleGenerate}
         >
           Предложить
         </Button>
-        <Tooltip
-          label={
-            hasPhoto
-              ? 'Мок-подпись к фото из вложений'
-              : 'Прикрепите хотя бы одно фото в блоке «Фото»'
-          }
-        >
-          <Box>
-            <Button
-              variant="default"
-              disabled={inputsDisabled || !hasPhoto}
-              onClick={() => handleGenerate(true)}
-              styles={{
-                root: {
-                  color: AI_ACCENT,
-                  borderColor: 'rgba(110,91,255,.4)',
-                  background: 'rgba(110,91,255,.07)',
-                },
-              }}
-            >
-              По фото
-            </Button>
-          </Box>
-        </Tooltip>
       </Group>
 
       {/* Исчерпанная квота: генерацию не запускаем, подсказываем сменить тариф */}

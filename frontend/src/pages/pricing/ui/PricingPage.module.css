@@ -1,0 +1,24 @@
+/* Переключатель периода: белый контейнер с рамкой, тёмная активная «пилюля».
+   Селекторы вложены под .periodRoot, чтобы гарантированно перебить
+   равноспецифичные правила Mantine (styles.css без CSS-слоёв). */
+.periodRoot .periodLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  color: rgba(23, 21, 15, 0.6);
+}
+
+.periodRoot .periodLabel[data-active] {
+  color: #fff;
+}
+
+/* Ссылки тёмного футера тарифов. */
+.footerLink {
+  font-size: 12.5px;
+  color: rgba(246, 244, 239, 0.65);
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  color: #f6f4ef;
+}

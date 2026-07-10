@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Accordion,
+  Anchor,
   Badge,
   Box,
   Button,
@@ -16,8 +18,8 @@ import {
 } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
 import { MarketingHeader } from '@/widgets/marketing-header'
-import { MarketingFooter } from '@/widgets/marketing-footer'
 import { useAuthModal } from '@/features/auth'
+import classes from './PricingPage.module.css'
 
 const BRAND = '#2B50EC'
 const INK = '#17150F'
@@ -153,9 +155,42 @@ function formatNote(plan: Plan, period: BillingPeriod): string {
   return `${yearlyMonthly(plan.monthly)} ₽/мес при оплате за год`
 }
 
+/** Ссылки тёмного футера тарифов (по макету pricing.html). */
+const FOOTER_LINKS: { label: string; to: string }[] = [
+  { label: 'Правовая информация', to: '/legal' },
+  { label: 'Главная', to: '/' },
+  { label: 'Автопостинг', to: '/features/autoposting' },
+  { label: 'Кросспостинг', to: '/features/crossposting' },
+  { label: 'ИИ-помощник', to: '/features/ai' },
+]
+
+/** Круглый индикатор раскрытия FAQ: «−» у открытого пункта, «+» у свёрнутых. */
+function FaqIcon({ open }: { open: boolean }) {
+  return (
+    <Box
+      style={{
+        width: 26,
+        height: 26,
+        borderRadius: 'var(--mantine-radius-pill)',
+        border: '1.5px solid rgba(23,21,15,.2)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 15,
+        color: 'rgba(23,21,15,.6)',
+        flex: 'none',
+      }}
+    >
+      {open ? '−' : '+'}
+    </Box>
+  )
+}
+
 export function PricingPage() {
   const { open } = useAuthModal()
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
+  // Управляемый аккордеон FAQ: по макету все пункты свёрнуты, значку нужен статус.
+  const [openFaq, setOpenFaq] = useState<string | null>(null)
 
   return (
     <Box style={{ background: '#F6F4EF', color: INK }}>
@@ -181,9 +216,13 @@ export function PricingPage() {
 
             <SegmentedControl
               mt={24}
-              radius="md"
               value={period}
               onChange={(value) => setPeriod(value as BillingPeriod)}
+              classNames={{ root: classes.periodRoot, label: classes.periodLabel }}
+              styles={{
+                root: { background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 12 },
+                indicator: { background: INK, borderRadius: 9 },
+              }}
               data={[
                 { value: 'monthly', label: 'Помесячно' },
                 {
@@ -368,11 +407,19 @@ export function PricingPage() {
           </Title>
 
           <Box maw={760} mt={16}>
-            {/* Без defaultValue: по макету все вопросы свёрнуты, пока пользователь не кликнет */}
-            <Accordion variant="default" chevronPosition="right">
+            {/* По макету все вопросы свёрнуты; управляемое значение нужно, чтобы
+                круглый индикатор каждого пункта знал, раскрыт он или нет. */}
+            <Accordion
+              value={openFaq}
+              onChange={setOpenFaq}
+              variant="default"
+              chevronPosition="right"
+              chevronSize={26}
+              disableChevronRotation
+            >
               {FAQ.map((item, index) => (
                 <Accordion.Item key={item.q} value={String(index)}>
-                  <Accordion.Control>
+                  <Accordion.Control chevron={<FaqIcon open={openFaq === String(index)} />}>
                     <Text fw={600} fz={16} c={INK}>
                       {item.q}
                     </Text>
@@ -389,49 +436,73 @@ export function PricingPage() {
         </Container>
       </Box>
 
-      {/* Финальный CTA-баннер */}
-      <Box component="section" py={{ base: 40, sm: 56 }}>
+      {/* Финальный CTA-баннер + футер: единый тёмный блок во всю ширину.
+          По макету pricing.html: full-bleed фон INK, CTA и футер разделены
+          тонкой линией, без скруглений и боковых полей. */}
+      <Box component="section" style={{ background: INK, color: '#F6F4EF' }}>
         <Container size="lg">
-          <Box
-            p={{ base: 28, sm: 40 }}
-            style={{ background: INK, borderRadius: 20, color: '#F6F4EF' }}
+          <Group
+            justify="space-between"
+            align="center"
+            gap={24}
+            wrap="wrap"
+            py={{ base: 32, sm: 40 }}
+            style={{ borderBottom: '1px solid rgba(246,244,239,.12)' }}
           >
-            <Group justify="space-between" align="center" gap={24} wrap="wrap">
-              <Stack gap={8} maw={620}>
-                <Text
-                  component="h2"
-                  fz={{ base: 24, sm: 26 }}
-                  fw={800}
-                  lh={1.15}
-                  style={{ letterSpacing: '-.4px' }}
-                >
-                  Не уверены? Начните с бесплатного
-                </Text>
-                <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
-                  10 постов в месяц — хватит, чтобы понять, ваше ли это. Карта не нужна.
-                </Text>
-              </Stack>
-
-              <Button
-                size="md"
-                radius="md"
-                onClick={() => open('register')}
-                styles={{
-                  root: {
-                    background: 'var(--mantine-color-accent-5)',
-                    color: INK,
-                    fontWeight: 700,
-                  },
-                }}
+            <Stack gap={8} maw={620}>
+              <Text
+                component="h2"
+                fz={{ base: 24, sm: 26 }}
+                fw={800}
+                lh={1.15}
+                style={{ letterSpacing: '-.4px' }}
               >
-                Создать аккаунт
-              </Button>
-            </Group>
-          </Box>
+                Не уверены? Начните с бесплатного
+              </Text>
+              <Text fz={{ base: 14, sm: 14.5 }} c="rgba(246,244,239,.65)">
+                10 постов в месяц — хватит, чтобы понять, ваше ли это. Карта не нужна.
+              </Text>
+            </Stack>
+
+            <Button
+              size="md"
+              radius="md"
+              onClick={() => open('register')}
+              styles={{
+                root: {
+                  background: 'var(--mantine-color-accent-5)',
+                  color: INK,
+                  fontWeight: 700,
+                },
+              }}
+            >
+              Создать аккаунт
+            </Button>
+          </Group>
+
+          <Group
+            component="footer"
+            gap={20}
+            align="center"
+            wrap="wrap"
+            py={20}
+            style={{ fontSize: 12.5, color: 'rgba(246,244,239,.45)' }}
+          >
+            <span>© Отложка, 2026</span>
+            {FOOTER_LINKS.map((l) => (
+              <Anchor
+                key={l.to}
+                component={Link}
+                to={l.to}
+                underline="never"
+                className={classes.footerLink}
+              >
+                {l.label}
+              </Anchor>
+            ))}
+          </Group>
         </Container>
       </Box>
-
-      <MarketingFooter />
     </Box>
   )
 }

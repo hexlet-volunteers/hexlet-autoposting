@@ -15,6 +15,7 @@ import {
   TextInput,
   Tooltip,
   UnstyledButton,
+  useMatches,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -86,6 +87,14 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
   const [timeOpen, setTimeOpen] = useState(false)
   // Какой тип вложения сейчас прикрепляем: открывает модалку загрузки; null — закрыта.
   const [attachKind, setAttachKind] = useState<AttachmentKind | null>(null)
+
+  // Расписание (День/Время/Повторять): на десктопе — три колонки в ряд (как в
+  // макете), на мобильном (<sm) фиксированный грид схлопывал «День» до ~9px и
+  // делал кнопки дней нечитаемыми — стекаем блоки в одну колонку.
+  const scheduleColumns = useMatches({
+    base: '1fr',
+    sm: 'minmax(0,1fr) auto auto',
+  })
 
   // Медиатека проекта — источник имён/превью прикреплённых вложений (по mediaId).
   const { data: mediaData } = useMedia()
@@ -211,11 +220,8 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
                 placeholder="О чём расскажем подписчикам?"
               />
 
-              {/* Панель ИИ-помощника: асинхронная мок-генерация, тон, варианты, «по фото» */}
-              <AiAssistPanel
-                hasPhoto={form.values.attachments.length > 0}
-                onInsert={(text) => form.setFieldValue('text', text)}
-              />
+              {/* Панель ИИ-помощника: асинхронная мок-генерация вариантов текста */}
+              <AiAssistPanel onInsert={(text) => form.setFieldValue('text', text)} />
 
               {/* Вложения-фото: плитки-превью из медиатеки (по mediaId), до 4 штук */}
               <Box>
@@ -434,7 +440,7 @@ export function ComposerModal({ opened, postId, onClose }: ComposerModalProps) {
           <Box
             style={{
               display: 'grid',
-              gridTemplateColumns: 'minmax(0,1fr) auto auto',
+              gridTemplateColumns: scheduleColumns,
               gap: 14,
               alignItems: 'start',
             }}

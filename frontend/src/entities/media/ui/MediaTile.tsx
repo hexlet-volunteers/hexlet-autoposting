@@ -1,11 +1,7 @@
-import { Box, Card, Text } from '@mantine/core'
+import { UnstyledButton } from '@mantine/core'
 import type { Media } from '../model/types'
-import { formatDateShort } from '../lib/date'
-import { MediaThumb } from './MediaThumb'
-import { PlayOverlay } from './PlayOverlay'
-
-// Фон превью-заглушки — кремовый из макета (docs/design/mockups/app-dashboard.html).
-const PLACEHOLDER_BG = '#F6F4EF'
+import { PlayBadge } from './PlayBadge'
+import classes from './MediaTile.module.css'
 
 interface MediaTileProps {
   media: Media
@@ -13,45 +9,16 @@ interface MediaTileProps {
   onClick: () => void
 }
 
-/** Плитка медиатеки: превью-заглушка, имя, размер и дата, play-оверлей для видео. */
+/**
+ * Плитка медиатеки по макету (app-dashboard.html): кремовая плитка с пунктирной
+ * рамкой и именем файла по центру; для видео — круглый play над именем.
+ * Hover: рамка и текст синеют (brand). Без иконок и метаданных.
+ */
 export function MediaTile({ media, onClick }: MediaTileProps) {
   return (
-    <Card
-      withBorder
-      radius="lg"
-      p="sm"
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
-        }
-      }}
-      style={{ borderColor: 'rgba(23,21,15,.1)', cursor: 'pointer' }}
-    >
-      <Box
-        mb="sm"
-        style={{
-          position: 'relative',
-          aspectRatio: '4 / 3',
-          borderRadius: 12,
-          background: PLACEHOLDER_BG,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {/* Для видео вместо иконки-миниатюры — play-оверлей по центру, как в макете */}
-        {media.kind === 'video' ? <PlayOverlay /> : <MediaThumb kind={media.kind} />}
-      </Box>
-      <Text fz={13.5} fw={600} lineClamp={1} title={media.name}>
-        {media.name}
-      </Text>
-      <Text fz={12} c="dimmed" mt={4} lineClamp={1}>
-        {media.sizeLabel} · {formatDateShort(media.uploadedAt)}
-      </Text>
-    </Card>
+    <UnstyledButton className={classes.tile} onClick={onClick} title={media.name}>
+      {media.kind === 'video' ? <PlayBadge /> : null}
+      <span className={classes.name}>{media.name}</span>
+    </UnstyledButton>
   )
 }

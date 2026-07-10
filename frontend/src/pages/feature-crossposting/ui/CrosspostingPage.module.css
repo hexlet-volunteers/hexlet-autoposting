@@ -1,0 +1,16 @@
+/* Hero-сетка: на мобильном один столбец, на md+ — асимметрия узкий текст + широкое демо (макет feature-crossposting). */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 62em) {
+  /* Текстовая колонка сужена до 400px: контейнер сайта (1140px) уже макета (1200px),
+     поэтому демо-колонка догоняет ширину макета (~660px) и все 7 табов площадок влезают в один ряд. */
+  .hero {
+    grid-template-columns: minmax(340px, 390px) minmax(0, 1fr);
+    gap: 48px;
+  }
+}

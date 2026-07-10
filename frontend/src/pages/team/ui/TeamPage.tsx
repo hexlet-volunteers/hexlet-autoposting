@@ -7,25 +7,40 @@ import {
   Flex,
   Group,
   Paper,
-  Select,
+  Popover,
+  SegmentedControl,
   SimpleGrid,
   Stack,
   Text,
   TextInput,
   Title,
 } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { IconUserPlus } from '@tabler/icons-react'
-import { ConfirmDeleteButton, EmptyState } from '@/shared/ui'
+import { EmptyState } from '@/shared/ui'
 import { ROLE_LABELS, useCurrentMemberRole, useMembers } from '@/entities/member'
 import type { Member, MemberRole } from '@/entities/member'
 
-/** Данные для Mantine Select: value = роль, label = русское название. */
-const ROLE_OPTIONS = (Object.keys(ROLE_LABELS) as MemberRole[]).map((role) => ({
+/**
+ * Роль приглашаемого участника — только «Автор» и «Редактор» (владельцем
+ * назначить нельзя, см. макет «Команда»). Владелец в опции не входит.
+ */
+const INVITE_ROLE_OPTIONS = (['author', 'editor'] as MemberRole[]).map((role) => ({
   value: role,
   label: ROLE_LABELS[role],
 }))
+
+/**
+ * Стиль read-only бейджа роли (цвета из макета app-dashboard.html:1134-1137):
+ * владелец — тёмный, редактор — фирменный синий, автор — зелёный «успех».
+ */
+const ROLE_BADGE: Record<MemberRole, { color: string; variant: 'filled' | 'light' }> = {
+  owner: { color: 'dark', variant: 'filled' },
+  editor: { color: 'brand', variant: 'light' },
+  author: { color: 'success', variant: 'light' },
+}
 
 /** Инициалы из имени/почты для аватара (напр. «Мария Ковалёва» → «МК»). */
 function initials(value: string): string {
@@ -37,6 +52,48 @@ function initials(value: string): string {
   return chars.join('').toUpperCase() || value.slice(0, 2).toUpperCase()
 }
 
+/**
+ * Текстовая кнопка «Отозвать» с инлайн-подтверждением (по макету — не иконка-корзина,
+ * а красная кнопка со словом «Отозвать»).
+ */
+function RevokeButton({ memberName, onConfirm }: { memberName: string; onConfirm: () => void }) {
+  const [opened, { open, close }] = useDisclosure(false)
+  return (
+    <Popover
+      opened={opened}
+      onChange={(o) => (o ? open() : close())}
+      withArrow
+      position="bottom-end"
+    >
+      <Popover.Target>
+        <Button variant="outline" color="red" size="xs" onClick={open} style={{ flex: 'none' }}>
+          Отозвать
+        </Button>
+      </Popover.Target>
+      <Popover.Dropdown>
+        <Text size="sm" mb="xs">
+          Отозвать доступ для {memberName}?
+        </Text>
+        <Group justify="flex-end" gap="xs">
+          <Button size="xs" variant="default" onClick={close}>
+            Отмена
+          </Button>
+          <Button
+            size="xs"
+            color="red"
+            onClick={() => {
+              onConfirm()
+              close()
+            }}
+          >
+            Отозвать
+          </Button>
+        </Group>
+      </Popover.Dropdown>
+    </Popover>
+  )
+}
+
 interface InviteFormValues {
   email: string
   role: MemberRole
@@ -46,9 +103,9 @@ export function TeamPage() {
   const { data } = useMembers()
   const [members, setMembers] = useState<Member[]>(data)
 
-  // Гейтинг по роли ЗРИТЕЛЯ страницы (не по роли строки): менять роли,
-  // отзывать доступ и приглашать может только владелец проекта. Скрытие на
-  // фронте — только UX, реальную проверку прав делает бэкенд (#147).
+  // Гейтинг по роли ЗРИТЕЛЯ страницы (не по роли строки): отзывать доступ и
+  // приглашать может только владелец проекта. Скрытие на фронте — только UX,
+  // реальную проверку прав делает бэкенд (#147).
   const currentRole = useCurrentMemberRole()
   const canManageTeam = currentRole === 'owner'
 
@@ -78,12 +135,6 @@ export function TeamPage() {
     form.reset()
   })
 
-  const handleRoleChange = (id: string, role: MemberRole) => {
-    // TODO (Design First): PATCH /projects/{id}/members/{memberId} { role }. Пока заглушка.
-    setMembers((current) => current.map((m) => (m.id === id ? { ...m, role } : m)))
-    notifications.show({ color: 'green', message: 'Роль обновлена (демо)' })
-  }
-
   const handleRemove = (member: Member) => {
     // TODO (Design First): DELETE /projects/{id}/members/{memberId}. Пока заглушка.
     setMembers((current) => current.filter((m) => m.id !== member.id))
@@ -96,7 +147,7 @@ export function TeamPage() {
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg" style={{ alignItems: 'start' }}>
         {/* ===== Участники проекта ===== */}
-        <Paper withBorder radius="md" p={0}>
+        <Paper withBorder radius="lg" p={0}>
           <Group p="md" pb="sm">
             <Title order={4}>Участники проекта</Title>
           </Group>
@@ -111,7 +162,7 @@ export function TeamPage() {
           ) : (
             <Stack gap="sm" p="md">
               {members.map((member) => (
-                // На мобильном строка — колонка: управление (роль/статус/удаление)
+                // На мобильном строка — колонка: управление (роль/статус/отзыв)
                 // переносится под идентификацию, поэтому нет горизонтального скролла.
                 <Flex
                   key={member.id}
@@ -140,47 +191,23 @@ export function TeamPage() {
                     </Stack>
                   </Group>
 
-                  {/* Роль/статус/управление: на узком экране переносятся между собой */}
-                  <Group gap="sm" wrap="wrap" style={{ flex: 'none' }}>
+                  {/* Роль (read-only бейдж) + статус + отзыв; компактно, без Select */}
+                  <Group gap="xs" wrap="nowrap" style={{ flex: 'none' }}>
+                    <Badge {...ROLE_BADGE[member.role]} style={{ flex: 'none' }}>
+                      {ROLE_LABELS[member.role]}
+                    </Badge>
+
                     {member.status === 'pending' && (
-                      <Badge color="yellow" variant="light">
-                        приглашение отправлено
+                      <Badge color="accent" variant="light" style={{ flex: 'none' }}>
+                        приглашён
                       </Badge>
                     )}
 
-                    {canManageTeam ? (
-                      <Select
-                        data={ROLE_OPTIONS}
-                        value={member.role}
-                        onChange={(value) =>
-                          value && handleRoleChange(member.id, value as MemberRole)
-                        }
-                        disabled={member.role === 'owner'}
-                        allowDeselect={false}
-                        aria-label={`Роль участника ${member.name}`}
-                        w={130}
+                    {member.role !== 'owner' && canManageTeam && (
+                      <RevokeButton
+                        memberName={member.name}
+                        onConfirm={() => handleRemove(member)}
                       />
-                    ) : (
-                      // Режим «только чтение»: роль — бейджем (владельца показывает бейдж ниже)
-                      member.role !== 'owner' && (
-                        <Badge color="gray" variant="light">
-                          {ROLE_LABELS[member.role]}
-                        </Badge>
-                      )
-                    )}
-
-                    {member.role === 'owner' ? (
-                      <Badge color="dark" variant="filled">
-                        Владелец
-                      </Badge>
-                    ) : (
-                      canManageTeam && (
-                        <ConfirmDeleteButton
-                          onConfirm={() => handleRemove(member)}
-                          tooltip="Отозвать доступ к проекту"
-                          confirmText={`Отозвать доступ для ${member.name}?`}
-                        />
-                      )
                     )}
                   </Group>
                 </Flex>
@@ -190,7 +217,7 @@ export function TeamPage() {
         </Paper>
 
         {/* ===== Пригласить в команду ===== */}
-        <Paper withBorder radius="md" p="lg">
+        <Paper withBorder radius="lg" p="lg">
           {canManageTeam ? (
             <form onSubmit={handleInvite}>
               <Stack gap="md">
@@ -201,12 +228,18 @@ export function TeamPage() {
                   type="email"
                   {...form.getInputProps('email')}
                 />
-                <Select
-                  label="Роль"
-                  data={ROLE_OPTIONS}
-                  allowDeselect={false}
-                  {...form.getInputProps('role')}
-                />
+                {/* Роль приглашаемого — переключатель «Автор»/«Редактор» (без владельца) */}
+                <Stack gap={6}>
+                  <Text size="sm" fw={500}>
+                    Роль
+                  </Text>
+                  <SegmentedControl
+                    fullWidth
+                    data={INVITE_ROLE_OPTIONS}
+                    value={form.values.role}
+                    onChange={(value) => form.setFieldValue('role', value as MemberRole)}
+                  />
+                </Stack>
                 <Button type="submit" fullWidth leftSection={<IconUserPlus size={16} />}>
                   Пригласить
                 </Button>

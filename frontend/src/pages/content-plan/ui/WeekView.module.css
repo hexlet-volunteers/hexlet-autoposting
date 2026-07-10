@@ -1,0 +1,18 @@
+/* Кнопка «+» добавления поста в день недельной сетки (макет app-dashboard).
+   При наведении подсвечивается фирменным синим. */
+.addButton {
+  border: 1.5px dashed rgba(23, 21, 15, 0.18);
+  border-radius: 8px;
+  padding: 5px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(23, 21, 15, 0.4);
+  background: transparent;
+}
+
+.addButton:hover {
+  background: rgba(43, 80, 236, 0.06);
+  color: var(--mantine-color-brand-6);
+  border-color: rgba(43, 80, 236, 0.4);
+}
