@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import {
   Box,
@@ -49,6 +50,11 @@ function findNetwork(networkId: string): Network | undefined {
 }
 
 export function ReportsPage() {
+  usePageMeta({
+    title: 'Отчёты — Отложка',
+    description: 'Аналитика публикаций по площадкам в Отложке.',
+    noindex: true,
+  })
   const [period, setPeriod] = useState<string>('week')
   const [year, setYear] = useState<string>('2026')
 

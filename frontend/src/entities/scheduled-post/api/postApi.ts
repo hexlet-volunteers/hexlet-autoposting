@@ -101,7 +101,7 @@ const CURRENT_WEEK: Post[] = [
     scheduledAt: weekStart.subtract(2, 'day').hour(12).toISOString(),
     status: 'sent',
     mediaCount: 1,
-    metrics: { views: 12400, likes: 318, reposts: 47, comments: 63 },
+    metrics: { views: 12400, likes: 318, reposts: 47, comments: 63, clicks: 342 },
   },
   {
     id: 'sp-sent-2',
@@ -110,7 +110,7 @@ const CURRENT_WEEK: Post[] = [
     networkIds: ['tg'],
     scheduledAt: weekStart.subtract(3, 'day').hour(16).toISOString(),
     status: 'sent',
-    metrics: { views: 8730, likes: 402, reposts: 12, comments: 88 },
+    metrics: { views: 8730, likes: 402, reposts: 12, comments: 88, clicks: 261 },
   },
   {
     id: 'sp-sent-3',
@@ -120,7 +120,7 @@ const CURRENT_WEEK: Post[] = [
     scheduledAt: weekStart.subtract(5, 'day').hour(10).toISOString(),
     status: 'sent',
     mediaCount: 2,
-    metrics: { views: 5210, likes: 156, reposts: 9, comments: 21 },
+    metrics: { views: 5210, likes: 156, reposts: 9, comments: 21, clicks: 148 },
   },
   {
     id: 'sp-sent-4',
@@ -129,7 +129,7 @@ const CURRENT_WEEK: Post[] = [
     networkIds: ['youtube', 'rutube'],
     scheduledAt: weekStart.subtract(6, 'day').hour(19).toISOString(),
     status: 'sent',
-    metrics: { views: 21800, likes: 940, reposts: 73, comments: 205 },
+    metrics: { views: 21800, likes: 940, reposts: 73, comments: 205, clicks: 517 },
   },
 ]
 
@@ -173,11 +173,14 @@ const PLAN_PREV_YEAR = [3, 4, 6, 5, 7, 4, 6, 8, 5, 7, 6, 5]
 
 /** Метрики «опубликованного» поста — детерминированная псевдослучайность от индекса. */
 function metricsFor(seq: number): Post['metrics'] {
+  const views = 900 + ((seq * 137) % 9000)
   return {
-    views: 900 + ((seq * 137) % 9000),
+    views,
     likes: 40 + ((seq * 17) % 400),
     reposts: 3 + (seq % 19),
     comments: 2 + (seq % 27),
+    // Переходы — ~2–6% просмотров, детерминированно от индекса (без Math.random).
+    clicks: Math.round(views * (0.02 + (seq % 41) / 1000)),
   }
 }
 

@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { Link } from 'react-router-dom'
 import { Anchor, Box, Button, Card, Container, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 import { IconLayoutGrid, IconLink, IconChecks } from '@tabler/icons-react'
@@ -37,6 +38,11 @@ const CAPABILITIES: Capability[] = [
 
 /** Публичная маркетинговая страница фичи «Кросспостинг» (/features/crossposting). */
 export function CrosspostingPage() {
+  usePageMeta({
+    title: 'Кросспостинг — Отложка',
+    description:
+      'Один пост — сразу во все соцсети. Отложка адаптирует контент под каждую площадку.',
+  })
   const { open } = useAuthModal()
 
   return (

@@ -1,8 +1,14 @@
+import { usePageMeta } from '@/shared/lib'
 import { Button } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { ErrorScreen } from '@/shared/ui'
 
 export function NotFoundPage() {
+  usePageMeta({
+    title: 'Страница не найдена — Отложка',
+    description: 'Запрошенная страница не найдена.',
+    noindex: true,
+  })
   return (
     <ErrorScreen
       code="404"

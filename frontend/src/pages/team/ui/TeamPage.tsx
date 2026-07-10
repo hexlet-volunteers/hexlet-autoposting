@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import {
   Avatar,
@@ -100,6 +101,11 @@ interface InviteFormValues {
 }
 
 export function TeamPage() {
+  usePageMeta({
+    title: 'Команда — Отложка',
+    description: 'Участники проекта и роли в Отложке.',
+    noindex: true,
+  })
   const { data } = useMembers()
   const [members, setMembers] = useState<Member[]>(data)
 

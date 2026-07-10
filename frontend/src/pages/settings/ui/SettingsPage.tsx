@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useState } from 'react'
 import {
   Button,
@@ -40,6 +41,11 @@ function handleChangePassword() {
 }
 
 export function SettingsPage() {
+  usePageMeta({
+    title: 'Настройки — Отложка',
+    description: 'Настройки профиля и проекта в Отложке.',
+    noindex: true,
+  })
   const project = useCurrentProject()
 
   const [projectName, setProjectName] = useState(project?.name ?? '')

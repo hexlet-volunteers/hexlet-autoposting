@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { MarketingHeader } from '@/widgets/marketing-header'
@@ -16,6 +17,11 @@ import { CtaSection } from './sections/CtaSection'
 
 /** Публичная главная страница-лендинг «Отложки». */
 export function LandingPage() {
+  usePageMeta({
+    title: 'Отложка — автопостинг и кросспостинг в 7 соцсетей',
+    description:
+      'Соберите контент-план один раз — Отложка опубликует посты во ВКонтакте, Telegram, Дзен и ещё четыре площадки точно в срок. Бесплатный тариф навсегда.',
+  })
   const location = useLocation()
 
   // Якорная навигация: ссылки вида /#features работают с любой страницы —

@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { Link } from 'react-router-dom'
 import {
   Anchor,
@@ -50,6 +51,10 @@ const DARK = '#17150F'
 const BORDER = 'rgba(23,21,15,.1)'
 
 export function AiFeaturePage() {
+  usePageMeta({
+    title: 'ИИ-помощник — Отложка',
+    description: 'ИИ-помощник Отложки подберёт текст поста под площадку и тон за секунды.',
+  })
   const { open } = useAuthModal()
 
   return (

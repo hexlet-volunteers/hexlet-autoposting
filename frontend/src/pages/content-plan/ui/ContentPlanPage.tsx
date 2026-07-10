@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { useMemo, useState } from 'react'
 import {
   Box,
@@ -14,7 +15,6 @@ import {
 import { IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useAppModals } from '@/features/app-modals'
-import { useCalendarFilter } from '@/features/filter-by-platform'
 import { isInWeek, startOfWeekMonday, useContentPlan } from '@/entities/scheduled-post'
 import { useQuota } from '@/entities/subscription'
 import { BORDER_PANEL, BRAND, BRAND_SOFT_BG, INK } from '../lib/palette'
@@ -36,6 +36,11 @@ const SCALE_OPTIONS: { label: string; value: Scale }[] = [
 
 /** Экран «Контент-план»: масштабы Неделя/Месяц/Квартал/Год на общем списке постов. */
 export function ContentPlanPage() {
+  usePageMeta({
+    title: 'Календарь — Отложка',
+    description: 'Контент-план проекта в Отложке.',
+    noindex: true,
+  })
   const [scale, setScale] = useState<Scale>('week')
   // Смещение отображаемой недели от текущей (стрелки «‹ / ›» двигают на ±1)
   const [weekOffset, setWeekOffset] = useState(0)
@@ -43,21 +48,13 @@ export function ContentPlanPage() {
   const { openComposer } = useAppModals()
   const postsQuota = useQuota('posts')
   const { data: posts, isLoading } = useContentPlan()
-  const { activeNetworkIds } = useCalendarFilter()
-
-  // Фильтр площадок действует во всех масштабах:
-  // пост виден, если хотя бы одна из его сетей активна
-  const visiblePosts = useMemo(() => {
-    const activeSet = new Set(activeNetworkIds)
-    return posts.filter((p) => p.networkIds.some((id) => activeSet.has(id)))
-  }, [posts, activeNetworkIds])
 
   const weekStart = useMemo(() => startOfWeekMonday(dayjs()).add(weekOffset, 'week'), [weekOffset])
   // Вид «Месяц» всегда показывает текущий месяц (стабильная ссылка для мемоизации)
   const currentMonth = useMemo(() => dayjs().startOf('month'), [])
   const weekPosts = useMemo(
-    () => visiblePosts.filter((p) => isInWeek(dayjs(p.scheduledAt), weekStart)),
-    [visiblePosts, weekStart],
+    () => posts.filter((p) => isInWeek(dayjs(p.scheduledAt), weekStart)),
+    [posts, weekStart],
   )
 
   const weekEnd = weekStart.add(6, 'day')
@@ -183,23 +180,14 @@ export function ContentPlanPage() {
         />
       ) : null}
       {scale === 'month' ? (
-        <MonthView
-          posts={visiblePosts}
-          month={currentMonth}
-          loading={isLoading}
-          onOpenWeek={openWeekOf}
-        />
+        <MonthView posts={posts} month={currentMonth} loading={isLoading} onOpenWeek={openWeekOf} />
       ) : null}
       {scale === 'quarter' ? (
-        <QuarterView
-          posts={visiblePosts}
-          loading={isLoading}
-          onOpenMonth={() => setScale('month')}
-        />
+        <QuarterView posts={posts} loading={isLoading} onOpenMonth={() => setScale('month')} />
       ) : null}
       {scale === 'year' ? (
         <YearView
-          posts={visiblePosts}
+          posts={posts}
           year={calYear}
           loading={isLoading}
           onOpenMonth={() => setScale('month')}

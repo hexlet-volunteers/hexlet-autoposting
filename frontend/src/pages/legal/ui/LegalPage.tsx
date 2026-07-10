@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/shared/lib'
 import { Fragment, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Alert, Box, Container, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core'
@@ -12,6 +13,11 @@ const MUTED = 'rgba(23,21,15,0.45)'
 
 /** Страница правовой информации: sticky-оглавление + разделы из массива данных. */
 export function LegalPage() {
+  usePageMeta({
+    title: 'Правовая информация — Отложка',
+    description:
+      'Оферта, политика конфиденциальности и обработка персональных данных сервиса Отложка.',
+  })
   const location = useLocation()
 
   // Якоря /legal#oferta и /legal#privacy (на них ссылается форма регистрации):
