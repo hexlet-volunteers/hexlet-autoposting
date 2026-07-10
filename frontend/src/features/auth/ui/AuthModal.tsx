@@ -1,4 +1,14 @@
-import { Alert, Anchor, Divider, Modal, SegmentedControl, Stack, Text, Title } from '@mantine/core'
+import {
+  Alert,
+  Anchor,
+  Box,
+  Divider,
+  Modal,
+  SegmentedControl,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 import { useAuthModal } from '../model/hooks'
 import type { AuthMode } from '../model/authModalSlice'
@@ -60,7 +70,9 @@ export function AuthModal() {
           <Title order={3} fz={18} fw={800}>
             {COPY[mode].title}
           </Title>
-          <Text c="dimmed" fz={12} mt={0}>
+          {/* Резерв под 2 строки: подзаголовки входа/регистрации/сброса разной длины
+              не должны менять высоту модалки при переключении вкладок. */}
+          <Text c="dimmed" fz={12} mt={0} mih={38}>
             {COPY[mode].subtitle}
           </Text>
         </div>
@@ -83,9 +95,14 @@ export function AuthModal() {
           </>
         )}
 
-        {mode === 'login' && <LoginForm />}
-        {mode === 'register' && <RegisterForm />}
-        {mode === 'reset' && <ResetForm />}
+        {/* Слот формы фиксированной высоты для входа/регистрации: у регистрации
+            на поле «Имя» больше, поэтому резервируем её высоту — при переключении
+            вкладок модалка не меняет размер (форма входа добирает пустым местом). */}
+        <Box mih={isAuth ? 306 : undefined}>
+          {mode === 'login' && <LoginForm />}
+          {mode === 'register' && <RegisterForm />}
+          {mode === 'reset' && <ResetForm />}
+        </Box>
 
         {isAuth ? (
           <Text ta="center" fz="sm" c="dimmed">
