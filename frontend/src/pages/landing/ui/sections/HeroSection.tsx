@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDisclosure } from '@mantine/hooks'
 import { Link } from 'react-router-dom'
 import {
   Badge,
@@ -16,6 +17,7 @@ import { IconPlus } from '@tabler/icons-react'
 import { NetworkPill } from '@/shared/ui'
 import { NETWORKS } from '@/shared/config'
 import { useAuthModal } from '@/features/auth'
+import { PlanPickerModal } from '../PlanPickerModal'
 
 interface CalendarPost {
   networkIdx: number
@@ -61,10 +63,10 @@ const BORDER = 'rgba(23,21,15,.1)'
 const SOFT_BORDER = 'rgba(23,21,15,.09)'
 const WEEKEND_COLOR = '#C4552D'
 
-// Демо на лендинге даёт «пощупать» добавление постов, но ограниченно:
-// после MAX_DEMO_ADDS добавлений «+» открывает регистрацию — дальше уже в кабинете.
+// Демо на лендинге даёт «пощупать» добавление постов, но ограниченно: первый «+»
+// добавляет пост, а на втором нажатии всплывает выбор тарифа (дальше — регистрация).
 const INITIAL_TOTAL = INITIAL_WEEK.reduce((sum, day) => sum + day.length, 0)
-const MAX_DEMO_ADDS = 3
+const MAX_DEMO_ADDS = 1
 
 /** Плюрализация русских существительных: [1, 2-4, 5+]. */
 function plural(n: number, forms: [string, string, string]): string {
@@ -78,14 +80,15 @@ function plural(n: number, forms: [string, string, string]): string {
 
 export function HeroSection() {
   const { open } = useAuthModal()
+  const [pickerOpened, picker] = useDisclosure(false)
   const [week, setWeek] = useState<CalendarPost[][]>(INITIAL_WEEK)
   const [nextSeed, setNextSeed] = useState(3)
 
   const addPost = (dayIdx: number) => {
-    // Демо расширяется лишь на пару постов; дальше зовём регистрацию.
+    // Первый «+» добавляет пост, на втором нажатии всплывает выбор тарифа.
     const currentTotal = week.reduce((sum, day) => sum + day.length, 0)
     if (currentTotal - INITIAL_TOTAL >= MAX_DEMO_ADDS) {
-      open('register')
+      picker.open()
       return
     }
     const seed = nextSeed
@@ -315,6 +318,16 @@ export function HeroSection() {
           </Box>
         </Stack>
       </Container>
+
+      {/* Воронка демо: выбор тарифа → регистрация. */}
+      <PlanPickerModal
+        opened={pickerOpened}
+        onClose={picker.close}
+        onChoose={() => {
+          picker.close()
+          open('register')
+        }}
+      />
     </Box>
   )
 }
