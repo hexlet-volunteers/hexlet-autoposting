@@ -79,23 +79,22 @@ export function PlanPickerModal({ opened, onClose, onChoose }: PlanPickerModalPr
             radius="lg"
             padding="md"
             style={{
-              position: 'relative',
               border: plan.featured ? FEATURED_BORDER : undefined,
             }}
           >
             <Stack gap={8} h="100%">
-              {plan.badge ? (
-                <Badge
-                  color="brand"
-                  radius="sm"
-                  style={{ position: 'absolute', top: -10, left: 14 }}
-                >
-                  {plan.badge}
-                </Badge>
-              ) : null}
-              <Text fw={700} fz="sm">
-                {plan.name}
-              </Text>
+              {/* Бейдж — в потоке рядом с названием: без absolute/отрицательных сдвигов,
+                  чтобы не обрезался краем карточки/модалки. */}
+              <Group gap={8} wrap="nowrap" align="center" mih={22}>
+                <Text fw={700} fz="sm">
+                  {plan.name}
+                </Text>
+                {plan.badge ? (
+                  <Badge color="brand" radius="sm" size="xs" tt="none">
+                    {plan.badge}
+                  </Badge>
+                ) : null}
+              </Group>
               <Text fz={22} fw={800} style={{ letterSpacing: '-0.4px', lineHeight: 1 }}>
                 {plan.price}
                 {plan.priceSuffix ? (
