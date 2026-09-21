@@ -58,3 +58,5 @@ npm run dev  # http://localhost:5173
 [![Hexlet Ltd. logo](https://raw.githubusercontent.com/Hexlet/assets/master/images/hexlet_logo128.png)](https://hexlet.io/?utm_source=github&utm_medium=link&utm_campaign=hexlet-autoposting)
 
 Репозиторий создан и поддерживается командой [Hexlet](https://hexlet.io) и сообществом.
+
+.
