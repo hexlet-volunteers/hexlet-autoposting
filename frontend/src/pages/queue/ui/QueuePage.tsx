@@ -12,6 +12,7 @@ import {
   Text,
   Title,
   UnstyledButton,
+  Button
 } from '@mantine/core'
 import dayjs from 'dayjs'
 import { NETWORKS } from '@/shared/config'
@@ -171,6 +172,7 @@ export function QueuePage() {
               <EmptyState
                 title="Пока нет запланированных публикаций"
                 description="Запланируйте пост в контент-плане."
+                action={<Button onClick={() => openComposer()}>Создать первый пост</Button>}
               />
             ) : (
               <Box style={{ overflowX: 'auto' }}>

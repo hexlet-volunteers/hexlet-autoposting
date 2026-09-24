@@ -43,7 +43,9 @@ export function RegisterForm() {
       await mockRegister({ name: values.name, email: values.email, password: values.password })
       dispatch(login())
       close()
-      navigate('/app/calendar')
+      navigate('/app/calendar', {
+        state: { justRegistered: true },
+      })
     } catch (e) {
       setError(getAuthErrorMessage(e))
     } finally {

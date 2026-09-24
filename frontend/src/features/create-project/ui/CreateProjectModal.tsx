@@ -9,9 +9,10 @@ import { useCreateProject } from '../api/useCreateProject'
 interface CreateProjectModalProps {
   opened: boolean
   onClose: () => void
+  onCreated?: () => void
 }
 
-export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps) {
+export function CreateProjectModal({ opened, onClose, onCreated }: CreateProjectModalProps) {
   const createProject = useCreateProject()
   const [color, setColor] = useState(PROJECT_COLORS[0])
   const [colorModalOpened, colorModal] = useDisclosure(false)
@@ -23,6 +24,7 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
 
   const submit = form.onSubmit((values) => {
     createProject(values.name, color)
+    onCreated?.()
     form.reset()
     setColor(PROJECT_COLORS[0])
     onClose()
