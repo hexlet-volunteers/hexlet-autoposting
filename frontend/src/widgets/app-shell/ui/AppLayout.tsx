@@ -326,6 +326,12 @@ export function AppLayout() {
     dispatch(logout())
     navigate('/')
   }
+  const handleProjectCreated = () => {
+    navigate(pathname, {
+      replace: true,
+      state: null,
+    })
+  }
 
   return (
     <AppShell
@@ -446,7 +452,7 @@ export function AppLayout() {
        : <Outlet />}
       </AppShell.Main>
 
-      <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} />
+      <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} onCreated={handleProjectCreated} />
       <AppModals />
     </AppShell>
   )
