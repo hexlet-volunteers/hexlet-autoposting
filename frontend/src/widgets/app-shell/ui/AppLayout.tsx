@@ -14,6 +14,7 @@ import {
   Stack,
   Text,
   UnstyledButton,
+  Checkbox
 } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import {
@@ -27,6 +28,7 @@ import {
   IconPlus,
   IconSettings,
   IconUsers,
+  IconX
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -40,9 +42,12 @@ import { mediaKeys } from '@/entities/media'
 import { scheduledPostKeys } from '@/entities/scheduled-post'
 import { logout } from '@/entities/session'
 import { useDispatch } from 'react-redux'
+import { useState } from 'react'
 import { CreateProjectModal, useRestoreProject } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
 import { AppModals } from './AppModals'
+import { useConnections } from '@/entities/platform-account'
+import { useContentPlan } from '@/entities/scheduled-post'
 
 const NAV = [
   { label: 'Календарь', to: '/app/calendar', icon: IconCalendar },
@@ -296,10 +301,21 @@ function PostsQuotaBanner() {
 
 /** Оболочка приложения: Mantine AppShell с левым сайдбаром. */
 export function AppLayout() {
-  const { pathname } = useLocation()
+  const { pathname, state } = useLocation()
+  const justRegistered = state?.justRegistered
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  const { data: projects = [] } = useProjects()
+  const { data: posts = [] } = useContentPlan()
+  const { data: connections = [] } = useConnections()
+
+  const hasProject = projects.length > 0
+  const hasConnection = connections.some((c) => c.connected)
+  const hasPost = posts.some((p) => p.status === 'sent' || p.status === 'scheduled')
+  const isOnboardingComplete = hasProject && hasConnection && hasPost
   const [newProjectOpened, newProject] = useDisclosure(false)
+  const [onboardingClosed, setOnboardingClosed] = useState(false)
   // Состояние мобильного навбара: открывается/закрывается бургером
   const [navOpened, navbar] = useDisclosure(false)
   // Мобильный брейкпоинт sm (768px): на десктопе header схлопнут и не занимает место
@@ -356,6 +372,36 @@ export function AppLayout() {
             ))}
           </Stack>
         </AppShell.Section>
+        {!isOnboardingComplete && !onboardingClosed && (
+        <AppShell.Section>
+          <Group justify="space-between">
+            <Text fw={700} fz={16}>
+              Первые шаги
+            </Text>
+          
+            <UnstyledButton onClick={() => setOnboardingClosed(true)} aria-label='Закрыть баннер с первыми шагами'>
+              <IconX size={20} />
+            </UnstyledButton>
+          </Group>
+          <Stack gap="xs" mt="sm">
+          <Checkbox
+            readOnly
+            checked={hasProject}
+            label="Создать проект"
+          />
+          <Checkbox
+            readOnly
+            checked={hasConnection}
+            label="Подключить платформу"
+          />
+          <Checkbox
+            readOnly
+            checked={hasPost}
+            label="Запланировать первый пост"
+          />
+          </Stack>
+        </AppShell.Section>
+      )}
 
         <AppShell.Section mt="md">
           <Stack gap="sm">
@@ -385,7 +431,19 @@ export function AppLayout() {
 
       <AppShell.Main>
         <PostsQuotaBanner />
-        <Outlet />
+        {justRegistered ? 
+        <Stack 
+        align="center"
+        justify="center"
+        mih="80vh"
+        gap="lg"
+        >
+        <Text fz={36} fw={700}>Добро пожаловать!</Text>
+        <Button size="lg" onClick={newProject.open} leftSection= {<IconPlus size={20}/>}>
+          Создать проект
+        </Button>
+      </Stack>
+       : <Outlet />}
       </AppShell.Main>
 
       <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} />
