@@ -17,9 +17,20 @@ export function useCreatePost() {
   const queryClient = useQueryClient()
 
   return (draft: PostDraft): Post => {
+    const posts = queryClient.getQueryData<Post[]>(scheduledPostKeys.all) ?? []
+
+    /** Проверяем, есть ли уже запланированные посты. */
+    const hasScheduledPost = posts.some((post) => post.status === 'scheduled')
+
     const post: Post = { id: `sp-${Date.now()}`, status: 'scheduled', ...draft }
     queryClient.setQueryData<Post[]>(scheduledPostKeys.all, (old = []) => [...old, post])
     syncScheduledPostsUsage(queryClient)
+    if (!hasScheduledPost && post.status === 'scheduled') {
+      // TODO: заменить console.log на отправку события в аналитику
+      console.log('onboarding_post_scheduled', {
+        postId: post.id,
+      })
+    }
     notifications.show({ color: 'green', message: 'Пост добавлен в отложку (демо)' })
     return post
   }

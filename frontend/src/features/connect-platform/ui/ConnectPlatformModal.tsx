@@ -212,6 +212,11 @@ function PlatformPanel({ network, connected, onBack, onClose }: PlatformPanelPro
     try {
       await mockConfirmTarget()
       updateConnection(queryClient, network.id, target.label)
+      
+      // TODO: заменить console.log на отправку события в аналитику
+      console.log('onboarding_platform_connected', {
+        networkId: network.id,
+      })
       notifications.show({
         color: 'green',
         message: `Площадка «${network.name}» подключена: ${target.label}`,

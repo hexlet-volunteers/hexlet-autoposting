@@ -12,6 +12,7 @@ import {
   Text,
   Title,
   UnstyledButton,
+  Button
 } from '@mantine/core'
 import dayjs from 'dayjs'
 import { NETWORKS } from '@/shared/config'
@@ -136,6 +137,7 @@ export function QueuePage() {
     statsHandlers.open()
   }
 
+  //TODO: максимально убрать инлайновые стили - негативно влияют на производительность
   return (
     <Stack gap="lg">
       <Title order={1} fw={800} style={{ letterSpacing: '-0.4px' }}>
@@ -171,6 +173,7 @@ export function QueuePage() {
               <EmptyState
                 title="Пока нет запланированных публикаций"
                 description="Запланируйте пост в контент-плане."
+                action={<Button onClick={() => openComposer()}>Создать первый пост</Button>}
               />
             ) : (
               <Box style={{ overflowX: 'auto' }}>

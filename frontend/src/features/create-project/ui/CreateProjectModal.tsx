@@ -9,9 +9,11 @@ import { useCreateProject } from '../api/useCreateProject'
 interface CreateProjectModalProps {
   opened: boolean
   onClose: () => void
+  /** Вызывается после успешного создания проекта. */
+  onCreated?: () => void
 }
 
-export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps) {
+export function CreateProjectModal({ opened, onClose, onCreated }: CreateProjectModalProps) {
   const createProject = useCreateProject()
   const [color, setColor] = useState(PROJECT_COLORS[0])
   const [colorModalOpened, colorModal] = useDisclosure(false)
@@ -22,7 +24,10 @@ export function CreateProjectModal({ opened, onClose }: CreateProjectModalProps)
   })
 
   const submit = form.onSubmit((values) => {
-    createProject(values.name, color)
+    const project = createProject(values.name, color)
+    console.log('onboarding_project_created', { projectId: project.id })
+    // TODO: заменить console.log на отправку события в аналитику
+    onCreated?.()
     form.reset()
     setColor(PROJECT_COLORS[0])
     onClose()
