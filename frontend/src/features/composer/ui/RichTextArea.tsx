@@ -31,7 +31,8 @@ const TOOLBAR_ACTIVE_BG = 'rgba(23,21,15,.08)'
 
 export function RichTextArea({ value, onChange, placeholder }: RichTextAreaProps) {
   const editor = useEditor({
-    extensions: [StarterKit, Link],
+    // В tiptap 3 StarterKit уже включает Link — отключаем встроенный, чтобы не было дубля.
+    extensions: [StarterKit.configure({ link: false }), Link],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   })
@@ -43,7 +44,7 @@ export function RichTextArea({ value, onChange, placeholder }: RichTextAreaProps
   useEffect(() => {
     if (!editor) return
     if (value !== editor.getHTML()) {
-      editor.commands.setContent(value, false)
+      editor.commands.setContent(value, { emitUpdate: false })
     }
     // editor стабилен между рендерами — реагируем только на смену value
     // eslint-disable-next-line react-hooks/exhaustive-deps
