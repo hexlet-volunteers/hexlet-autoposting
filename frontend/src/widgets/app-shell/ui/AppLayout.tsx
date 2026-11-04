@@ -14,7 +14,8 @@ import {
   Stack,
   Text,
   UnstyledButton,
-  Checkbox
+  ActionIcon,
+  Checkbox,
 } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import {
@@ -28,7 +29,8 @@ import {
   IconPlus,
   IconSettings,
   IconUsers,
-  IconX
+  IconSearch,
+  IconX,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -46,6 +48,8 @@ import { useState } from 'react'
 import { CreateProjectModal, useRestoreProject } from '@/features/create-project'
 import { useAppModals } from '@/features/app-modals'
 import { AppModals } from './AppModals'
+import { CommandPalette } from '@/features/command-palette'
+import { spotlight } from '@mantine/spotlight'
 import { useConnections } from '@/entities/platform-account'
 import { useContentPlan } from '@/entities/scheduled-post'
 
@@ -58,9 +62,12 @@ const NAV = [
   { label: 'Настройки', to: '/app/settings', icon: IconSettings },
 ]
 
-function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
-  const dispatch = useDispatch()
-  const queryClient = useQueryClient()
+interface ProjectSwitcherProps {
+  onNewProject: () => void
+  onSelectProject: (id: string) => void
+}
+
+function ProjectSwitcher({ onNewProject, onSelectProject }: ProjectSwitcherProps) {
   const restoreProject = useRestoreProject()
   const { data: projects = [] } = useProjects()
   const current = useCurrentProject()
@@ -68,14 +75,6 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
   const archived = projects.filter((p) => p.archived)
   // Порядковый номер текущего проекта среди активных — для подписи «проект N из M»
   const activeIndex = current ? active.findIndex((p) => p.id === current.id) : -1
-
-  const selectProject = (id: string) => {
-    dispatch(setCurrentProject(id))
-    // Разделы перечитывают мок-данные под новый проект
-    // (ключи с projectId появятся вместе с реальным API — см. #147)
-    queryClient.invalidateQueries({ queryKey: scheduledPostKeys.all })
-    queryClient.invalidateQueries({ queryKey: mediaKeys.all })
-  }
 
   const dot = (color: string, letter: string, muted = false, size = 26) => (
     <Box
@@ -136,7 +135,7 @@ function ProjectSwitcher({ onNewProject }: { onNewProject: () => void }) {
                 <IconCheck size={16} color="var(--mantine-color-brand-6)" stroke={2.5} />
               ) : undefined
             }
-            onClick={() => selectProject(p.id)}
+            onClick={() => onSelectProject(p.id)}
           >
             {p.name}
           </Menu.Item>
@@ -305,6 +304,7 @@ export function AppLayout() {
   const justRegistered = state?.justRegistered
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const queryClient = useQueryClient()
 
   const { data: projects = [] } = useProjects()
   const { data: posts = [] } = useContentPlan()
@@ -313,9 +313,10 @@ export function AppLayout() {
   /** Состояние шагов онбординга определяется по фактическим данным пользователя. */
   const hasProject = projects.length > 0
   const hasConnection = connections.some((c) => c.connected)
-  const hasPost = posts.some((p) => p.status === 'sent' || p.status === 'scheduled')
+  const hasPost = posts.some(
+    (p) => p.status === 'sent' || p.status === 'scheduled',
+  )
   const isOnboardingComplete = hasProject && hasConnection && hasPost
-
   const [newProjectOpened, newProject] = useDisclosure(false)
   /** Хранит состояние ручного закрытия чеклиста онбординга. */
   const [onboardingClosed, setOnboardingClosed] = useState(false)
@@ -323,16 +324,28 @@ export function AppLayout() {
   const [navOpened, navbar] = useDisclosure(false)
   // Мобильный брейкпоинт sm (768px): на десктопе header схлопнут и не занимает место
   const isMobile = useMediaQuery('(max-width: 48em)', false, { getInitialValueInEffect: false })
-
+  const { openComposer } = useAppModals()
   const handleLogout = () => {
     // Мок-сессия: сбрасываем признак входа, чтобы /app/* снова требовал входа.
     dispatch(logout())
     navigate('/')
   }
 
+    const handleSelectProject = (id: string) => {
+    dispatch(setCurrentProject(id))
+
+    void queryClient.invalidateQueries({
+      queryKey: scheduledPostKeys.all,
+    })
+
+    void queryClient.invalidateQueries({
+      queryKey: mediaKeys.all,
+    })
+  }
+
   /**
- * Убирает состояние первой регистрации после создания проекта.
- */
+   * Убирает состояние первой регистрации после создания проекта.
+   */
   const handleProjectCreated = () => {
     navigate(pathname, {
       replace: true,
@@ -340,23 +353,26 @@ export function AppLayout() {
     })
   }
 
-  let content 
+  let content
 
-  if(justRegistered) {
-    content = ( <Stack 
-      align="center"
-      justify="center"
-      mih="80vh"
-      gap="lg"
-      >
-      <Text fz={36} fw={700}>Добро пожаловать!</Text>
-      <Button size="lg" onClick={newProject.open} leftSection= {<IconPlus size={20}/>}>
-        Создать проект
-      </Button>
-    </Stack>)
-  }
-  else {
-    content = <Outlet/>
+  if (justRegistered && !hasProject) {
+    content = (
+      <Stack justify="center" mih="80vh" gap="lg">
+        <Text fz={36} fw={700}>
+          Добро пожаловать!
+        </Text>
+
+        <Button
+          size="lg"
+          onClick={newProject.open}
+          leftSection={<IconPlus size={20} />}
+        >
+          Создать проект
+        </Button>
+      </Stack>
+    )
+  } else {
+    content = <Outlet />
   }
 
   return (
@@ -370,7 +386,20 @@ export function AppLayout() {
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <Logo />
           </Link>
-          <Burger opened={navOpened} onClick={navbar.toggle} hiddenFrom="sm" aria-label="Меню" />
+
+          <Group gap="xs" wrap="nowrap">
+            <ActionIcon
+              variant="subtle"
+              color="dark"
+              size="lg"
+              aria-label="Открыть поиск"
+              onClick={spotlight.open}
+            >
+              <IconSearch size={20} />
+            </ActionIcon>
+
+            <Burger opened={navOpened} onClick={navbar.toggle} hiddenFrom="sm" aria-label="Меню" />
+          </Group>
         </Group>
       </AppShell.Header>
 
@@ -381,10 +410,31 @@ export function AppLayout() {
               <Logo />
             </Link>
           </Box>
+          <UnstyledButton
+            onClick={spotlight.open}
+            style={{
+              width: '100%',
+              padding: '10px',
+              border: '1px solid #ddd',
+              borderRadius: 8,
+            }}
+          >
+            <Group gap={8} wrap="nowrap">
+              <IconSearch size={16} />
+
+              <Text fz={13} style={{ flex: 1 }}>
+                Поиск
+              </Text>
+
+              <Text fz={11} c="dimmed">
+                ⌘K / Ctrl+K
+              </Text>
+            </Group>
+          </UnstyledButton>
         </AppShell.Section>
 
         <AppShell.Section mt="sm">
-          <ProjectSwitcher onNewProject={newProject.open} />
+          <ProjectSwitcher onNewProject={newProject.open} onSelectProject={handleSelectProject} />
         </AppShell.Section>
 
         <AppShell.Section grow component={ScrollArea} mt="md">
@@ -405,35 +455,35 @@ export function AppLayout() {
           </Stack>
         </AppShell.Section>
         {!isOnboardingComplete && !onboardingClosed && (
-        <AppShell.Section>
-          <Group justify="space-between">
-            <Text fw={700} fz={16}>
-              Первые шаги
-            </Text>
-          
-            <UnstyledButton onClick={() => setOnboardingClosed(true)} aria-label='Закрыть баннер с первыми шагами'>
-              <IconX size={20} />
-            </UnstyledButton>
-          </Group>
-          <Stack gap="xs" mt="sm">
-          <Checkbox
-            readOnly
-            checked={hasProject}
-            label="Создать проект"
-          />
-          <Checkbox
-            readOnly
-            checked={hasConnection}
-            label="Подключить платформу"
-          />
-          <Checkbox
-            readOnly
-            checked={hasPost}
-            label="Запланировать первый пост"
-          />
-          </Stack>
-        </AppShell.Section>
-      )}
+          <AppShell.Section>
+            <Group justify="space-between">
+              <Text fw={700} fz={16}>
+                Первые шаги
+              </Text>
+
+              <UnstyledButton onClick={() => setOnboardingClosed(true)} aria-label='Закрыть баннер с первыми шагами'>
+                <IconX size={20} />
+              </UnstyledButton>
+            </Group>
+            <Stack gap="xs" mt="sm">
+              <Checkbox
+                readOnly
+                checked={hasProject}
+                label="Создать проект"
+              />
+              <Checkbox
+                readOnly
+                checked={hasConnection}
+                label="Подключить платформу"
+              />
+              <Checkbox
+                readOnly
+                checked={hasPost}
+                label="Запланировать первый пост"
+              />
+            </Stack>
+          </AppShell.Section>
+        )}
 
         <AppShell.Section mt="md">
           <Stack gap="sm">
@@ -468,6 +518,11 @@ export function AppLayout() {
 
       <CreateProjectModal opened={newProjectOpened} onClose={newProject.close} onCreated={handleProjectCreated} />
       <AppModals />
+      <CommandPalette
+        onCreatePost={openComposer}
+        onSelectProject={handleSelectProject}
+        onOpenPost={openComposer}
+      />
     </AppShell>
   )
 }
