@@ -59,4 +59,4 @@ npm run dev  # http://localhost:5173
 
 Репозиторий создан и поддерживается командой [Hexlet](https://hexlet.io) и сообществом.
 
-.
+..
