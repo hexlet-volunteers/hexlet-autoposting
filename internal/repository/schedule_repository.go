@@ -4,24 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	// "fmt"
 	"hexlet/internal/domain"
 	"time"
 
-	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
 )
 
-var publications []domain.ScheduledPublication
-
-// GetReadyForPublication запускает фоновый планировщик для ежеминутного поиска публикаций, готовых к отправке.
-// Функция настраивает задачу cron, логирует найденные посты, отправляет их в Kafka и возвращает срез публикаций или ошибку инициализации.
-func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPublication, error) {
-	c := cron.New()
-	_, err := c.AddFunc("@every 1m", func() {
-		taskCtx := context.Background()
-		query := `
+// GetReadyForPublication возвращает срез публикаций со статусом 'scheduled', время отправки которых уже наступило.
+func (r *Repository) GetReadyForPublication(ctx context.Context, batchSize int) ([]domain.ScheduledPublication, error) {
+	query := `
         SELECT 
             pd.id as id_destination,
             pd.post_id as id_post,
@@ -37,43 +28,38 @@ func (r *Repository) GetReadyForPublication(batchSize int) ([]domain.ScheduledPu
         AND pd.scheduled_for <= NOW()
         ORDER BY pd.scheduled_for ASC
         LIMIT $1`
-		rows, err := r.SlavePool.Query(taskCtx, query, batchSize)
-		if err != nil {
-			r.logger.Error("CRON: failed to query scheduled publications: ", zap.Error(err))
-			return
-		}
-		defer rows.Close()
-		publications = []domain.ScheduledPublication{}
-		for rows.Next() {
-			var pub domain.ScheduledPublication
-			err := rows.Scan(
-				&pub.IDDestination,
-				&pub.IDPost,
-				&pub.IDUser,
-				&pub.Title,
-				&pub.Content,
-				&pub.IDPlatform,
-				&pub.PlatformName,
-			)
-			if err != nil {
-				r.logger.Error("CRON: failed to scan publication: ", zap.Error(err))
-				continue
-			}
-			publications = append(publications, pub)
-		}
-		for _, pub := range publications {
-			r.logger.Info("Отправляем в Kafka пост для публикации ",
-				zap.Int("post_id", pub.IDPost),
-				zap.String("platformName", pub.PlatformName),
-			)
-		}
-		r.logger.Info("Найдено постов для публикации", zap.Int("quantity", len(publications)), zap.Time("time", time.Now()))
-	})
+
+	rows, err := r.SlavePool.Query(ctx, query, batchSize)
 	if err != nil {
-		return nil, fmt.Errorf("failed to add cron job: %w", err)
+		r.logger.Error("GetReadyForPublication failed in query", zap.Error(err))
+		return nil, fmt.Errorf("failed to query scheduled publications: %w", err)
 	}
-	c.Start()
-	r.logger.Info("Автопостинг запущен, проверка каждую минуту")
+	defer rows.Close()
+
+	var publications []domain.ScheduledPublication
+	for rows.Next() {
+		var pub domain.ScheduledPublication
+		err := rows.Scan(
+			&pub.IDDestination,
+			&pub.IDPost,
+			&pub.IDUser,
+			&pub.Title,
+			&pub.Content,
+			&pub.IDPlatform,
+			&pub.PlatformName,
+		)
+		if err != nil {
+			r.logger.Error("GetReadyForPublication failed in scanning", zap.Error(err))
+			return nil, fmt.Errorf("failed to scan scheduled publication: %w", err)
+		}
+		publications = append(publications, pub)
+	}
+
+	if err := rows.Err(); err != nil {
+		r.logger.Error("GetReadyForPublication rows iteration error", zap.Error(err))
+		return nil, fmt.Errorf("rows error in scheduled publications: %w", err)
+	}
+
 	return publications, nil
 }
 
