@@ -41,7 +41,7 @@ type (
 		UpdatedAt  time.Time `json:"updated_at"`
 	}
 	GetPlatformResponse struct {
-		Platforms []domain.Platform `json:"plstforms"`
+		Platforms []domain.Platform `json:"platforms"`
 	}
 )
 

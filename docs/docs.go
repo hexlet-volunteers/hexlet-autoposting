@@ -721,7 +721,7 @@ const docTemplate = `{
         "dto.GetPlatformResponse": {
             "type": "object",
             "properties": {
-                "plstforms": {
+                "platforms": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Platform"

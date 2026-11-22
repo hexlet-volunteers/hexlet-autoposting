@@ -107,7 +107,7 @@ definitions:
     type: object
   dto.GetPlatformResponse:
     properties:
-      plstforms:
+      platforms:
         items:
           $ref: '#/definitions/domain.Platform'
         type: array
