@@ -13,11 +13,13 @@ import (
 	"go.uber.org/zap"
 )
 
+// Producer представляет продюсер для отправки сообщений о публикациях в топик Kafka.
 type Producer struct {
 	writer *kafka.Writer
 	topic  string
 }
 
+// NewProducer создаёт и инициализирует новый экземпляр Producer с заданной конфигурацией.
 func NewProducer(cfg *Config) *Producer {
 	writer := &kafka.Writer{
 		Addr:         kafka.TCP(cfg.Brokers...),
@@ -33,6 +35,7 @@ func NewProducer(cfg *Config) *Producer {
 	}
 }
 
+// SendPublicationEvent сериализует событие публикации в JSON и отправляет его в Kafka.
 func (p *Producer) SendPublicationEvent(ctx context.Context, event domain.PublicationEvent, logger *zap.Logger) error {
 	eventJSON, err := json.Marshal(event)
 	if err != nil {
@@ -55,6 +58,7 @@ func (p *Producer) SendPublicationEvent(ctx context.Context, event domain.Public
 	return nil
 }
 
+// Close закрывает соединение продюсера с Kafka и освобождает ресурсы.
 func (p *Producer) Close() error {
 	return p.writer.Close()
 }
