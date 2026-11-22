@@ -628,7 +628,7 @@ const docTemplate = `{
                 "bot_name",
                 "config",
                 "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "bot_name": {
@@ -640,7 +640,7 @@ const docTemplate = `{
                 "id_user": {
                     "type": "integer"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
@@ -776,7 +776,7 @@ const docTemplate = `{
                 "content",
                 "id_platform",
                 "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "config": {
@@ -791,7 +791,7 @@ const docTemplate = `{
                 "id_user": {
                     "type": "integer"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }

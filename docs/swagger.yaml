@@ -48,13 +48,13 @@ definitions:
         type: string
       id_user:
         type: integer
-      platfromname:
+      platform_name:
         type: string
     required:
     - bot_name
     - config
     - id_user
-    - platfromname
+    - platform_name
     type: object
   dto.CreatePlatformResponse:
     properties:
@@ -148,14 +148,14 @@ definitions:
         type: integer
       id_user:
         type: integer
-      platfromname:
+      platform_name:
         type: string
     required:
     - config
     - content
     - id_platform
     - id_user
-    - platfromname
+    - platform_name
     type: object
   dto.PutPlatformResponse:
     properties:

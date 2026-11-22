@@ -622,7 +622,7 @@
                 "bot_name",
                 "config",
                 "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "bot_name": {
@@ -634,7 +634,7 @@
                 "id_user": {
                     "type": "integer"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
@@ -770,7 +770,7 @@
                 "content",
                 "id_platform",
                 "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "config": {
@@ -785,7 +785,7 @@
                 "id_user": {
                     "type": "integer"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
