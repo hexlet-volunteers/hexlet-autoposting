@@ -29,42 +29,58 @@ type App struct {
 	Repo      *repository.Repository
 	Handler   *handler.App
 	Scheduler *service.SchedulerService
+	Consumer  *kafka.Consumer
 	Counter   int
 	Wg        sync.WaitGroup
 	Cancel    context.CancelFunc
 }
 
 func NewApp(ctx context.Context, masterdbpool *pgxpool.Pool, slavedbpool *pgxpool.Pool, logger *zap.Logger) *App {
+	appCtx, cancel := context.WithCancel(ctx)
 	repo := repository.NewRepository(masterdbpool, slavedbpool, logger)
 	handlerApp := &handler.App{
-		Ctx:  ctx,
+		Ctx:  appCtx,
 		Repo: repo,
 	}
-	var scheduler *service.SchedulerService
-	kafkaBrokers := getKafkaBrokers()
 
+	app := &App{
+		Ctx:     appCtx,
+		Repo:    repo,
+		Handler: handlerApp,
+		Cancel:  cancel,
+		Counter: 1,
+	}
+
+	kafkaBrokers := getKafkaBrokers()
 	if len(kafkaBrokers) > 0 {
 		kafkaConfig := kafka.NewConfig(
 			kafkaBrokers,
 			"publications.pending",
 		)
 		kafkaProducer := kafka.NewProducer(kafkaConfig)
-		scheduler = service.NewSchedulerService(
+		app.Scheduler = service.NewSchedulerService(
 			repo,
 			kafkaProducer,
 			1*time.Minute,
 			100,
 		)
+		app.Consumer = kafka.NewConsumer(
+			kafkaBrokers,
+			"publications.pending",
+			"hexlet-publications-worker",
+			app.StartBackgroundWorker,
+			logger,
+		)
 	}
-	_, cancel := context.WithCancel(context.Background())
 
-	return &App{
-		Ctx:       ctx,
-		Repo:      repo,
-		Handler:   handlerApp,
-		Scheduler: scheduler,
-		Cancel:    cancel,
-		Counter:   1,
+	return app
+}
+
+func (a *App) StartConsumer(logger *zap.Logger) {
+	if a.Consumer != nil {
+		go a.Consumer.Run(a.Ctx)
+	} else {
+		logger.Info("Kafka consumer not configured")
 	}
 }
 

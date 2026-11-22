@@ -7,10 +7,8 @@ import (
 	"hexlet/internal/config"
 	storage "hexlet/internal/storage"
 	"log"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
 
@@ -24,15 +22,16 @@ import (
 // @securityDefinitions.basic  BasicAuth
 
 func main() {
-
 	r := gin.Default()
 	ctx := context.Background()
+
 	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("failed to init logger: %v", err) // не знаю как правильно сделать если логер не смог запуститься
+		log.Fatalf("failed to init logger: %v", err)
 	}
 	defer func() { _ = logger.Sync() }()
 	logger.Info("Logger configured successfully")
+
 	mastercfg, err := config.LoadConfigMaster()
 	if err != nil {
 		logger.Fatal("Cannot load master config:", zap.Error(err))
@@ -43,6 +42,7 @@ func main() {
 	}
 	logger.Info("Succes master DB conection")
 	defer dbpoolmaster.Close()
+
 	slavecfg, err := config.LoadConfigSlave()
 	if err != nil {
 		logger.Fatal("Cannot load slave config:", zap.Error(err))
@@ -56,47 +56,20 @@ func main() {
 
 	a := app.NewApp(ctx, dbpoolmaster, dbpoolslave, logger)
 	a.StartScheduler(logger)
+	a.StartConsumer(logger)
+
 	err = auth.NewAuth()
 	if err != nil {
 		logger.Fatal("Failed to do auth system:", zap.Error(err))
 	}
-	go func() {
-		time.Sleep(30 * time.Second)
-		readerConfig := kafka.ReaderConfig{
-			Brokers:     []string{"kafka:9092"},
-			Topic:       "publications.pending",
-			GroupID:     "hexlet-publications-worker",
-			MinBytes:    10e3,
-			MaxBytes:    10e6,
-			MaxWait:     5 * time.Second,
-			StartOffset: kafka.FirstOffset,
-		}
-		reader := kafka.NewReader(readerConfig)
-		defer reader.Close()
-		logger.Info("Kafka consumer started. Waiting for messages...")
-		for {
-			msg, err := reader.ReadMessage(ctx)
-			if err != nil {
-				if err == context.Canceled {
-					logger.Info("Kafka consumer stopped")
-					return
-				}
-				logger.Error("Error reading from Kafka: %v", zap.Error(err))
-				time.Sleep(2 * time.Second)
-				continue
-			}
-			logger.Info("Received Kafka message", zap.String("payload", string(msg.Value)))
-			a.StartBackgroundWorker(ctx, msg, logger)
-		}
-	}()
-	logger.Info("Kafka scheduler started")
+
 	a.Routes(r)
 	go func() {
 		logger.Info("HTTP server starting on :8080")
-		err := r.Run(":8080")
-		if err != nil {
-			logger.Error("Error starting server: %v", zap.Error(err))
+		if err := r.Run(":8080"); err != nil {
+			logger.Error("Error starting server", zap.Error(err))
 		}
 	}()
+
 	a.WaitForShutdown(logger)
 }
