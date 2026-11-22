@@ -56,7 +56,7 @@ definitions:
     - id_user
     - platfromname
     type: object
-  dto.CreatePlatformResponce:
+  dto.CreatePlatformResponse:
     properties:
       created_at:
         type: string
@@ -83,7 +83,7 @@ definitions:
     - sheduled_for
     - title
     type: object
-  dto.CreatePostResponce:
+  dto.CreatePostResponse:
     properties:
       created_at:
         type: string
@@ -105,21 +105,21 @@ definitions:
     required:
     - id_user
     type: object
-  dto.GetPlatformResponce:
+  dto.GetPlatformResponse:
     properties:
       plstforms:
         items:
           $ref: '#/definitions/domain.Platform'
         type: array
     type: object
-  dto.GetPostResponce:
+  dto.GetPostResponse:
     properties:
       post:
         items:
           $ref: '#/definitions/domain.Post'
         type: array
     type: object
-  dto.GetPostsResponce:
+  dto.GetPostsResponse:
     properties:
       failed:
         items:
@@ -157,7 +157,7 @@ definitions:
     - id_user
     - platfromname
     type: object
-  dto.PutPlatformResponce:
+  dto.PutPlatformResponse:
     properties:
       id_platform:
         type: integer
@@ -179,7 +179,7 @@ definitions:
       title:
         type: string
     type: object
-  dto.PutPostResponce:
+  dto.PutPostResponse:
     properties:
       id_post:
         type: integer
@@ -213,7 +213,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPlatformResponce'
+            $ref: '#/definitions/dto.GetPlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -246,7 +246,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.CreatePlatformResponce'
+            $ref: '#/definitions/dto.CreatePlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -359,7 +359,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.PutPlatformResponce'
+            $ref: '#/definitions/dto.PutPlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -393,7 +393,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPostsResponce'
+            $ref: '#/definitions/dto.GetPostsResponse'
         "400":
           description: Bad Request
           schema:
@@ -426,7 +426,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.CreatePostResponce'
+            $ref: '#/definitions/dto.CreatePostResponse'
         "400":
           description: Bad Request
           schema:
@@ -501,7 +501,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPostResponce'
+            $ref: '#/definitions/dto.GetPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -539,7 +539,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.PutPostResponce'
+            $ref: '#/definitions/dto.PutPostResponse'
         "400":
           description: Bad Request
           schema:

@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPlatformResponce"
+                            "$ref": "#/definitions/dto.GetPlatformResponse"
                         }
                     },
                     "400": {
@@ -93,7 +93,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePlatformResponce"
+                            "$ref": "#/definitions/dto.CreatePlatformResponse"
                         }
                     },
                     "400": {
@@ -209,7 +209,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPlatformResponce"
+                            "$ref": "#/definitions/dto.PutPlatformResponse"
                         }
                     },
                     "400": {
@@ -315,7 +315,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostsResponce"
+                            "$ref": "#/definitions/dto.GetPostsResponse"
                         }
                     },
                     "400": {
@@ -365,7 +365,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePostResponce"
+                            "$ref": "#/definitions/dto.CreatePostResponse"
                         }
                     },
                     "400": {
@@ -424,7 +424,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostResponce"
+                            "$ref": "#/definitions/dto.GetPostResponse"
                         }
                     },
                     "400": {
@@ -481,7 +481,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPostResponce"
+                            "$ref": "#/definitions/dto.PutPostResponse"
                         }
                     },
                     "400": {
@@ -645,7 +645,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreatePlatformResponce": {
+        "dto.CreatePlatformResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -684,7 +684,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreatePostResponce": {
+        "dto.CreatePostResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -718,7 +718,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GetPlatformResponce": {
+        "dto.GetPlatformResponse": {
             "type": "object",
             "properties": {
                 "plstforms": {
@@ -729,7 +729,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GetPostResponce": {
+        "dto.GetPostResponse": {
             "type": "object",
             "properties": {
                 "post": {
@@ -740,7 +740,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GetPostsResponce": {
+        "dto.GetPostsResponse": {
             "type": "object",
             "properties": {
                 "failed": {
@@ -796,7 +796,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.PutPlatformResponce": {
+        "dto.PutPlatformResponse": {
             "type": "object",
             "properties": {
                 "id_platform": {
@@ -830,7 +830,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.PutPostResponce": {
+        "dto.PutPostResponse": {
             "type": "object",
             "properties": {
                 "id_post": {
