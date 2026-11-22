@@ -606,7 +606,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -627,7 +627,6 @@ const docTemplate = `{
             "required": [
                 "bot_name",
                 "config",
-                "id_user",
                 "platform_name"
             ],
             "properties": {
@@ -638,7 +637,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -655,7 +654,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -663,7 +662,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "id_user",
                 "scheduled_for",
                 "title"
             ],
@@ -672,7 +670,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "scheduled_for": {
                     "type": "string"
@@ -694,7 +692,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -709,12 +707,9 @@ const docTemplate = `{
         },
         "dto.GetByUserIDRequest": {
             "type": "object",
-            "required": [
-                "id_user"
-            ],
             "properties": {
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -772,24 +767,23 @@ const docTemplate = `{
         "dto.PutPlatformRequest": {
             "type": "object",
             "required": [
+                "bot_name",
                 "config",
-                "content",
                 "id_platform",
-                "id_user",
                 "platform_name"
             ],
             "properties": {
-                "config": {
+                "bot_name": {
                     "type": "string"
                 },
-                "content": {
+                "config": {
                     "type": "string"
                 },
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -803,7 +797,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -817,10 +811,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_post": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "scheduled_for": {
                     "type": "string"
@@ -837,7 +831,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -858,7 +852,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Autoposing API",
+	Title:            "Autoposting API",
 	Description:      "This is a project of autoposting in Telegramm and VK.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

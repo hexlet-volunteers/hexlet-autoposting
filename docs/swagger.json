@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is a project of autoposting in Telegramm and VK.",
-        "title": "Autoposing API",
+        "title": "Autoposting API",
         "contact": {},
         "version": "1.0"
     },
@@ -600,7 +600,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -621,7 +621,6 @@
             "required": [
                 "bot_name",
                 "config",
-                "id_user",
                 "platform_name"
             ],
             "properties": {
@@ -632,7 +631,7 @@
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -649,7 +648,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -657,7 +656,6 @@
             "type": "object",
             "required": [
                 "content",
-                "id_user",
                 "scheduled_for",
                 "title"
             ],
@@ -666,7 +664,7 @@
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "scheduled_for": {
                     "type": "string"
@@ -688,7 +686,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -703,12 +701,9 @@
         },
         "dto.GetByUserIDRequest": {
             "type": "object",
-            "required": [
-                "id_user"
-            ],
             "properties": {
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -766,24 +761,23 @@
         "dto.PutPlatformRequest": {
             "type": "object",
             "required": [
+                "bot_name",
                 "config",
-                "content",
                 "id_platform",
-                "id_user",
                 "platform_name"
             ],
             "properties": {
-                "config": {
+                "bot_name": {
                     "type": "string"
                 },
-                "content": {
+                "config": {
                     "type": "string"
                 },
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
@@ -797,7 +791,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -811,10 +805,10 @@
                     "type": "string"
                 },
                 "id_post": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "scheduled_for": {
                     "type": "string"
@@ -831,7 +825,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
