@@ -33,7 +33,7 @@ definitions:
         type: integer
       platform_name:
         type: string
-      sheduled_for:
+      scheduled_for:
         type: string
       status:
         type: string
@@ -71,7 +71,7 @@ definitions:
         type: string
       id_user:
         type: integer
-      sheduled_for:
+      scheduled_for:
         type: string
       title:
         maxLength: 255
@@ -80,7 +80,7 @@ definitions:
     required:
     - content
     - id_user
-    - sheduled_for
+    - scheduled_for
     - title
     type: object
   dto.CreatePostResponse:
@@ -174,7 +174,7 @@ definitions:
         type: string
       id_user:
         type: integer
-      sheduled_for:
+      scheduled_for:
         type: string
       title:
         type: string

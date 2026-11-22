@@ -182,10 +182,10 @@ func TestCreatePost(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "First Post",
-		Content:     "Content 1",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "First Post",
+		Content:      "Content 1",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, createdAt, err := testRepo.CreatePost(ctx, post)
@@ -234,10 +234,10 @@ func TestCreatePostWithMultiplePlatforms(t *testing.T) {
 	_, _, _ = testRepo.CreatePlatform(ctx, platformReq2)
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Multi Platform Post",
-		Content:     "Content for multiple platforms",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Multi Platform Post",
+		Content:      "Content for multiple platforms",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, _, err := testRepo.CreatePost(ctx, post)
@@ -262,10 +262,10 @@ func TestCreatePostNoPlatforms(t *testing.T) {
 	cleanupTables()
 
 	post := dto.CreatePostRequest{
-		IDUser:      "999",
-		Title:       "Post Without Platforms",
-		Content:     Content,
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "999",
+		Title:        "Post Without Platforms",
+		Content:      Content,
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	id, _, err := testRepo.CreatePost(ctx, post)
@@ -289,10 +289,10 @@ func TestCreatePostDatabaseError(t *testing.T) {
 	defer func() { _ = createTables() }()
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Test Post",
-		Content:     Content,
-		SheduledFor: time.Now(),
+		IDUser:       "1",
+		Title:        "Test Post",
+		Content:      Content,
+		ScheduledFor: time.Now(),
 	}
 	_, _, err := testRepo.CreatePost(ctx, post)
 
@@ -401,10 +401,10 @@ func TestGetPostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Test Post By ID",
-		Content:     "Test Content By ID",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Test Post By ID",
+		Content:      "Test Content By ID",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -458,10 +458,10 @@ func TestGetPostByIDWrongUser(t *testing.T) {
 	_, _, _ = testRepo.CreatePlatform(ctx, platformReq)
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "User 1 Post",
-		Content:     Content,
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "User 1 Post",
+		Content:      Content,
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 	postID, _, _ := testRepo.CreatePost(ctx, post)
 
@@ -491,10 +491,10 @@ func TestUpdatePostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Original Title",
-		Content:     "Original Content",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Original Title",
+		Content:      "Original Content",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -503,11 +503,11 @@ func TestUpdatePostByID(t *testing.T) {
 	}
 
 	updateReq := dto.PutPostRequest{
-		IDPost:      postID,
-		IDUser:      "1",
-		Title:       "Updated Title",
-		Content:     "Updated Content",
-		SheduledFor: time.Now().Add(48 * time.Hour),
+		IDPost:       postID,
+		IDUser:       "1",
+		Title:        "Updated Title",
+		Content:      "Updated Content",
+		ScheduledFor: time.Now().Add(48 * time.Hour),
 	}
 
 	result, err := testRepo.UpdatePostByID(ctx, updateReq)
@@ -550,19 +550,19 @@ func TestUpdatePostByIDWrongUser(t *testing.T) {
 	_, _, _ = testRepo.CreatePlatform(ctx, platformReq)
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Original Title",
-		Content:     "Original Content",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Original Title",
+		Content:      "Original Content",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 	postID, _, _ := testRepo.CreatePost(ctx, post)
 
 	updateReq := dto.PutPostRequest{
-		IDPost:      postID,
-		IDUser:      "2",
-		Title:       "Hacked Title",
-		Content:     "Hacked Content",
-		SheduledFor: time.Now().Add(48 * time.Hour),
+		IDPost:       postID,
+		IDUser:       "2",
+		Title:        "Hacked Title",
+		Content:      "Hacked Content",
+		ScheduledFor: time.Now().Add(48 * time.Hour),
 	}
 
 	result, err := testRepo.UpdatePostByID(ctx, updateReq)
@@ -588,11 +588,11 @@ func TestUpdatePostByIDDatabaseError(t *testing.T) {
 	defer func() { _ = createTables() }()
 
 	updateReq := dto.PutPostRequest{
-		IDPost:      1,
-		IDUser:      "1",
-		Title:       "Title",
-		Content:     Content,
-		SheduledFor: time.Now(),
+		IDPost:       1,
+		IDUser:       "1",
+		Title:        "Title",
+		Content:      Content,
+		ScheduledFor: time.Now(),
 	}
 	_, err := testRepo.UpdatePostByID(ctx, updateReq)
 	if err == nil {
@@ -617,10 +617,10 @@ func TestDeletePostByID(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Post To Delete",
-		Content:     "Content To Delete",
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Post To Delete",
+		Content:      "Content To Delete",
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)
@@ -1051,10 +1051,10 @@ func TestDeletePlatformByIDCascade(t *testing.T) {
 	}
 
 	post := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       "Post with platform",
-		Content:     Content,
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        "Post with platform",
+		Content:      Content,
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	postID, _, err := testRepo.CreatePost(ctx, post)

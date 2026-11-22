@@ -605,7 +605,7 @@
                 "platform_name": {
                     "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "status": {
@@ -658,7 +658,7 @@
             "required": [
                 "content",
                 "id_user",
-                "sheduled_for",
+                "scheduled_for",
                 "title"
             ],
             "properties": {
@@ -668,7 +668,7 @@
                 "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -816,7 +816,7 @@
                 "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {

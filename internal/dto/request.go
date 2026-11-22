@@ -5,11 +5,11 @@ import "time"
 // posts
 type (
 	CreatePostRequest struct {
-		IDUser      string    `json:"id_user"`
-		Title       string    `json:"title" validate:"required,min=3,max=255"`
-		Content     string    `json:"content" validate:"required"`
-		SheduledFor time.Time `json:"sheduled_for" validate:"required"`
-		Status      string    `json:"-"`
+		IDUser       string    `json:"id_user"`
+		Title        string    `json:"title" validate:"required,min=3,max=255"`
+		Content      string    `json:"content" validate:"required"`
+		ScheduledFor time.Time `json:"scheduled_for" validate:"required"`
+		Status       string    `json:"-"`
 	}
 
 	DeletePostRequest struct {
@@ -18,11 +18,11 @@ type (
 	}
 
 	PutPostRequest struct {
-		IDUser      string    `json:"id_user"`
-		IDPost      int       `json:"id_post"`
-		Title       string    `json:"title"`
-		Content     string    `json:"content"`
-		SheduledFor time.Time `json:"sheduled_for"`
+		IDUser       string    `json:"id_user"`
+		IDPost       int       `json:"id_post"`
+		Title        string    `json:"title"`
+		Content      string    `json:"content"`
+		ScheduledFor time.Time `json:"scheduled_for"`
 	}
 )
 

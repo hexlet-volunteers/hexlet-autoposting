@@ -611,7 +611,7 @@ const docTemplate = `{
                 "platform_name": {
                     "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "status": {
@@ -664,7 +664,7 @@ const docTemplate = `{
             "required": [
                 "content",
                 "id_user",
-                "sheduled_for",
+                "scheduled_for",
                 "title"
             ],
             "properties": {
@@ -674,7 +674,7 @@ const docTemplate = `{
                 "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -822,7 +822,7 @@ const docTemplate = `{
                 "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
