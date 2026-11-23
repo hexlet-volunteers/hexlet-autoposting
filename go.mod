@@ -11,7 +11,6 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/markbates/goth v1.82.0
 	github.com/ory/dockertest/v3 v3.12.0
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1

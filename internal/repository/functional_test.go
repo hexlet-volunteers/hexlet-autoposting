@@ -1097,3 +1097,82 @@ func TestDeletePlatformByIDDatabaseError(t *testing.T) {
 		t.Error("Expected error when database fails")
 	}
 }
+
+func TestGetReadyForPublication(t *testing.T) {
+	cleanupTables()
+
+	platformID, _, err := testRepo.CreatePlatform(ctx, dto.CreatePlatformRequest{
+		IDUser:       "user-1",
+		PlatformName: Telegram,
+		BotName:      TestBot,
+		Config:       TestToken,
+	})
+	if err != nil {
+		t.Fatalf("failed to create platform: %v", err)
+	}
+
+	var postIDs []int
+	for i := 1; i <= 3; i++ {
+		var postID int
+		err := testPool.QueryRow(ctx,
+			`INSERT INTO posts (user_id, title, content) VALUES ($1, $2, $3) RETURNING id`,
+			"user-1", fmt.Sprintf("Title %d", i), fmt.Sprintf("Content %d", i),
+		).Scan(&postID)
+		if err != nil {
+			t.Fatalf("failed to insert post %d: %v", i, err)
+		}
+		postIDs = append(postIDs, postID)
+	}
+
+	now := time.Now()
+
+	_, err = testPool.Exec(ctx, `
+		INSERT INTO post_destinations (user_id, post_id, platform_id, scheduled_for, status)
+		VALUES 
+			('user-1', $1, $4, $5, 'scheduled'),
+			('user-1', $2, $4, $6, 'scheduled'),
+			('user-1', $3, $4, $7, 'scheduled'),
+			('user-1', $1, $4, $6, 'published')
+	`,
+		postIDs[0],
+		postIDs[1],
+		postIDs[2],
+		platformID,
+		now.Add(-5*time.Minute),
+		now.Add(-15*time.Minute),
+		now.Add(1*time.Hour),
+	)
+	if err != nil {
+		t.Fatalf("failed to insert post_destinations: %v", err)
+	}
+
+	got, err := testRepo.GetReadyForPublication(ctx, 10)
+	if err != nil {
+		t.Fatalf("GetReadyForPublication returned unexpected error: %v", err)
+	}
+
+	if len(got) != 2 {
+		t.Fatalf("expected 2 ready publications, got %d", len(got))
+	}
+
+	if got[0].Title != "Title 2" {
+		t.Errorf("expected first publication to be 'Title 2', got '%s'", got[0].Title)
+	}
+	if got[0].PlatformName != Telegram {
+		t.Errorf("expected platform '%s', got '%s'", Telegram, got[0].PlatformName)
+	}
+	if got[1].Title != "Title 1" {
+		t.Errorf("expected second publication to be 'Title 1', got '%s'", got[1].Title)
+	}
+
+	limited, err := testRepo.GetReadyForPublication(ctx, 1)
+	if err != nil {
+		t.Fatalf("GetReadyForPublication with limit 1 failed: %v", err)
+	}
+	if len(limited) != 1 {
+		t.Fatalf("expected 1 publication with batchSize=1, got %d", len(limited))
+	}
+	if limited[0].Title != "Title 2" {
+		t.Errorf("expected earliest publication 'Title 2', got '%s'", limited[0].Title)
+	}
+}
