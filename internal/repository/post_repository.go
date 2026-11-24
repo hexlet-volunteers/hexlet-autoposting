@@ -76,7 +76,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID int, userID string)
 	for rows.Next() {
 		p1 := domain.Post{}
 		p1.IDPost = postID
-		err := rows.Scan(&p1.IDUser, &p1.IDPlatform, &p1.SheduledFor, &p1.Status, &p1.ErrorMessage)
+		err := rows.Scan(&p1.IDUser, &p1.IDPlatform, &p1.ScheduledFor, &p1.Status, &p1.ErrorMessage)
 		if err != nil {
 			r.logger.Error("GetPostByID failed in scaning",
 				zap.Error(err),
@@ -105,7 +105,7 @@ func (r *Repository) GetPostByID(ctx context.Context, postID int, userID string)
 			)
 			return res, err
 		}
-		p1.SheduledFor = p1.SheduledFor.Add(3 * time.Hour)
+		p1.ScheduledFor = p1.ScheduledFor.Add(3 * time.Hour)
 		p1.CreatedAt = p1.CreatedAt.Add(3 * time.Hour)
 		res.Posts = append(res.Posts, p1)
 	}
@@ -150,7 +150,7 @@ func (r *Repository) GetPost(ctx context.Context, userID string) (dto.GetPostsRe
 	for rows.Next() {
 		p1 := domain.Post{}
 		p1.IDUser = userID
-		err := rows.Scan(&p1.IDPost, &p1.IDPlatform, &p1.SheduledFor, &p1.Status, &p1.ErrorMessage)
+		err := rows.Scan(&p1.IDPost, &p1.IDPlatform, &p1.ScheduledFor, &p1.Status, &p1.ErrorMessage)
 		if err != nil {
 			r.logger.Error("GetPost failed in scaning",
 				zap.Error(err),
@@ -179,7 +179,7 @@ func (r *Repository) GetPost(ctx context.Context, userID string) (dto.GetPostsRe
 			)
 			return dto.GetPostsResponse{}, err
 		}
-		p1.SheduledFor = p1.SheduledFor.Add(3 * time.Hour)
+		p1.ScheduledFor = p1.ScheduledFor.Add(3 * time.Hour)
 		p1.CreatedAt = p1.CreatedAt.Add(3 * time.Hour)
 		switch p1.Status {
 		case "processing":
@@ -214,7 +214,7 @@ func (r *Repository) UpdatePostByID(ctx context.Context, req dto.PutPostRequest)
 		UPDATE post_destinations
 		SET scheduled_for = $1
 		WHERE id = $2 AND user_id = $3`,
-		req.SheduledFor, req.IDPost, req.IDUser,
+		req.ScheduledFor, req.IDPost, req.IDUser,
 	)
 	if err != nil {
 		r.logger.Error("UpdatePostByID failed in updating in post_destinations",
@@ -260,7 +260,7 @@ func (r *Repository) CreatePost(ctx context.Context, post dto.CreatePostRequest)
 		}
 		_, err1 := r.MasterPool.Exec(ctx,
 			`INSERT INTO post_destinations (user_id, post_id, platform_id,status, scheduled_for) VALUES ($1, $2, $3, $4,$5)`,
-			post.IDUser, ID, platformID, "scheduled", post.SheduledFor)
+			post.IDUser, ID, platformID, "scheduled", post.ScheduledFor)
 		if err1 != nil {
 			r.logger.Error("CreatePost failed in inserting to post_destinations",
 				zap.Error(err1),

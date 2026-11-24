@@ -128,10 +128,10 @@ func TestCreatePost_Success(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 	baseTime := time.Now().Add(24 * time.Hour).UTC().Truncate(time.Second)
 	reqBody := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       TestPost,
-		Content:     TestContent,
-		SheduledFor: baseTime,
+		IDUser:       "1",
+		Title:        TestPost,
+		Content:      TestContent,
+		ScheduledFor: baseTime,
 	}
 	expectedCreatedAt := time.Now().Add(3 * time.Hour).UTC().Truncate(time.Second)
 	jsonBody, _ := json.Marshal(reqBody)
@@ -141,7 +141,7 @@ func TestCreatePost_Success(t *testing.T) {
 		return req.IDUser == "1" &&
 			req.Title == TestPost &&
 			req.Status == Scheduled &&
-			req.SheduledFor.Unix() == expectedTimeInRepo
+			req.ScheduledFor.Unix() == expectedTimeInRepo
 	})).Return(1, expectedCreatedAt, nil)
 	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/posts", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
@@ -198,10 +198,10 @@ func TestCreatePost_RepositoryError(t *testing.T) {
 	router, mockRepo, _ := setupTest()
 
 	reqBody := dto.CreatePostRequest{
-		IDUser:      "1",
-		Title:       TestPost,
-		Content:     TestContent,
-		SheduledFor: time.Now().Add(24 * time.Hour),
+		IDUser:       "1",
+		Title:        TestPost,
+		Content:      TestContent,
+		ScheduledFor: time.Now().Add(24 * time.Hour),
 	}
 
 	mockRepo.On("CreatePost", mock.Anything, mock.AnythingOfType("dto.CreatePostRequest")).
@@ -235,24 +235,24 @@ func TestGetPosts_Success(t *testing.T) {
 	expectedResponse := dto.GetPostsResponse{
 		Scheduled: []domain.Post{
 			{
-				IDPost:      1,
-				IDUser:      "1",
-				Title:       "Scheduled Post",
-				Content:     "Content 1",
-				Status:      Scheduled,
-				CreatedAt:   time.Now().Round(0),
-				SheduledFor: time.Now().Add(24 * time.Hour).Round(0),
+				IDPost:       1,
+				IDUser:       "1",
+				Title:        "Scheduled Post",
+				Content:      "Content 1",
+				Status:       Scheduled,
+				CreatedAt:    time.Now().Round(0),
+				ScheduledFor: time.Now().Add(24 * time.Hour).Round(0),
 			},
 		},
 		Processing: []domain.Post{
 			{
-				IDPost:      2,
-				IDUser:      "1",
-				Title:       "Processing Post",
-				Content:     "Content 2",
-				Status:      "processing",
-				CreatedAt:   time.Now().Round(0),
-				SheduledFor: time.Now().Add(1 * time.Hour).Round(0),
+				IDPost:       2,
+				IDUser:       "1",
+				Title:        "Processing Post",
+				Content:      "Content 2",
+				Status:       "processing",
+				CreatedAt:    time.Now().Round(0),
+				ScheduledFor: time.Now().Add(1 * time.Hour).Round(0),
 			},
 		},
 		Published: []domain.Post{
@@ -344,13 +344,13 @@ func TestGetPost_Success(t *testing.T) {
 	expectedPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				IDPost:      1,
-				IDUser:      "1",
-				Title:       TestPost,
-				Content:     TestContent,
-				Status:      Scheduled,
-				CreatedAt:   time.Now().Round(0),
-				SheduledFor: scheduledTime,
+				IDPost:       1,
+				IDUser:       "1",
+				Title:        TestPost,
+				Content:      TestContent,
+				Status:       Scheduled,
+				CreatedAt:    time.Now().Round(0),
+				ScheduledFor: scheduledTime,
 			},
 		},
 	}
@@ -406,11 +406,11 @@ func TestPutPost_Success(t *testing.T) {
 	existingPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				IDPost:      1,
-				IDUser:      "1",
-				Title:       OriginalTitle,
-				Content:     OriginalContent,
-				SheduledFor: time.Now().Add(24 * time.Hour),
+				IDPost:       1,
+				IDUser:       "1",
+				Title:        OriginalTitle,
+				Content:      OriginalContent,
+				ScheduledFor: time.Now().Add(24 * time.Hour),
 			},
 		},
 	}
@@ -449,11 +449,11 @@ func TestPutPost_WithEmptyFields(t *testing.T) {
 	existingPost := dto.GetPostResponse{
 		Posts: []domain.Post{
 			{
-				IDPost:      1,
-				IDUser:      "1",
-				Title:       OriginalTitle,
-				Content:     OriginalContent,
-				SheduledFor: scheduledTime,
+				IDPost:       1,
+				IDUser:       "1",
+				Title:        OriginalTitle,
+				Content:      OriginalContent,
+				ScheduledFor: scheduledTime,
 			},
 		},
 	}
@@ -469,7 +469,7 @@ func TestPutPost_WithEmptyFields(t *testing.T) {
 		return req.IDUser == "1" &&
 			req.Title == OriginalTitle &&
 			req.Content == OriginalContent &&
-			compareTime(req.SheduledFor, scheduledTime)
+			compareTime(req.ScheduledFor, scheduledTime)
 	})).Return(expectedResponse, nil)
 
 	jsonBody, _ := json.Marshal(reqBody)

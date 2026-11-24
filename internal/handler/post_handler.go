@@ -136,7 +136,7 @@ func (a *App) CreatePost(rw *gin.Context) {
 		rw.JSON(http.StatusBadRequest, gin.H{Error: err.Error()})
 		return
 	}
-	request.SheduledFor = request.SheduledFor.Add(-3 * time.Hour)
+	request.ScheduledFor = request.ScheduledFor.Add(-3 * time.Hour)
 	request.Status = Scheduled
 	var Response dto.CreatePostResponse
 	Response.IDPost, Response.CreatedAt, err = a.Repo.CreatePost(a.Ctx, request)
@@ -271,8 +271,8 @@ func (a *App) PutPost(rw *gin.Context) {
 	if request.Title == "" {
 		request.Title = post.Posts[0].Title
 	}
-	if request.SheduledFor.IsZero() {
-		request.SheduledFor = post.Posts[0].SheduledFor
+	if request.ScheduledFor.IsZero() {
+		request.ScheduledFor = post.Posts[0].ScheduledFor
 	}
 	request.IDPost = id
 	var response dto.PutPostResponse

@@ -11,7 +11,7 @@ type Post struct {
 	Content      string    `json:"content"`
 	Status       string    `json:"status"`
 	CreatedAt    time.Time `json:"created_at"`
-	SheduledFor  time.Time `json:"sheduled_for"`
+	ScheduledFor time.Time `json:"scheduled_for"`
 	PlatformName string    `json:"platform_name"`
 	ErrorMessage *string   `json:"error_message"`
 }

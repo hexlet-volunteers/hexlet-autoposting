@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPlatformResponce"
+                            "$ref": "#/definitions/dto.GetPlatformResponse"
                         }
                     },
                     "400": {
@@ -93,7 +93,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePlatformResponce"
+                            "$ref": "#/definitions/dto.CreatePlatformResponse"
                         }
                     },
                     "400": {
@@ -209,7 +209,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPlatformResponce"
+                            "$ref": "#/definitions/dto.PutPlatformResponse"
                         }
                     },
                     "400": {
@@ -315,7 +315,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostsResponce"
+                            "$ref": "#/definitions/dto.GetPostsResponse"
                         }
                     },
                     "400": {
@@ -365,7 +365,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePostResponce"
+                            "$ref": "#/definitions/dto.CreatePostResponse"
                         }
                     },
                     "400": {
@@ -424,7 +424,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostResponce"
+                            "$ref": "#/definitions/dto.GetPostResponse"
                         }
                     },
                     "400": {
@@ -481,7 +481,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPostResponce"
+                            "$ref": "#/definitions/dto.PutPostResponse"
                         }
                     },
                     "400": {
@@ -606,12 +606,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "status": {
@@ -627,8 +627,7 @@ const docTemplate = `{
             "required": [
                 "bot_name",
                 "config",
-                "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "bot_name": {
@@ -638,14 +637,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
         },
-        "dto.CreatePlatformResponce": {
+        "dto.CreatePlatformResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -655,7 +654,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -663,8 +662,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "id_user",
-                "sheduled_for",
+                "scheduled_for",
                 "title"
             ],
             "properties": {
@@ -672,9 +670,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -684,7 +682,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreatePostResponce": {
+        "dto.CreatePostResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -694,7 +692,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -709,19 +707,16 @@ const docTemplate = `{
         },
         "dto.GetByUserIDRequest": {
             "type": "object",
-            "required": [
-                "id_user"
-            ],
             "properties": {
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
-        "dto.GetPlatformResponce": {
+        "dto.GetPlatformResponse": {
             "type": "object",
             "properties": {
-                "plstforms": {
+                "platforms": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Platform"
@@ -729,7 +724,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GetPostResponce": {
+        "dto.GetPostResponse": {
             "type": "object",
             "properties": {
                 "post": {
@@ -740,7 +735,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GetPostsResponce": {
+        "dto.GetPostsResponse": {
             "type": "object",
             "properties": {
                 "failed": {
@@ -772,38 +767,37 @@ const docTemplate = `{
         "dto.PutPlatformRequest": {
             "type": "object",
             "required": [
+                "bot_name",
                 "config",
-                "content",
                 "id_platform",
-                "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
-                "config": {
+                "bot_name": {
                     "type": "string"
                 },
-                "content": {
+                "config": {
                     "type": "string"
                 },
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
         },
-        "dto.PutPlatformResponce": {
+        "dto.PutPlatformResponse": {
             "type": "object",
             "properties": {
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -817,12 +811,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_post": {
-                    "type": "string"
-                },
-                "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "id_user": {
+                    "type": "string"
+                },
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -830,14 +824,14 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.PutPostResponce": {
+        "dto.PutPostResponse": {
             "type": "object",
             "properties": {
                 "id_post": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -858,7 +852,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Autoposing API",
+	Title:            "Autoposting API",
 	Description:      "This is a project of autoposting in Telegramm and VK.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

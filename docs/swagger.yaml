@@ -30,10 +30,10 @@ definitions:
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
       platform_name:
         type: string
-      sheduled_for:
+      scheduled_for:
         type: string
       status:
         type: string
@@ -47,31 +47,30 @@ definitions:
       config:
         type: string
       id_user:
-        type: integer
-      platfromname:
+        type: string
+      platform_name:
         type: string
     required:
     - bot_name
     - config
-    - id_user
-    - platfromname
+    - platform_name
     type: object
-  dto.CreatePlatformResponce:
+  dto.CreatePlatformResponse:
     properties:
       created_at:
         type: string
       id_platform:
         type: integer
       id_user:
-        type: integer
+        type: string
     type: object
   dto.CreatePostRequest:
     properties:
       content:
         type: string
       id_user:
-        type: integer
-      sheduled_for:
+        type: string
+      scheduled_for:
         type: string
       title:
         maxLength: 255
@@ -79,18 +78,17 @@ definitions:
         type: string
     required:
     - content
-    - id_user
-    - sheduled_for
+    - scheduled_for
     - title
     type: object
-  dto.CreatePostResponce:
+  dto.CreatePostResponse:
     properties:
       created_at:
         type: string
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
     type: object
   dto.ErrorResponse:
     properties:
@@ -101,25 +99,23 @@ definitions:
   dto.GetByUserIDRequest:
     properties:
       id_user:
-        type: integer
-    required:
-    - id_user
+        type: string
     type: object
-  dto.GetPlatformResponce:
+  dto.GetPlatformResponse:
     properties:
-      plstforms:
+      platforms:
         items:
           $ref: '#/definitions/domain.Platform'
         type: array
     type: object
-  dto.GetPostResponce:
+  dto.GetPostResponse:
     properties:
       post:
         items:
           $ref: '#/definitions/domain.Post'
         type: array
     type: object
-  dto.GetPostsResponce:
+  dto.GetPostsResponse:
     properties:
       failed:
         items:
@@ -140,29 +136,28 @@ definitions:
     type: object
   dto.PutPlatformRequest:
     properties:
-      config:
+      bot_name:
         type: string
-      content:
+      config:
         type: string
       id_platform:
         type: integer
       id_user:
-        type: integer
-      platfromname:
+        type: string
+      platform_name:
         type: string
     required:
+    - bot_name
     - config
-    - content
     - id_platform
-    - id_user
-    - platfromname
+    - platform_name
     type: object
-  dto.PutPlatformResponce:
+  dto.PutPlatformResponse:
     properties:
       id_platform:
         type: integer
       id_user:
-        type: integer
+        type: string
       updated_at:
         type: string
     type: object
@@ -171,20 +166,20 @@ definitions:
       content:
         type: string
       id_post:
-        type: string
-      id_user:
         type: integer
-      sheduled_for:
+      id_user:
+        type: string
+      scheduled_for:
         type: string
       title:
         type: string
     type: object
-  dto.PutPostResponce:
+  dto.PutPostResponse:
     properties:
       id_post:
         type: integer
       id_user:
-        type: integer
+        type: string
       updated_at:
         type: string
     type: object
@@ -192,7 +187,7 @@ host: localhost:8080
 info:
   contact: {}
   description: This is a project of autoposting in Telegramm and VK.
-  title: Autoposing API
+  title: Autoposting API
   version: "1.0"
 paths:
   /platforms:
@@ -213,7 +208,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPlatformResponce'
+            $ref: '#/definitions/dto.GetPlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -246,7 +241,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.CreatePlatformResponce'
+            $ref: '#/definitions/dto.CreatePlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -359,7 +354,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.PutPlatformResponce'
+            $ref: '#/definitions/dto.PutPlatformResponse'
         "400":
           description: Bad Request
           schema:
@@ -393,7 +388,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPostsResponce'
+            $ref: '#/definitions/dto.GetPostsResponse'
         "400":
           description: Bad Request
           schema:
@@ -426,7 +421,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.CreatePostResponce'
+            $ref: '#/definitions/dto.CreatePostResponse'
         "400":
           description: Bad Request
           schema:
@@ -501,7 +496,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPostResponce'
+            $ref: '#/definitions/dto.GetPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -539,7 +534,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.PutPostResponce'
+            $ref: '#/definitions/dto.PutPostResponse'
         "400":
           description: Bad Request
           schema:

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is a project of autoposting in Telegramm and VK.",
-        "title": "Autoposing API",
+        "title": "Autoposting API",
         "contact": {},
         "version": "1.0"
     },
@@ -37,7 +37,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPlatformResponce"
+                            "$ref": "#/definitions/dto.GetPlatformResponse"
                         }
                     },
                     "400": {
@@ -87,7 +87,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePlatformResponce"
+                            "$ref": "#/definitions/dto.CreatePlatformResponse"
                         }
                     },
                     "400": {
@@ -203,7 +203,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPlatformResponce"
+                            "$ref": "#/definitions/dto.PutPlatformResponse"
                         }
                     },
                     "400": {
@@ -309,7 +309,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostsResponce"
+                            "$ref": "#/definitions/dto.GetPostsResponse"
                         }
                     },
                     "400": {
@@ -359,7 +359,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePostResponce"
+                            "$ref": "#/definitions/dto.CreatePostResponse"
                         }
                     },
                     "400": {
@@ -418,7 +418,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPostResponce"
+                            "$ref": "#/definitions/dto.GetPostResponse"
                         }
                     },
                     "400": {
@@ -475,7 +475,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.PutPostResponce"
+                            "$ref": "#/definitions/dto.PutPostResponse"
                         }
                     },
                     "400": {
@@ -600,12 +600,12 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "platform_name": {
                     "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "status": {
@@ -621,8 +621,7 @@
             "required": [
                 "bot_name",
                 "config",
-                "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
                 "bot_name": {
@@ -632,14 +631,14 @@
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
         },
-        "dto.CreatePlatformResponce": {
+        "dto.CreatePlatformResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -649,7 +648,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -657,8 +656,7 @@
             "type": "object",
             "required": [
                 "content",
-                "id_user",
-                "sheduled_for",
+                "scheduled_for",
                 "title"
             ],
             "properties": {
@@ -666,9 +664,9 @@
                     "type": "string"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "sheduled_for": {
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -678,7 +676,7 @@
                 }
             }
         },
-        "dto.CreatePostResponce": {
+        "dto.CreatePostResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -688,7 +686,7 @@
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -703,19 +701,16 @@
         },
         "dto.GetByUserIDRequest": {
             "type": "object",
-            "required": [
-                "id_user"
-            ],
             "properties": {
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
-        "dto.GetPlatformResponce": {
+        "dto.GetPlatformResponse": {
             "type": "object",
             "properties": {
-                "plstforms": {
+                "platforms": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Platform"
@@ -723,7 +718,7 @@
                 }
             }
         },
-        "dto.GetPostResponce": {
+        "dto.GetPostResponse": {
             "type": "object",
             "properties": {
                 "post": {
@@ -734,7 +729,7 @@
                 }
             }
         },
-        "dto.GetPostsResponce": {
+        "dto.GetPostsResponse": {
             "type": "object",
             "properties": {
                 "failed": {
@@ -766,38 +761,37 @@
         "dto.PutPlatformRequest": {
             "type": "object",
             "required": [
+                "bot_name",
                 "config",
-                "content",
                 "id_platform",
-                "id_user",
-                "platfromname"
+                "platform_name"
             ],
             "properties": {
-                "config": {
+                "bot_name": {
                     "type": "string"
                 },
-                "content": {
+                "config": {
                     "type": "string"
                 },
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
-                "platfromname": {
+                "platform_name": {
                     "type": "string"
                 }
             }
         },
-        "dto.PutPlatformResponce": {
+        "dto.PutPlatformResponse": {
             "type": "object",
             "properties": {
                 "id_platform": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -811,12 +805,12 @@
                     "type": "string"
                 },
                 "id_post": {
-                    "type": "string"
-                },
-                "id_user": {
                     "type": "integer"
                 },
-                "sheduled_for": {
+                "id_user": {
+                    "type": "string"
+                },
+                "scheduled_for": {
                     "type": "string"
                 },
                 "title": {
@@ -824,14 +818,14 @@
                 }
             }
         },
-        "dto.PutPostResponce": {
+        "dto.PutPostResponse": {
             "type": "object",
             "properties": {
                 "id_post": {
                     "type": "integer"
                 },
                 "id_user": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
